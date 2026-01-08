@@ -1,0 +1,222 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-uppercase letter-spacing-1">
+            <i class="bi bi-ticket-perforated"></i> Ticketing System
+        </h2>
+        <a href="{{ route('tickets.create') }}" class="btn btn-primary border border-2 border-dark fw-bold text-uppercase" style="box-shadow: 4px 4px 0 #000;">
+            <i class="bi bi-plus-circle me-1"></i> New Ticket
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div class="alert alert-success border-2 border-dark rounded-0 shadow-sm" role="alert">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger border-2 border-dark rounded-0 shadow-sm" role="alert">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Filters -->
+    <div class="card card-custom border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('tickets.index') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Ticket number or title..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Open</option>
+                        <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="on_hold" {{ request('status') == 'on_hold' ? 'selected' : '' }}>On Hold</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All Priority</option>
+                        <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>Low</option>
+                        <option value="medium" {{ request('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="high" {{ request('priority') == 'high' ? 'selected' : '' }}>High</option>
+                        <option value="urgent" {{ request('priority') == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="new_feature" {{ request('type') == 'new_feature' ? 'selected' : '' }}>New Feature</option>
+                        <option value="update" {{ request('type') == 'update' ? 'selected' : '' }}>Update</option>
+                        <option value="bug_fix" {{ request('type') == 'bug_fix' ? 'selected' : '' }}>Bug Fix</option>
+                        <option value="enhancement" {{ request('type') == 'enhancement' ? 'selected' : '' }}>Enhancement</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary border border-2 border-dark fw-bold" style="box-shadow: 2px 2px 0 #000;">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a href="{{ route('tickets.index') }}" class="btn btn-white border border-2 border-dark fw-bold" style="box-shadow: 2px 2px 0 #000;">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tickets List -->
+    <div class="card card-custom border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th class="ps-4 py-3">Ticket #</th>
+                            <th class="px-4 py-3">Title</th>
+                            <th class="px-4 py-3">Type</th>
+                            <th class="px-4 py-3">Priority</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3">Stage</th>
+                            <th class="px-4 py-3">Assigned To</th>
+                            <th class="px-4 py-3">Approvers</th>
+                            <th class="px-4 py-3">Created</th>
+                            <th class="text-end pe-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($tickets as $ticket)
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <strong>{{ $ticket->ticket_number }}</strong>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div>
+                                    <h6 class="mb-0">{{ Str::limit($ticket->title, 50) }}</h6>
+                                    @if($ticket->project)
+                                    <small class="text-muted">Project: {{ $ticket->project->title }}</small>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $ticket->type)) }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                @php
+                                    $priorityColors = [
+                                        'low' => 'secondary',
+                                        'medium' => 'info',
+                                        'high' => 'warning',
+                                        'urgent' => 'danger'
+                                    ];
+                                    $color = $priorityColors[$ticket->priority] ?? 'secondary';
+                                @endphp
+                                <span class="badge bg-{{ $color }} border border-1 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                    {{ ucfirst($ticket->priority) }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                @php
+                                    $statusColors = [
+                                        'open' => 'primary',
+                                        'in_progress' => 'info',
+                                        'on_hold' => 'warning',
+                                        'completed' => 'success',
+                                        'cancelled' => 'dark'
+                                    ];
+                                    $color = $statusColors[$ticket->status] ?? 'secondary';
+                                @endphp
+                                <span class="badge bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <small class="text-muted">Stage {{ $ticket->current_stage }}/6</small>
+                                <div class="progress mt-1" style="height: 5px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ ($ticket->current_stage / 6) * 100 }}%"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($ticket->assignees->count() > 0)
+                                    <div class="d-flex align-items-center">
+                                        @foreach($ticket->assignees->take(3) as $index => $assignee)
+                                            <div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center border border-white" 
+                                                 title="{{ $assignee->name }}"
+                                                 style="width: 30px; height: 30px; font-size: 12px; margin-left: {{ $index > 0 ? '-10px' : '0' }}; z-index: {{ 3 - $index }};">
+                                                {{ substr($assignee->name, 0, 1) }}
+                                            </div>
+                                        @endforeach
+                                        @if($ticket->assignees->count() > 3)
+                                            <div class="avatar-initial rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center border border-white" 
+                                                 style="width: 30px; height: 30px; font-size: 10px; margin-left: -10px; z-index: 0;">
+                                                +{{ $ticket->assignees->count() - 3 }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <small class="text-muted">Unassigned</small>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($ticket->approvals->count() > 0)
+                                    <div class="d-flex flex-column gap-1">
+                                        @foreach($ticket->approvals as $approval)
+                                            @php
+                                                $statusIcon = 'bi-clock-fill text-warning';
+                                                if ($approval->status === 'approved') {
+                                                    $statusIcon = 'bi-check-circle-fill text-success';
+                                                } elseif ($approval->status === 'rejected') {
+                                                    $statusIcon = 'bi-x-circle-fill text-danger';
+                                                }
+                                                $statusText = ucfirst($approval->status);
+                                            @endphp
+                                            <div class="mb-2" title="{{ $approval->approver_name }}: {{ $statusText }}">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi {{ $statusIcon }} me-1" style="font-size: 0.8rem;"></i>
+                                                    <small class="fw-bold" style="font-size: 0.75rem;">{{ Str::limit($approval->approver_name, 15) }}</small>
+                                                </div>
+                                                <div class="ms-3 lh-1 mt-1">
+                                                    <small class="text-muted d-block" style="font-size: 0.65rem;">{{ $statusText }}</small>
+                                                    @if($approval->approved_at)
+                                                        <small class="text-muted d-block" style="font-size: 0.65rem;">{{ $approval->approved_at->format('M d, H:i') }}</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <small class="text-muted">-</small>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
+                                <small class="text-muted">{{ $ticket->created_at->format('M d, Y H:i') }}</small>
+                            </td>
+                            <td class="text-end pe-4 py-3">
+                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-white border border-2 border-dark px-2 py-0 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.75rem;">
+                                    VIEW
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">No tickets found.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        {{ $tickets->links() }}
+    </div>
+</div>
+@endsection

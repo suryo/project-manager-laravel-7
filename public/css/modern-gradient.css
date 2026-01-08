@@ -1,0 +1,631 @@
+/* =====================================================
+   MODERN GRADIENT THEME
+   Based on Public Ticket Request Form Design
+   ===================================================== */
+
+/* CSS Variables */
+:root[data-theme="modern-gradient"] {
+    /* Primary Gradient */
+    --mg-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --mg-gradient-success: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --mg-gradient-warning: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+    --mg-gradient-danger: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+
+    /* Solid Colors */
+    --mg-primary: #667eea;
+    --mg-primary-dark: #5568d3;
+    --mg-secondary: #764ba2;
+    --mg-success: #28a745;
+    --mg-warning: #ffc107;
+    --mg-danger: #dc3545;
+    --mg-info: #17a2b8;
+
+    /* Backgrounds */
+    --mg-bg-body: #f0f2f5;
+    --mg-bg-card: #ffffff;
+    --mg-bg-hover: #f8f9fa;
+
+    /* Text Colors */
+    --mg-text-primary: #2c3e50;
+    --mg-text-secondary: #6c757d;
+    --mg-text-light: #95a5a6;
+
+    /* Shadows */
+    --mg-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --mg-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --mg-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --mg-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --mg-shadow-hover: 0 12px 32px rgba(102, 126, 234, 0.3);
+
+    /* Border Radius */
+    --mg-radius-xs: 4px;
+    --mg-radius-sm: 8px;
+    --mg-radius-md: 12px;
+    --mg-radius-lg: 16px;
+    --mg-radius-xl: 20px;
+
+    /* Transitions */
+    --mg-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =====================================================
+   GLOBAL STYLES
+   ===================================================== */
+
+[data-theme="modern-gradient"] body {
+    background: var(--mg-bg-body) !important;
+    color: var(--mg-text-primary) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, sans-serif !important;
+}
+
+/* Override headings for modern gradient */
+[data-theme="modern-gradient"] h1,
+[data-theme="modern-gradient"] h2,
+[data-theme="modern-gradient"] h3,
+[data-theme="modern-gradient"] h4,
+[data-theme="modern-gradient"] h5,
+[data-theme="modern-gradient"] h6 {
+    color: var(--mg-text-primary) !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+/* =====================================================
+   NAVBAR
+   ===================================================== */
+
+[data-theme="modern-gradient"] .navbar {
+    background: var(--mg-gradient-primary) !important;
+    box-shadow: var(--mg-shadow-md);
+    border: none;
+}
+
+[data-theme="modern-gradient"] .navbar-brand {
+    color: white !important;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+}
+
+[data-theme="modern-gradient"] .navbar-brand:hover {
+    color: white !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Override neo-brutalism logo styles for modern gradient */
+[data-theme="modern-gradient"] .neo-logo {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: white !important;
+    font-weight: 700 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    padding: 0.5rem 1rem !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+}
+
+[data-theme="modern-gradient"] .neo-logo:hover {
+    transform: none !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+[data-theme="modern-gradient"] .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: var(--mg-transition);
+    text-shadow: none !important;
+    font-weight: 500 !important;
+    letter-spacing: normal !important;
+}
+
+[data-theme="modern-gradient"] .nav-link:hover {
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+[data-theme="modern-gradient"] .dropdown-menu {
+    border: none;
+    border-radius: var(--mg-radius-md);
+    box-shadow: var(--mg-shadow-md);
+}
+
+/* =====================================================
+   CARDS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .card {
+    background: var(--mg-bg-card);
+    border: none;
+    border-radius: var(--mg-radius-lg);
+    box-shadow: var(--mg-shadow-sm);
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .card:hover {
+    box-shadow: var(--mg-shadow-md);
+    transform: translateY(-4px);
+}
+
+[data-theme="modern-gradient"] .card-header {
+    background: var(--mg-gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--mg-radius-lg) var(--mg-radius-lg) 0 0;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+}
+
+[data-theme="modern-gradient"] .card-body {
+    padding: 1.5rem;
+}
+
+[data-theme="modern-gradient"] .card-footer {
+    background: var(--mg-bg-hover);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 var(--mg-radius-lg) var(--mg-radius-lg);
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .btn {
+    border: none;
+    border-radius: var(--mg-radius-sm);
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    transition: var(--mg-transition);
+    box-shadow: var(--mg-shadow-xs);
+}
+
+[data-theme="modern-gradient"] .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mg-shadow-sm);
+}
+
+[data-theme="modern-gradient"] .btn-primary {
+    background: var(--mg-gradient-primary);
+    color: white;
+}
+
+[data-theme="modern-gradient"] .btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6439a0 100%);
+    box-shadow: var(--mg-shadow-hover);
+}
+
+[data-theme="modern-gradient"] .btn-success {
+    background: var(--mg-gradient-success);
+    color: white;
+}
+
+[data-theme="modern-gradient"] .btn-warning {
+    background: var(--mg-gradient-warning);
+    color: white;
+}
+
+[data-theme="modern-gradient"] .btn-danger {
+    background: var(--mg-gradient-danger);
+    color: white;
+}
+
+[data-theme="modern-gradient"] .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+[data-theme="modern-gradient"] .btn-outline-primary {
+    color: var(--mg-primary);
+    border: 2px solid var(--mg-primary);
+    background: transparent;
+}
+
+[data-theme="modern-gradient"] .btn-outline-primary:hover {
+    background: var(--mg-primary);
+    color: white;
+}
+
+/* =====================================================
+   FORMS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .form-control,
+[data-theme="modern-gradient"] .form-select {
+    border: 1px solid #e0e6ed;
+    border-radius: var(--mg-radius-sm);
+    padding: 0.625rem 1rem;
+    transition: var(--mg-transition);
+    box-shadow: none;
+}
+
+[data-theme="modern-gradient"] .form-control:focus,
+[data-theme="modern-gradient"] .form-select:focus {
+    border-color: var(--mg-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+[data-theme="modern-gradient"] .form-label {
+    font-weight: 600;
+    color: var(--mg-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* =====================================================
+   BADGES
+   ===================================================== */
+
+[data-theme="modern-gradient"] .badge {
+    border-radius: var(--mg-radius-sm);
+    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+}
+
+[data-theme="modern-gradient"] .badge.bg-primary {
+    background: var(--mg-primary) !important;
+}
+
+[data-theme="modern-gradient"] .badge.bg-success {
+    background: var(--mg-success) !important;
+}
+
+[data-theme="modern-gradient"] .badge.bg-warning {
+    background: var(--mg-warning) !important;
+}
+
+[data-theme="modern-gradient"] .badge.bg-danger {
+    background: var(--mg-danger) !important;
+}
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+
+[data-theme="modern-gradient"] .table {
+    color: var(--mg-text-primary);
+}
+
+[data-theme="modern-gradient"] .table thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid var(--mg-primary);
+}
+
+[data-theme="modern-gradient"] .table thead th {
+    font-weight: 600;
+    color: var(--mg-text-primary);
+    border: none;
+    padding: 1rem;
+}
+
+[data-theme="modern-gradient"] .table tbody tr {
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .table tbody tr:hover {
+    background: var(--mg-bg-hover);
+}
+
+[data-theme="modern-gradient"] .table td {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* =====================================================
+   ALERTS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .alert {
+    border: none;
+    border-radius: var(--mg-radius-md);
+    border-left: 4px solid;
+    box-shadow: var(--mg-shadow-xs);
+}
+
+[data-theme="modern-gradient"] .alert-success {
+    background: linear-gradient(
+        135deg,
+        rgba(40, 167, 69, 0.1) 0%,
+        rgba(32, 201, 151, 0.1) 100%
+    );
+    border-left-color: var(--mg-success);
+    color: var(--mg-success);
+}
+
+[data-theme="modern-gradient"] .alert-danger {
+    background: linear-gradient(
+        135deg,
+        rgba(220, 53, 69, 0.1) 0%,
+        rgba(200, 35, 51, 0.1) 100%
+    );
+    border-left-color: var(--mg-danger);
+    color: var(--mg-danger);
+}
+
+[data-theme="modern-gradient"] .alert-warning {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 193, 7, 0.1) 0%,
+        rgba(255, 140, 0, 0.1) 100%
+    );
+    border-left-color: var(--mg-warning);
+    color: #856404;
+}
+
+[data-theme="modern-gradient"] .alert-info {
+    background: linear-gradient(
+        135deg,
+        rgba(23, 162, 184, 0.1) 0%,
+        rgba(13, 202, 240, 0.1) 100%
+    );
+    border-left-color: var(--mg-info);
+    color: var(--mg-info);
+}
+
+/* =====================================================
+   PAGINATION
+   ===================================================== */
+
+[data-theme="modern-gradient"] .pagination .page-link {
+    color: var(--mg-primary);
+    border: 1px solid #e0e6ed;
+    border-radius: var(--mg-radius-sm);
+    margin: 0 2px;
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .pagination .page-link:hover {
+    background: var(--mg-primary);
+    color: white;
+    border-color: var(--mg-primary);
+}
+
+[data-theme="modern-gradient"] .pagination .page-item.active .page-link {
+    background: var(--mg-gradient-primary);
+    border-color: var(--mg-primary);
+    box-shadow: var(--mg-shadow-xs);
+}
+
+/* =====================================================
+   MODALS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .modal-content {
+    border: none;
+    border-radius: var(--mg-radius-lg);
+    box-shadow: var(--mg-shadow-lg);
+}
+
+[data-theme="modern-gradient"] .modal-header {
+    background: var(--mg-gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--mg-radius-lg) var(--mg-radius-lg) 0 0;
+    padding: 1.5rem;
+}
+
+[data-theme="modern-gradient"] .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+[data-theme="modern-gradient"] .modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.25rem 1.5rem;
+}
+
+/* =====================================================
+   BREADCRUMB
+   ===================================================== */
+
+[data-theme="modern-gradient"] .breadcrumb {
+    background: var(--mg-bg-card);
+    border-radius: var(--mg-radius-md);
+    padding: 0.75rem 1.25rem;
+    box-shadow: var(--mg-shadow-xs);
+}
+
+[data-theme="modern-gradient"] .breadcrumb-item a {
+    color: var(--mg-primary);
+    text-decoration: none;
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .breadcrumb-item a:hover {
+    color: var(--mg-primary-dark);
+}
+
+[data-theme="modern-gradient"] .breadcrumb-item.active {
+    color: var(--mg-text-secondary);
+}
+
+/* =====================================================
+   PROGRESS BARS
+   ===================================================== */
+
+[data-theme="modern-gradient"] .progress {
+    background: #e9ecef;
+    border-radius: var(--mg-radius-md);
+    height: 10px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="modern-gradient"] .progress-bar {
+    background: var(--mg-gradient-primary);
+    border-radius: var(--mg-radius-md);
+}
+
+/* =====================================================
+   SIDEBAR/NAVIGATION
+   ===================================================== */
+
+[data-theme="modern-gradient"] .sidebar {
+    background: var(--mg-bg-card);
+    box-shadow: var(--mg-shadow-sm);
+    border-radius: var(--mg-radius-lg);
+}
+
+[data-theme="modern-gradient"] .sidebar .nav-link {
+    color: var(--mg-text-primary) !important;
+    border-radius: var(--mg-radius-sm);
+    margin: 0.25rem 0;
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .sidebar .nav-link:hover {
+    background: var(--mg-bg-hover);
+    transform: translateX(4px);
+}
+
+[data-theme="modern-gradient"] .sidebar .nav-link.active {
+    background: var(--mg-gradient-primary);
+    color: white !important;
+    box-shadow: var(--mg-shadow-xs);
+}
+
+/* =====================================================
+   UTILITIES
+   ===================================================== */
+
+[data-theme="modern-gradient"] .text-primary {
+    color: var(--mg-primary) !important;
+}
+
+[data-theme="modern-gradient"] .bg-primary {
+    background: var(--mg-gradient-primary) !important;
+}
+
+[data-theme="modern-gradient"] .border-primary {
+    border-color: var(--mg-primary) !important;
+}
+
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
+
+@keyframes mg-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+[data-theme="modern-gradient"] .fade-in {
+    animation: mg-fadeIn 0.3s ease-out;
+}
+
+/* =====================================================
+   SCROLLBAR STYLING
+   ===================================================== */
+
+[data-theme="modern-gradient"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+[data-theme="modern-gradient"] ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: var(--mg-radius-sm);
+}
+
+[data-theme="modern-gradient"] ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--mg-radius-sm);
+}
+
+[data-theme="modern-gradient"] ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6439a0 100%);
+}
+
+/* =====================================================
+   TICKET DETAIL SPECIFIC OVERRIDES
+   ===================================================== */
+
+[data-theme="modern-gradient"] .ticket-detail-header {
+    background: transparent;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+[data-theme="modern-gradient"] .btn-action {
+    border: 1px solid #e0e6ed !important;
+    background: white;
+    color: var(--mg-text-primary);
+    box-shadow: var(--mg-shadow-sm) !important;
+    border-radius: 50px !important;
+}
+
+[data-theme="modern-gradient"] .btn-action:hover {
+    background: var(--mg-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--mg-shadow-md) !important;
+}
+
+[data-theme="modern-gradient"] .card-ticket {
+    border: none !important;
+    border-radius: var(--mg-radius-lg) !important;
+    box-shadow: var(--mg-shadow-sm) !important;
+    background: var(--mg-bg-card);
+}
+
+[data-theme="modern-gradient"] .card-ticket:hover {
+    box-shadow: var(--mg-shadow-md) !important;
+}
+
+[data-theme="modern-gradient"] .doc-item {
+    border: 1px solid #e0e6ed !important;
+    box-shadow: none !important;
+    background: #f8f9fa;
+    border-radius: var(--mg-radius-md) !important;
+    transition: var(--mg-transition);
+}
+
+[data-theme="modern-gradient"] .doc-item:hover {
+    background: white;
+    box-shadow: var(--mg-shadow-sm) !important;
+    transform: translateX(4px);
+}
+
+[data-theme="modern-gradient"] .stage-circle {
+    border: none !important;
+    box-shadow: var(--mg-shadow-sm) !important;
+}
+
+[data-theme="modern-gradient"] .badge-priority {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+[data-theme="modern-gradient"] .avatar-initial {
+    box-shadow: var(--mg-shadow-xs);
+}
+
+[data-theme="modern-gradient"] .nav-tabs {
+    border-bottom: 2px solid #e0e6ed;
+}
+
+[data-theme="modern-gradient"] .nav-tabs .nav-link {
+    border: none;
+    color: var(--mg-text-light) !important;
+    margin-bottom: -2px;
+    padding: 1rem 1.5rem;
+}
+
+[data-theme="modern-gradient"] .nav-tabs .nav-link:hover {
+    color: var(--mg-primary) !important;
+    background: transparent;
+}
+
+[data-theme="modern-gradient"] .nav-tabs .nav-link.active {
+    color: var(--mg-primary) !important;
+    border-bottom: 2px solid var(--mg-primary);
+    background: transparent;
+    box-shadow: none;
+}

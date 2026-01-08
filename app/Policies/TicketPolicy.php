@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Ticket;
+use App\Models\User;
+
+class TicketPolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return true; // All authenticated users can view tickets list
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user, Ticket $ticket): bool
+    {
+        // Admin can view all tickets
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Requester can view their own tickets
+        if ($user->id === $ticket->requester_id) {
+            return true;
+        }
+
+        // Assigned user can view assigned tickets
+        if ($user->id === $ticket->assigned_to) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        // All authenticated users can create tickets
+        return true;
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Ticket $ticket): bool
+    {
+        // Admin can update all tickets
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Assigned user can update
+        if ($user->id === $ticket->assigned_to) {
+            return true;
+        }
+
+        // Requester can update only if ticket is still open
+        if ($user->id === $ticket->requester_id && $ticket->status === 'open') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Ticket $ticket): bool
+    {
+        // Only admin can delete tickets
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Ticket $ticket): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Ticket $ticket): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    /**
+     * Determine whether the user can approve documents.
+     */
+    public function approveDocuments(User $user, Ticket $ticket): bool
+    {
+        // Admin can approve
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Assigned user can approve
+        if ($user->id === $ticket->assigned_to) {
+            return true;
+        }
+
+        return false;
+    }
+}
