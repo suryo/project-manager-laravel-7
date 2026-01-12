@@ -26,7 +26,9 @@ class Ticket extends Model
         'guest_department',
         'guest_phone',
         'tracking_token',
-        'is_public_request'
+        'is_public_request',
+        'estimation_in_days',
+        'asset_url'
     ];
 
     protected $casts = [
@@ -47,6 +49,14 @@ class Ticket extends Model
     public function assignees()
     {
         return $this->belongsToMany(User::class, 'ticket_user')
+                    ->withPivot(['assigned_at', 'removed_at'])
+                    ->withTimestamps();
+    }
+
+    public function activeAssignees()
+    {
+        return $this->belongsToMany(User::class, 'ticket_user')
+                    ->wherePivot('removed_at', null)
                     ->withPivot(['assigned_at', 'removed_at'])
                     ->withTimestamps();
     }

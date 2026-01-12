@@ -23,6 +23,10 @@
         </div>
     @endif
 
+    <div class="row">
+        <!-- Main Content (Filters & List) -->
+        <div class="col-lg-9">
+
     <!-- Filters -->
     <div class="card card-custom border-0 shadow-sm mb-4">
         <div class="card-body">
@@ -84,8 +88,8 @@
                             <th class="ps-4 py-3">Ticket #</th>
                             <th class="px-4 py-3">Title</th>
                             <th class="px-4 py-3">Type</th>
-                            <th class="px-4 py-3">Priority</th>
-                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3">Estimation</th>
+                            <th class="px-4 py-3">Status & Priority</th>
                             <th class="px-4 py-3">Stage</th>
                             <th class="px-4 py-3">Assigned To</th>
                             <th class="px-4 py-3">Approvers</th>
@@ -111,31 +115,39 @@
                                 <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $ticket->type)) }}</span>
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                    $priorityColors = [
-                                        'low' => 'secondary',
-                                        'medium' => 'info',
-                                        'high' => 'warning',
-                                        'urgent' => 'danger'
-                                    ];
-                                    $color = $priorityColors[$ticket->priority] ?? 'secondary';
-                                @endphp
-                                <span class="badge bg-{{ $color }} border border-1 border-dark" style="box-shadow: 2px 2px 0 #000;">
-                                    {{ ucfirst($ticket->priority) }}
-                                </span>
+                                @if($ticket->estimation_in_days)
+                                    <span class="fw-bold">{{ $ticket->estimation_in_days }} Days</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                    $statusColors = [
-                                        'open' => 'primary',
-                                        'in_progress' => 'info',
-                                        'on_hold' => 'warning',
-                                        'completed' => 'success',
-                                        'cancelled' => 'dark'
-                                    ];
-                                    $color = $statusColors[$ticket->status] ?? 'secondary';
-                                @endphp
-                                <span class="badge bg-{{ $color }}">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
+                                <div class="d-flex flex-column gap-2">
+                                    @php
+                                        $statusColors = [
+                                            'open' => 'primary',
+                                            'in_progress' => 'info',
+                                            'on_hold' => 'warning',
+                                            'completed' => 'success',
+                                            'cancelled' => 'dark'
+                                        ];
+                                        $statusColor = $statusColors[$ticket->status] ?? 'secondary';
+
+                                        $priorityColors = [
+                                            'low' => 'secondary',
+                                            'medium' => 'info',
+                                            'high' => 'warning',
+                                            'urgent' => 'danger'
+                                        ];
+                                        $priorityColor = $priorityColors[$ticket->priority] ?? 'secondary';
+                                    @endphp
+                                    
+                                    <span class="badge bg-{{ $statusColor }}">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
+                                    
+                                    <span class="badge bg-{{ $priorityColor }} border border-1 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                        {{ ucfirst($ticket->priority) }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-4 py-3">
                                 <small class="text-muted">Stage {{ $ticket->current_stage }}/6</small>
@@ -144,19 +156,19 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                @if($ticket->assignees->count() > 0)
+                                @if($ticket->activeAssignees->count() > 0)
                                     <div class="d-flex align-items-center">
-                                        @foreach($ticket->assignees->take(3) as $index => $assignee)
+                                        @foreach($ticket->activeAssignees->take(3) as $index => $assignee)
                                             <div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center border border-white" 
                                                  title="{{ $assignee->name }}"
                                                  style="width: 30px; height: 30px; font-size: 12px; margin-left: {{ $index > 0 ? '-10px' : '0' }}; z-index: {{ 3 - $index }};">
                                                 {{ substr($assignee->name, 0, 1) }}
                                             </div>
                                         @endforeach
-                                        @if($ticket->assignees->count() > 3)
+                                        @if($ticket->activeAssignees->count() > 3)
                                             <div class="avatar-initial rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center border border-white" 
                                                  style="width: 30px; height: 30px; font-size: 10px; margin-left: -10px; z-index: 0;">
-                                                +{{ $ticket->assignees->count() - 3 }}
+                                                +{{ $ticket->activeAssignees->count() - 3 }}
                                             </div>
                                         @endif
                                     </div>
@@ -214,9 +226,48 @@
             </div>
         </div>
     </div>
-
+    
     <div class="mt-4">
         {{ $tickets->links() }}
     </div>
+    
+    </div> <!-- End Main Content Col -->
+
+    <!-- Right Sidebar (Energy Monitor) -->
+    <div class="col-lg-3">
+        <!-- Energy Monitor -->
+        <div class="card bg-white shadow-sm border-0 sticky-top" style="top: 20px;">
+            <div class="card-header pt-4 px-4 bg-white border-0">
+                <h5 class="fw-bold mb-0 text-primary">⚡ Energy Monitor</h5>
+            </div>
+            <div class="card-body px-4">
+                <h6 class="fw-bold small text-muted text-uppercase mb-3">Monthly Capacity (176 Units)</h6>
+                
+                @foreach($staffMembers as $staff)
+                    @php
+                        $used = $staff->used_energy;
+                        $limit = $staff->monthly_energy_limit;
+                        $percentage = ($limit > 0) ? ($used / $limit) * 100 : 0;
+                        $color = $percentage > 100 ? 'danger' : ($percentage > 80 ? 'warning' : 'success');
+                    @endphp
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold small">{{ $staff->name }}</span>
+                            <span class="small fw-bold text-{{ $color }}">{{ $used }} / {{ $limit }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ min(100, $percentage) }}%" aria-valuenow="{{ $used }}" aria-valuemin="0" aria-valuemax="{{ $limit }}"></div>
+                        </div>
+                        @if($percentage > 100)
+                            <small class="text-danger extra-small fw-bold">Over Capacity!</small>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div> <!-- End Sidebar Col -->
+    </div> <!-- End Row -->
+
+
 </div>
 @endsection

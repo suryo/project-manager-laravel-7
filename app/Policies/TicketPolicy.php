@@ -17,11 +17,15 @@ class TicketPolicy
 
     /**
      * Determine whether the user can view the model.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Ticket  $ticket
+     * @return mixed
      */
-    public function view(User $user, Ticket $ticket): bool
+    public function view(User $user, Ticket $ticket)
     {
-        // Admin can view all tickets
-        if ($user->role === 'admin') {
+        // Admin can view all tickets (case-insensitive)
+        if (strtolower($user->role) === 'admin') {
             return true;
         }
 
@@ -30,8 +34,8 @@ class TicketPolicy
             return true;
         }
 
-        // Assigned user can view assigned tickets
-        if ($user->id === $ticket->assigned_to) {
+        // Assigned user can view assigned tickets (check pivot)
+        if ($ticket->assignees->contains($user->id)) {
             return true;
         }
 

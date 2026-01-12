@@ -41,6 +41,9 @@ class HomeController extends Controller
             $overloadedStaff = \App\Models\User::withCount(['assignedTasks' => function($q) {
                 $q->where('status', '!=', 'done');
             }])->having('assigned_tasks_count', '>', 3)->get();
+            
+            // Fetch all staff for Energy Monitor
+            $staffMembers = \App\Models\User::where('role', '!=', 'client')->get();
         } else {
             $projectsCount = $user->projects()->count();
             $tasksCount = $user->assignedTasks()->where('status', '!=', 'done')->count();
@@ -64,7 +67,8 @@ class HomeController extends Controller
             'overloadedStaff',
             'isAdmin',
             'totalBudget',
-            'totalActualCost'
+            'totalActualCost',
+            'staffMembers'
         ));
     }
 }

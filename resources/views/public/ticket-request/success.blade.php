@@ -318,8 +318,55 @@
     </div>
 
     <script>
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Ensure it's not visible but part of the DOM
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                // console.log('Fallback: Copying text command was ' + msg);
+                return true;
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                return false;
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function copyText(text, onSuccess, onError) {
+            if (!navigator.clipboard) {
+                if (fallbackCopyTextToClipboard(text)) {
+                    if (onSuccess) onSuccess();
+                } else {
+                    if (onError) onError();
+                }
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(function() {
+                if (onSuccess) onSuccess();
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+                // Try fallback if async fails
+                if (fallbackCopyTextToClipboard(text)) {
+                     if (onSuccess) onSuccess();
+                }
+            });
+        }
+
         function copyToClipboard(text, btnElement) {
-            navigator.clipboard.writeText(text).then(() => {
+            copyText(text, function() {
                 const originalHtml = btnElement.innerHTML;
                 btnElement.innerHTML = '<i class="bi bi-check2"></i> Copied!';
                 btnElement.classList.replace('btn-outline-secondary', 'btn-success');
@@ -333,7 +380,7 @@
 
         function copyToken() {
             const token = document.getElementById('trackingToken').innerText;
-            navigator.clipboard.writeText(token).then(() => {
+            copyText(token, function() {
                 const btn = document.querySelector('.copy-btn');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';

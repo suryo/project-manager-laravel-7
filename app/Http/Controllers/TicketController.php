@@ -20,10 +20,10 @@ class TicketController extends Controller
         
         // Build query based on user role
         if ($user->role === 'admin') {
-            $query = Ticket::with(['requester', 'assignees', 'project', 'approvals']);
+            $query = Ticket::with(['requester', 'assignees', 'activeAssignees', 'project', 'approvals']);
         } else {
             // Users see tickets they requested or assigned to
-            $query = Ticket::with(['requester', 'assignees', 'project', 'approvals'])
+            $query = Ticket::with(['requester', 'assignees', 'activeAssignees', 'project', 'approvals'])
                 ->where(function($q) use ($user) {
                     $q->where('requester_id', $user->id)
                       ->orWhereHas('assignees', function($q) use ($user) {
@@ -66,8 +66,10 @@ class TicketController extends Controller
 
         // Get filter options
         $users = User::orderBy('name')->get();
+        // Fetch staff for Energy Monitor
+        $staffMembers = User::where('role', '!=', 'client')->get();
 
-        return view('tickets.index', compact('tickets', 'users'));
+        return view('tickets.index', compact('tickets', 'users', 'staffMembers'));
     }
 
     /**
@@ -90,10 +92,17 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:new_feature,update,bug_fix,enhancement',
-            'priority' => 'required|in:low,medium,high,urgent',
+            'type' => 'required|in:new_feature,update,bug_fix,enhancement,DM,Design,Web',
+            'priority' => 'required|in:low,medium,high,urgent,very_low,very_high,super_urgent',
             'project_id' => 'nullable|exists:projects,id',
+            'estimation_in_days' => 'nullable|integer|min:1',
+            'asset_url' => 'nullable|url',
         ]);
+
+        // Default estimation to 1 day if not provided (for energy calculation)
+        if (!isset($validated['estimation_in_days'])) {
+            $validated['estimation_in_days'] = 1;
+        }
 
         // Generate ticket number
         $validated['ticket_number'] = Ticket::generateTicketNumber();
@@ -161,9 +170,11 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:new_feature,update,bug_fix,enhancement',
-            'priority' => 'required|in:low,medium,high,urgent',
+            'type' => 'required|in:new_feature,update,bug_fix,enhancement,DM,Design,Web',
+            'priority' => 'required|in:low,medium,high,urgent,very_low,very_high,super_urgent',
             'project_id' => 'nullable|exists:projects,id',
+            'estimation_in_days' => 'nullable|integer|min:1',
+            'asset_url' => 'nullable|url',
         ]);
 
         if (isset($validated['status']) && $validated['status'] !== $ticket->status) {
@@ -376,6 +387,9 @@ class TicketController extends Controller
 
         $request->validate([
             'status' => 'required|in:open,in_progress,on_hold,completed,cancelled',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_email' => 'nullable|email|max:255',
+            'guest_phone' => 'nullable|string|max:20',
         ]);
 
         // If status is completed, use the complete method logic validation (optional, but good for consistency)
@@ -384,9 +398,12 @@ class TicketController extends Controller
         
         if ($ticket->status !== $request->status) {
             $ticket->statusHistory()->create([
-                'user_id' => auth()->id(),
+                'user_id' => auth()->id(), // Admin is still the one making the change in the system
                 'old_status' => $ticket->status,
-                'new_status' => $request->status
+                'new_status' => $request->status,
+                'guest_name' => $request->guest_name,
+                'guest_email' => $request->guest_email,
+                'guest_phone' => $request->guest_phone,
             ]);
         }
 

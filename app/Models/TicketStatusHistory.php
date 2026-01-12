@@ -14,6 +14,9 @@ class TicketStatusHistory extends Model
         'user_id',
         'old_status',
         'new_status',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
     ];
 
     public function ticket()

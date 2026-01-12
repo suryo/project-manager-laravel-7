@@ -43,6 +43,9 @@
                                     <option value="update" {{ old('type') == 'update' ? 'selected' : '' }}>Update/Modification</option>
                                     <option value="bug_fix" {{ old('type') == 'bug_fix' ? 'selected' : '' }}>Bug Fix</option>
                                     <option value="enhancement" {{ old('type') == 'enhancement' ? 'selected' : '' }}>Enhancement</option>
+                                    <option value="DM" {{ old('type') == 'DM' ? 'selected' : '' }}>DM</option>
+                                    <option value="Design" {{ old('type') == 'Design' ? 'selected' : '' }}>Design</option>
+                                    <option value="Web" {{ old('type') == 'Web' ? 'selected' : '' }}>Web</option>
                                 </select>
                                 @error('type')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -62,6 +65,29 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- Asset URL & Estimation (Admin) -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="asset_url" class="form-label fw-bold">Asset URL (Optional)</label>
+                                <input type="url" class="form-control @error('asset_url') is-invalid @enderror" id="asset_url" name="asset_url" value="{{ old('asset_url') }}" placeholder="https://drive.google.com/...">
+                                @error('asset_url')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Link to design assets, specs, or references.</small>
+                            </div>
+                            
+                            @if(auth()->user()->role === 'admin')
+                            <div class="col-md-6 mb-3">
+                                <label for="estimation_in_days" class="form-label fw-bold text-primary">Estimation (Days)</label>
+                                <input type="number" min="1" class="form-control border-primary @error('estimation_in_days') is-invalid @enderror" id="estimation_in_days" name="estimation_in_days" value="{{ old('estimation_in_days') }}">
+                                @error('estimation_in_days')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-primary">Used for worker energy calculation (8 energy/day).</small>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="mb-4">

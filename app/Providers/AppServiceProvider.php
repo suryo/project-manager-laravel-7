@@ -20,6 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Paginator::useBootstrap(); // Not needed in L7 or not available
+        // Paginator::useBootstrapFive();
     }
 }

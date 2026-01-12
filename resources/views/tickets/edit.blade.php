@@ -41,6 +41,9 @@
                                     <option value="update" {{ old('type', $ticket->type) == 'update' ? 'selected' : '' }}>Update/Modification</option>
                                     <option value="bug_fix" {{ old('type', $ticket->type) == 'bug_fix' ? 'selected' : '' }}>Bug Fix</option>
                                     <option value="enhancement" {{ old('type', $ticket->type) == 'enhancement' ? 'selected' : '' }}>Enhancement</option>
+                                    <option value="DM" {{ old('type', $ticket->type) == 'DM' ? 'selected' : '' }}>DM</option>
+                                    <option value="Design" {{ old('type', $ticket->type) == 'Design' ? 'selected' : '' }}>Design</option>
+                                    <option value="Web" {{ old('type', $ticket->type) == 'Web' ? 'selected' : '' }}>Web</option>
                                 </select>
                                 @error('type')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -54,11 +57,37 @@
                                     <option value="medium" {{ old('priority', $ticket->priority) == 'medium' ? 'selected' : '' }}>Medium</option>
                                     <option value="high" {{ old('priority', $ticket->priority) == 'high' ? 'selected' : '' }}>High</option>
                                     <option value="urgent" {{ old('priority', $ticket->priority) == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                                    <option value="very_low" {{ old('priority', $ticket->priority) == 'very_low' ? 'selected' : '' }}>Very Low</option>
+                                    <option value="very_high" {{ old('priority', $ticket->priority) == 'very_high' ? 'selected' : '' }}>Very High</option>
+                                    <option value="super_urgent" {{ old('priority', $ticket->priority) == 'super_urgent' ? 'selected' : '' }}>Super Urgent</option>
                                 </select>
                                 @error('priority')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- Asset URL & Estimation (Admin) -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="asset_url" class="form-label fw-bold">Asset URL (Optional)</label>
+                                <input type="url" class="form-control @error('asset_url') is-invalid @enderror" id="asset_url" name="asset_url" value="{{ old('asset_url', $ticket->asset_url) }}" placeholder="https://drive.google.com/...">
+                                @error('asset_url')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Link to design assets, specs, or references.</small>
+                            </div>
+                            
+                            @if(auth()->user()->role === 'admin')
+                            <div class="col-md-6 mb-3">
+                                <label for="estimation_in_days" class="form-label fw-bold text-primary">Estimation (Days)</label>
+                                <input type="number" min="1" class="form-control border-primary @error('estimation_in_days') is-invalid @enderror" id="estimation_in_days" name="estimation_in_days" value="{{ old('estimation_in_days', $ticket->estimation_in_days) }}">
+                                @error('estimation_in_days')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-primary">Used for worker energy calculation (8 energy/day).</small>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="mb-4">

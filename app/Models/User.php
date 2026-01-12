@@ -14,19 +14,20 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'role',
         'password',
+        'monthly_energy_limit',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -36,10 +37,11 @@ class User extends Authenticatable
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function projects()
@@ -55,5 +57,51 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get tickets assigned to user
+     */
+    public function assignedTickets()
+    {
+        return $this->belongsToMany(Ticket::class, 'ticket_user')
+                    ->withPivot(['assigned_at', 'removed_at'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Calculate used energy based on active tickets
+     * Formula: Sum of (Ticket Estimation * 8 / Assignee Count)
+     */
+    public function getUsedEnergyAttribute()
+    {
+        // Get active tickets (open, in_progress)
+        $activeTickets = $this->assignedTickets()
+            ->whereNull('ticket_user.removed_at') // Only currently assigned
+            ->whereIn('status', ['open', 'in_progress', 'on_hold']) // Active statuses
+            ->withCount('activeAssignees') // Load active assignee count
+            ->get();
+            
+        $energyUsed = 0;
+        
+        foreach ($activeTickets as $ticket) {
+            // Default estimation to 0 if not set
+            $estimation = $ticket->estimation_in_days ?? 0;
+            $assigneeCount = $ticket->active_assignees_count > 0 ? $ticket->active_assignees_count : 1;
+            
+            // Energy = (Days * 8) / Assignees
+            $ticketEnergy = ($estimation * 8) / $assigneeCount;
+            $energyUsed += $ticketEnergy;
+        }
+        
+        return round($energyUsed, 1);
+    }
+
+    /**
+     * Get remaining energy
+     */
+    public function getRemainingEnergyAttribute()
+    {
+        return max(0, $this->monthly_energy_limit - $this->used_energy);
     }
 }

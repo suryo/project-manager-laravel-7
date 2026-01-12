@@ -50,8 +50,9 @@ class PublicTicketRequestController extends Controller
                 // Ticket Details
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'type' => 'required|in:feature,bug,support,data_fix,optimation',
-                'priority' => 'required|in:very_low,low,medium,high,very_high,urgent,super_urgent',
+                'type' => 'required|in:DM,Design,Web',
+                'priority' => 'nullable|string', // Hidden from user, defaults to medium
+                'asset_url' => 'nullable|url',
                 
                 // Request Form Data
                 
@@ -108,7 +109,9 @@ class PublicTicketRequestController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'type' => $validated['type'],
-                'priority' => $validated['priority'],
+                'priority' => 'medium', // Default for public requests
+                'estimation_in_days' => null, // Admin only
+                'asset_url' => $validated['asset_url'] ?? null,
                 'status' => 'open',
                 'current_stage' => 1,
                 'project_id' => ($validated['project_id'] !== 'other') ? $validated['project_id'] : null,
@@ -400,8 +403,41 @@ class PublicTicketRequestController extends Controller
     }
 
     /**
-     * Generate unique tracking token
+     * Update ticket status from public page
      */
+    public function updateStatus(Request $request, $token)
+    {
+        $ticket = Ticket::where('tracking_token', $token)->firstOrFail();
+        
+        $request->validate([
+            'status' => 'required|in:open,in_progress,cancelled,completed',
+            'guest_name' => 'required|string|max:255',
+            'guest_email' => 'required|email|max:255',
+            'guest_phone' => 'required|string|max:20',
+        ]);
+
+        $newStatus = $request->status;
+        $oldStatus = $ticket->status;
+
+        if ($newStatus !== $oldStatus) {
+            $ticket->update(['status' => $newStatus]);
+
+            // Record history
+            \App\Models\TicketStatusHistory::create([
+                'ticket_id' => $ticket->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'changed_by' => $request->guest_name, // Store name in changed_by or use guest columns
+                'guest_name' => $request->guest_name,
+                'guest_email' => $request->guest_email,
+                'guest_phone' => $request->guest_phone,
+                'user_id' => null // Null for guest changes
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Status updated successfully.');
+    }
+
     protected function generateTrackingToken()
     {
         do {

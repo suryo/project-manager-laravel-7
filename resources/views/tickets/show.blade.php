@@ -199,6 +199,21 @@
                         </div>
                     </div>
 
+                    <!-- Estimation -->
+                    <div class="col-md-6">
+                        <div class="card-item">
+                            <div class="label">Estimation</div>
+                            <div class="value">
+                                @if($ticket->estimation_in_days)
+                                    {{ $ticket->estimation_in_days }} Days 
+                                    <small class="text-muted fw-normal">({{ $ticket->estimation_in_days * 8 }} Energy)</small>
+                                @else
+                                    <span class="text-muted italic">Not set</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Status -->
                     <div class="col-md-6">
                         <div class="card-item">
@@ -678,34 +693,54 @@
                 <div class="card-header">
                     <h6 class="mb-0">Status History</h6>
                 </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
+                <div class="card-body">
+                    <div class="timeline-simple">
                         @forelse($ticket->statusHistory as $history)
-                        <li class="list-group-item border-bottom-0 py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <small class="text-muted d-block mb-1" style="font-size: 0.75rem;">{{ $history->created_at->format('M d, Y H:i') }}</small>
-                                    <span class="fw-bold text-dark small">
-                                        {{ ucfirst(str_replace('_', ' ', $history->old_status ?? 'New')) }}
-                                        <span class="mx-2 text-muted">
-                                            <!-- Space or dot -->
-                                        </span>
-                                        {{ ucfirst(str_replace('_', ' ', $history->new_status)) }}
-                                    </span>
-                                </div>
-                                <div class="text-end">
-                                    <div class="avatar-initial rounded-circle bg-white text-dark border d-flex align-items-center justify-content-center shadow-sm" style="width: 28px; height: 28px; font-size: 11px;" title="{{ $history->user->name ?? 'System' }}">
-                                        {{ substr($history->user->name ?? 'S', 0, 1) }}
-                                    </div>
-                                </div>
+                        <div class="d-flex mb-3 position-relative">
+                            <!-- Line -->
+                            @if(!$loop->last)
+                            <div style="position: absolute; left: 11px; top: 24px; bottom: -16px; width: 2px; background: #e9ecef;"></div>
+                            @endif
+                            
+                            <!-- Icon -->
+                            <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center me-3" style="width: 24px; height: 24px; z-index: 1;">
+                                <div class="bg-secondary rounded-circle" style="width: 8px; height: 8px;"></div>
                             </div>
-                        </li>
+                            
+                            <!-- Content -->
+                            <div>
+                                <div class="small fw-bold">{{ ucfirst(str_replace('_', ' ', $history->new_status)) }}</div>
+                                <div style="font-size: 11px;" class="text-muted">
+                                    {{ $history->created_at->format('M d, Y H:i') }}
+                                    @if($history->guest_name)
+                                        by {{ $history->guest_name }}
+                                        <div class="mt-1 border-start border-2 ps-2">
+                                            <div style="font-size: 10px;">
+                                                <i class="bi bi-envelope"></i> {{ $history->guest_email }}
+                                            </div>
+                                            <div style="font-size: 10px;">
+                                                <i class="bi bi-telephone"></i> {{ $history->guest_phone }}
+                                            </div>
+                                        </div>
+                                    @elseif($history->user)
+                                        by {{ $history->user->name }}
+                                    @else
+                                        (System)
+                                    @endif
+                                </div>
+                                @if($history->old_status)
+                                <div style="font-size: 11px;" class="text-muted mt-1">
+                                    From: {{ ucfirst(str_replace('_', ' ', $history->old_status)) }}
+                                </div>
+                                @endif
+                            </div>
+                        </div>
                         @empty
-                        <li class="list-group-item text-center text-muted small py-3">
+                        <div class="text-center text-muted small py-3">
                             No history recorded yet.
-                        </li>
+                        </div>
                         @endforelse
-                    </ul>
+                    </div>
                 </div>
             </div>
 
@@ -767,6 +802,61 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Update Ticket Status</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('tickets.update-status', $ticket) }}" method="POST">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <label class="form-label">New Status <span class="text-danger">*</span></label>
+                        <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                            <option value="" disabled selected>Select Status...</option>
+                            <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>Open</option>
+                            <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="on_hold" {{ $ticket->status == 'on_hold' ? 'selected' : '' }}>On Hold</option>
+                            <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                        </select>
+                        @error('status')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3 border-top pt-3">
+                        <small class="text-muted d-block mb-2">Optional: Update on behalf of guest</small>
+                        <label class="form-label">Guest Name</label>
+                        <input type="text" name="guest_name" class="form-control" placeholder="Enter guest name">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Guest Email</label>
+                            <input type="email" name="guest_email" class="form-control" placeholder="Enter guest email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Guest Contact</label>
+                            <input type="text" name="guest_phone" class="form-control" placeholder="Enter phone number">
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            Update Status
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

@@ -317,6 +317,10 @@
                         <span class="status-badge bg-{{ $colors['bg'] }} text-{{ $colors['text'] }}">
                             {{ ucfirst($ticket->status) }}
                         </span>
+                        <!-- Status Edit Trigger -->
+                        <button type="button" class="btn btn-sm btn-light ms-2 rounded-circle" data-bs-toggle="modal" data-bs-target="#updateStatusModal" style="width: 32px; height: 32px; padding: 0;" title="Update Status">
+                            <i class="bi bi-pencil-fill text-primary" style="font-size: 14px;"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -348,6 +352,20 @@
                                     <div class="detail-label">Priority</div>
                                     <div class="detail-value" style="color: {{ ['very_low' => '#28a745', 'low' => '#28a745', 'medium' => '#ffc107', 'high' => '#fd7e14', 'very_high' => '#dc3545', 'urgent' => '#dc3545', 'super_urgent' => '#b02a37'][$ticket->priority] ?? '#6c757d' }}">
                                         {{ ucfirst($ticket->priority) }}
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Estimation</div>
+                                    <div class="detail-value">
+                                        @if($ticket->estimation_in_days)
+                                            {{ $ticket->estimation_in_days }} {{ Str::plural('Day', $ticket->estimation_in_days) }}
+                                            <div class="small text-muted fw-normal mt-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-calendar-check me-1"></i>
+                                                Est. Finish: {{ $ticket->created_at->addWeekdays($ticket->estimation_in_days)->format('M d, Y') }}
+                                            </div>
+                                        @else
+                                            <span class="text-muted fw-normal">Not set</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="detail-item">
@@ -405,6 +423,16 @@
                                             {{ $history->created_at->format('M d, Y H:i') }}
                                             @if($history->user)
                                             by {{ $history->user->name }}
+                                            @elseif($history->guest_name)
+                                            by {{ $history->guest_name }}
+                                            <div class="mt-1 border-start border-2 ps-2">
+                                                <div style="font-size: 10px;">
+                                                    <i class="bi bi-envelope"></i> {{ $history->guest_email }}
+                                                </div>
+                                                <div style="font-size: 10px;">
+                                                    <i class="bi bi-telephone"></i> {{ $history->guest_phone }}
+                                                </div>
+                                            </div>
                                             @else
                                             (System)
                                             @endif
@@ -584,6 +612,8 @@
                     </div>
                 </div>
 
+
+
                 <!-- Action Buttons -->
                 <div class="text-center mt-4">
                     <a href="{{ route('public.ticket-request') }}" class="btn btn-outline-primary">
@@ -599,11 +629,63 @@
         <i class="bi bi-arrow-clockwise"></i>
     </button>
 
+    <!-- Status Update Modal -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Update Ticket Status</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('public.ticket-request.update-status', $ticket->tracking_token) }}" method="POST">
+                        @csrf
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Your Name <span class="text-danger">*</span></label>
+                            <input type="text" name="guest_name" class="form-control" required placeholder="Enter your name">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" name="guest_email" class="form-control" required placeholder="Enter your email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                <input type="text" name="guest_phone" class="form-control" required placeholder="Enter phone number">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">New Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="" disabled selected>Select Status...</option>
+                                <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>Open</option>
+                                <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to update the status?')">
+                                Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Auto-refresh every 30 seconds
         setTimeout(function() {
             window.location.reload();
         }, 30000);
     </script>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -435,18 +435,15 @@
                             <label class="form-label">Request Type <span class="required-mark">*</span></label>
                             <select class="form-select" name="type" required>
                                 <option value="">Select type...</option>
-                                <option value="bug" {{ old('type') == 'bug' ? 'selected' : '' }}>Bug Fix</option>
-                                <option value="feature" {{ old('type') == 'feature' ? 'selected' : '' }}>New Feature</option>
-                                <option value="support" {{ old('type') == 'support' ? 'selected' : '' }}>Support</option>
-                                <option value="data_fix" {{ old('type') == 'data_fix' ? 'selected' : '' }}>Data Fix</option>
-                                <option value="optimation" {{ old('type') == 'optimation' ? 'selected' : '' }}>Optimation</option>
+                                <option value="DM" {{ old('type') == 'DM' ? 'selected' : '' }}>DM</option>
+                                <option value="Design" {{ old('type') == 'Design' ? 'selected' : '' }}>Design</option>
+                                <option value="Web" {{ old('type') == 'Web' ? 'selected' : '' }}>Web</option>
                             </select>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3 d-none">
                             <label class="form-label">Priority <span class="required-mark">*</span></label>
-                            <select class="form-select" name="priority" required>
-                                <option value="">Select Priority (Choose Type first)...</option>
-                                <!-- Populated dynamically by JS -->
+                            <select class="form-select" name="priority">
+                                <option value="medium" selected>Medium</option>
                             </select>
                         </div>
                     </div>
@@ -485,6 +482,12 @@
                         <h5 class="mt-3">Click to upload files</h5>
                         <p class="text-muted">PDF, Images, or Documents (Max 10 files, 10MB each)</p>
                         <input type="file" id="functional_spec_files" name="functional_spec_files[]" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" style="display: none;" onchange="displayFiles(this)">
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="form-label">Asset URL (Optional)</label>
+                        <input type="url" class="form-control" name="asset_url" value="{{ old('asset_url') }}" placeholder="https://example.com/assets">
+                        <small class="text-muted">Link to Google Drive, Figma, or other external resources.</small>
                     </div>
 
                     <div id="file-list-container" class="file-list"></div>
@@ -622,39 +625,18 @@
 
             // Load saved data logic ...
             
-            // Priority Logic
-            const typeSelect = document.querySelector('select[name="type"]');
-            const prioritySelect = document.querySelector('select[name="priority"]');
+            // Priority Logic Removed (Field is hidden and fixed to Medium)
+            // const typeSelect = document.querySelector('select[name="type"]');
+            // const prioritySelect = document.querySelector('select[name="priority"]');
             
-            if (typeSelect) {
-                typeSelect.addEventListener('change', function() {
-                    updatePriorityOptions(this.value);
-                });
-                
-                // Trigger on load if value exists
-                if (typeSelect.value) {
-                    updatePriorityOptions(typeSelect.value, '{{ old("priority") }}');
-                }
-            }
+            // if (typeSelect) {
+            //     // typeSelect.addEventListener('change', function() {
+            //     //    updatePriorityOptions(this.value);
+            //     // });
+            // }
         });
 
-        function updatePriorityOptions(type, selectedValue = null) {
-            const prioritySelect = document.querySelector('select[name="priority"]');
-            prioritySelect.innerHTML = '<option value="">Select priority...</option>';
-            
-            if (type && priorityMapping[type]) {
-                priorityMapping[type].forEach(option => {
-                    const opt = document.createElement('option');
-                    opt.value = option.value;
-                    opt.textContent = option.label;
-                if (selectedValue === option.value) {
-                        opt.selected = true;
-                    }
-                    opt.dataset.duration = option.duration; // Store duration
-                    prioritySelect.appendChild(opt);
-                });
-            }
-        }
+        // function updatePriorityOptions(type, selectedValue = null) { ... } REMOVED
 
         // Calculate and set deadline based on priority
         function updateDeadline() {
@@ -715,24 +697,14 @@
             if (reqMethodInput) selectMethod('requirements_method', reqMethodInput.value);
             
             // Priority Logic
-            const typeSelect = document.querySelector('select[name="type"]');
-            const prioritySelect = document.querySelector('select[name="priority"]');
-            
-            if (typeSelect) {
-                typeSelect.addEventListener('change', function() {
-                    updatePriorityOptions(this.value);
-                    // Reset deadline or keep? Let's reset priority selection which will handle it
-                });
-                
-                // Trigger on load if value exists
-                if (typeSelect.value) {
-                    updatePriorityOptions(typeSelect.value, '{{ old("priority") }}');
-                }
-            }
+            // Priority Logic Removed
+            // const typeSelect = document.querySelector('select[name="type"]');
+            // ...
 
-            if (prioritySelect) {
-                prioritySelect.addEventListener('change', updateDeadline);
-            }
+            // Priority Listener Removed
+            // if (prioritySelect) {
+            //     prioritySelect.addEventListener('change', updateDeadline);
+            // }
             
             // Auto-save on input change
             document.getElementById('publicRequestForm').addEventListener('input', debounce(saveFormData, 500));
@@ -778,17 +750,16 @@
                     }
                 }
 
-                // 3. Validate Description (Summernote)
+                // 3. Validate Description (Summernote) - REMOVED (Relies on server-side validation)
+                /*
                 if (isValid) {
                     if ($('#descriptionEditor').summernote('isEmpty')) {
                         isValid = false;
                         errorMessage = 'Please provide a description for your request.';
-                        // Go to step 2 if we need to show error
-                        if (currentStep !== 2) {
-                            changeStep(2 - currentStep);
-                        }
+                        if (currentStep !== 2) changeStep(2 - currentStep);
                     }
                 }
+                */
 
                 if (!isValid) {
                     e.preventDefault();

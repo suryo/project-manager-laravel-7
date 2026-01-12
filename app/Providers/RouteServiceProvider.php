@@ -56,6 +56,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes()
     {
         Route::middleware('web')
+             // ->namespace($this->namespace) // Commented out to support L8+ FQCN routes from L10
              ->group(base_path('routes/web.php'));
     }
 
@@ -70,6 +71,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::prefix('api')
              ->middleware('api')
+             // ->namespace($this->namespace) // Commented out to support L8+ FQCN routes from L10
              ->group(base_path('routes/api.php'));
     }
 }

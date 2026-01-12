@@ -13,8 +13,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    if (!session()->has('locale')) {
+        session(['locale' => 'id']);
+    }
+    App::setLocale(session('locale'));
     return view('welcome');
 });
+
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['id', 'en'])) {
+        session(['locale' => $locale]);
+    }
+    return back();
+})->name('lang.switch');
 
 Auth::routes();
 
@@ -49,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     // Admin Routes
     Route::middleware(['admin'])->group(function () {
         Route::resource('users', App\Http\Controllers\UserController::class);
+        Route::resource('departments', App\Http\Controllers\DepartmentController::class);
         Route::resource('statuses', App\Http\Controllers\ProjectStatusController::class)->except(['show']);
         
         // Impersonation
@@ -72,6 +84,8 @@ Route::prefix('public')->name('public.')->group(function () {
         ->name('ticket-request.success');
     Route::get('ticket-request/status/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'checkStatus'])
         ->name('ticket-request.status');
+    Route::post('ticket-request/status/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'updateStatus'])
+        ->name('ticket-request.update-status');
         
     // Approval Routes
     Route::get('approval/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'showApprovalPage'])

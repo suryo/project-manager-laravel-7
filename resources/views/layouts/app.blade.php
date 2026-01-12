@@ -14,8 +14,8 @@
     <link href="https://fonts.bunny.net/css?family=nunito:200,600|poppins:300,400,500,600,700" rel="stylesheet">
 
     <!-- Scripts -->
-    <!-- Scripts -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="{{ mix('js/app.js') }}" defer></script>
     @stack('styles')
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -469,6 +469,266 @@
         .avatar-initial {
              border: 1px solid rgba(0,0,0,0.1);
         }
+
+        /* Sidebar Layout Styles */
+        #wrapper {
+            overflow-x: hidden;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        #sidebar-wrapper {
+            min-height: 100vh;
+            margin-left: -16rem;
+            transition: margin .25s ease-out;
+            width: 16rem;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            z-index: 1040; /* Increased to be above sticky-top (1020) */
+            background-color: var(--neo-nav-bg);
+            border-right: 3px solid var(--neo-border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar-wrapper .sidebar-heading {
+            padding: 1rem 1.25rem;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            background-color: rgba(0,0,0,0.1);
+            border-bottom: 3px solid var(--neo-border-color);
+            height: 70px; /* Match navbar height */
+            display: flex;
+            align-items: center;
+        }
+
+        #sidebar-wrapper .list-group {
+            width: 16rem;
+            padding: 1rem 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        #sidebar-wrapper .list-group-item {
+            background-color: transparent;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            font-weight: 700;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #sidebar-wrapper .list-group-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+            padding-left: 1.5rem;
+        }
+        
+        #sidebar-wrapper .list-group-item.active {
+            background-color: var(--neo-card-bg);
+            color: var(--neo-text-color);
+            border-left: 5px solid var(--neo-border-color);
+            border-top: 2px solid var(--neo-border-color);
+            border-bottom: 2px solid var(--neo-border-color);
+            margin-right: -2px; /* Merge with content */
+            position: relative;
+            z-index: 2;
+        }
+
+        #page-content-wrapper {
+            min-width: 100vw;
+            transition: margin .25s ease-out;
+            background-color: var(--neo-bg-color);
+        }
+        
+        /* Top Navigation in Content Wrapper */
+        .navbar-custom {
+            border-bottom: 3px solid var(--neo-border-color);
+            background-color: var(--neo-card-bg) !important; /* Top bar becomes card color */
+            margin-bottom: 0 !important;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 1030; /* Below sidebar (1040)/overlay (1039) but above content */
+        }
+
+        /* Adjust colors for top navbar since it's now content-bg */
+        [data-theme="neobrutalism"] .navbar-custom .nav-link, 
+        [data-theme="dark"] .navbar-custom .nav-link,
+        .navbar-custom .btn-link {
+            color: var(--neo-text-color) !important;
+            text-shadow: none !important;
+        }
+        
+        #sidebarToggle {
+            cursor: pointer;
+            color: var(--neo-text-color);
+            font-size: 1.5rem;
+        }
+        
+        /* Mobile: Show sidebar when toggled */
+        body.sb-sidenav-toggled #sidebar-wrapper {
+            margin-left: 0;
+        }
+
+        @media (min-width: 768px) {
+            #sidebar-wrapper {
+                margin-left: 0;
+            }
+
+            #page-content-wrapper {
+                min-width: 0;
+                width: 100%;
+                margin-left: 16rem;
+            }
+
+            body.sb-sidenav-toggled #sidebar-wrapper {
+                margin-left: -16rem;
+            }
+
+            body.sb-sidenav-toggled #page-content-wrapper {
+                margin-left: 0;
+            }
+        }
+        
+        /* Modern Gradient Sidebar Overrides */
+        [data-theme="modern-gradient"] #sidebar-wrapper {
+            background: var(--mg-bg-card) !important; /* Clean white/card bg */
+            border-right: none;
+            box-shadow: var(--mg-shadow-sm);
+        }
+        
+        [data-theme="modern-gradient"] #sidebar-wrapper .sidebar-heading {
+            background: transparent !important;
+            color: #1e3a8a !important; /* Dark Blue */
+            border-bottom: none;
+        }
+        
+        [data-theme="modern-gradient"] .sidebar-heading .neo-logo {
+            background: transparent !important;
+            border: none;
+            box-shadow: none;
+            color: #1e3a8a !important; /* Dark Blue */
+            text-shadow: none;
+            font-size: 1.4rem; /* Larger logo text */
+            white-space: nowrap; /* Prevent wrapping */
+            font-weight: 800;
+        }
+        
+        [data-theme="modern-gradient"] .sidebar-label {
+            font-size: 0.8rem; /* Scaled up from 0.7 */
+            letter-spacing: 0.5px;
+            color: var(--mg-primary) !important;
+            background: rgba(102, 126, 234, 0.08) !important; /* Very light tint */
+            padding: 0.6rem 1.2rem; /* Larger padding */
+            margin: 1.2rem 1rem 0.6rem 1rem;
+            border-radius: 6px;
+        }
+
+        [data-theme="modern-gradient"] #sidebar-wrapper .list-group-item {
+            color: #1e3a8a !important;
+            font-weight: 600;
+        }
+
+        [data-theme="modern-gradient"] #sidebar-wrapper .list-group-item:hover {
+            background-color: rgba(30, 58, 138, 0.1);
+            color: #1e3a8a !important;
+        }
+
+        [data-theme="modern-gradient"] #sidebar-wrapper .list-group-item.active {
+            background-color: rgba(30, 58, 138, 0.2);
+            color: #1e3a8a !important;
+            border-left: 4px solid #1e3a8a;
+        }
+
+        [data-theme="modern-gradient"] .sidebar-label {
+            color: #1e3a8a !important;
+            background: rgba(30, 58, 138, 0.1) !important;
+        }
+
+        /* Modern Gradient Topbar overrides */
+        [data-theme="modern-gradient"] .navbar-custom {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-bottom: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Slight shadow */
+        }
+        
+        [data-theme="modern-gradient"] .navbar-custom .nav-link,
+        [data-theme="modern-gradient"] .navbar-custom .btn-outline-light,
+        [data-theme="modern-gradient"] .navbar-custom .text-muted {
+            color: #1e3a8a !important;
+            border-color: #1e3a8a !important;
+        }
+        
+        [data-theme="modern-gradient"] .table-dark {
+            background-color: #1e3a8a !important;
+            color: #fff;
+        }
+        
+        [data-theme="modern-gradient"] .table-dark th {
+            background-color: #1e3a8a !important;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        [data-theme="modern-gradient"] #sidebarToggle {
+            color: #1e3a8a !important;
+            background: rgba(30, 58, 138, 0.1);
+            border-radius: 8px;
+            padding: 5px 10px;
+            margin-right: 10px;
+        }
+        
+        [data-theme="modern-gradient"] #sidebarToggle:hover {
+            background: rgba(30, 58, 138, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Sidebar Overlay */
+        #sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 1039; /* Below sidebar (1040) but above sticky (1020) */
+            backdrop-filter: blur(2px);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Modern Gradient Global Styles */
+        [data-theme="modern-gradient"] body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        [data-theme="modern-gradient"] #page-content-wrapper {
+            background: transparent;
+        }
+
+        [data-theme="modern-gradient"] .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            border-radius: 1rem !important;
+        }
+
+        [data-theme="modern-gradient"] .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+        }
+        
+        [data-theme="modern-gradient"] .navbar-custom {
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+        }
     </style>
     
     <!-- CRITICAL: Theme CSS must load AFTER inline styles for proper precedence -->
@@ -477,220 +737,282 @@
     <!-- Remove duplicate old theme script - already handled above -->
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light navbar-custom">
-            <div class="container">
-                <a class="neo-logo" href="{{ url('/') }}">
+    <div id="app" class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <a class="neo-logo text-decoration-none" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            </div>
+            <div class="list-group list-group-flush">
+                @auth
+                    <a class="list-group-item list-group-item-action {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                    <a class="list-group-item list-group-item-action {{ request()->routeIs('projects.*') ? 'active' : '' }}" href="{{ route('projects.index') }}">
+                        <i class="bi bi-briefcase me-2"></i> Projects
+                    </a>
+                    <a class="list-group-item list-group-item-action {{ request()->routeIs('tasks.*') ? 'active' : '' }}" href="{{ route('tasks.index') }}">
+                        <i class="bi bi-list-check me-2"></i> My Tasks
+                    </a>
+                    <a class="list-group-item list-group-item-action {{ request()->routeIs('tickets.*') ? 'active' : '' }}" href="{{ route('tickets.index') }}">
+                        <i class="bi bi-ticket-perforated me-2"></i> Tickets
+                    </a>
+                    
+                    @if(Auth::user()->role === 'admin')
+                        <div class="sidebar-label mt-3 mb-1 text-uppercase fw-bold">Administration</div>
+                        <a class="list-group-item list-group-item-action {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                            <i class="bi bi-people me-2"></i> Manage Users
+                        </a>
+                        <a class="list-group-item list-group-item-action {{ request()->routeIs('departments.*') ? 'active' : '' }}" href="{{ route('departments.index') }}">
+                            <i class="bi bi-building me-2"></i> Departments
+                        </a>
+                        <a class="list-group-item list-group-item-action {{ request()->routeIs('statuses.*') ? 'active' : '' }}" href="{{ route('statuses.index') }}">
+                            <i class="bi bi-kanban me-2"></i> Statuses
+                        </a>
+                    @endif
+                @endauth
+            </div>
+        </div>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold" href="{{ route('home') }}">Dashboard</a>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light navbar-custom px-3">
+                <div class="d-flex align-items-center w-100">
+                    <button class="btn btn-link" id="sidebarToggle">
+                        <i class="bi bi-grid-fill fs-4"></i>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <!-- Right Side Of Navbar -->
+                        <ul class="navbar-nav ms-auto align-items-center">
+                            {{-- Impersonation Indicator --}}
+                            @if(session('impersonate_original_user'))
+                            <li class="nav-item me-3">
+                                <form action="{{ route('leave-impersonation') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-warning border border-2 border-dark fw-bold" style="box-shadow: 3px 3px 0 #000;">
+                                        <i class="bi bi-box-arrow-left"></i> Leave Impersonation
+                                    </button>
+                                </form>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold" href="{{ route('projects.index') }}">Projects</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold" href="{{ route('tasks.index') }}">My Tasks</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold" href="{{ route('tickets.index') }}">
-                                    <i class="bi bi-ticket-perforated"></i> Tickets
-                                </a>
-                            </li>
-                            @if(Auth::user()->role === 'admin')
-                                <li class="nav-item">
-                                    <a class="nav-link fw-bold" href="{{ route('users.index') }}">Manage Users</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fw-bold" href="{{ route('statuses.index') }}">Manage Statuses</a>
-                                </li>
                             @endif
-                        @endauth
-                    </ul>
-
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        {{-- Impersonation Indicator --}}
-                        @if(session('impersonate_original_user'))
-                        <li class="nav-item me-3">
-                            <form action="{{ route('leave-impersonation') }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-warning border border-2 border-dark fw-bold" style="box-shadow: 3px 3px 0 #000;">
-                                    <i class="bi bi-box-arrow-left"></i> Leave Impersonation
+                            
+                            <li class="nav-item dropdown me-3">
+                                <button class="btn btn-sm btn-outline-light dropdown-toggle" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Theme">
+                                    <i class="bi bi-palette"></i> Theme
                                 </button>
-                            </form>
-                        </li>
-                        @endif
-                        
-                        <li class="nav-item dropdown me-3">
-                            <button class="btn btn-sm btn-outline-light dropdown-toggle" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Theme">
-                                <i class="bi bi-palette"></i> Theme
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
-                                <li>
-                                    <button class="dropdown-item theme-option" data-theme="neobrutalism">
-                                        <i class="bi bi-lightning-fill text-danger"></i> Neo-Brutalism
-                                        <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item theme-option" data-theme="modern-gradient">
-                                        <i class="bi bi-stars text-primary"></i> Modern Gradient
-                                        <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item theme-option" data-theme="dark">
-                                        <i class="bi bi-moon-stars-fill text-secondary"></i> Dark Mode
-                                        <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </li>
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                                    <li>
+                                        <button class="dropdown-item theme-option" data-theme="neobrutalism">
+                                            <i class="bi bi-lightning-fill text-danger"></i> Neo-Brutalism
+                                            <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item theme-option" data-theme="modern-gradient">
+                                            <i class="bi bi-stars text-primary"></i> Modern Gradient
+                                            <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item theme-option" data-theme="dark">
+                                            <i class="bi bi-moon-stars-fill text-secondary"></i> Dark Mode
+                                            <span class="theme-check ms-2 d-none"><i class="bi bi-check2"></i></span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- Authentication Links -->
+                            @guest
+                                @if (Route::has('login'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                    </li>
+                                @endif
 
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="badge bg-primary ms-1">{{ ucfirst(Auth::user()->role) }}</span>
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                                @if (Route::has('register'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    </li>
+                                @endif
+                            @else
+                                <li class="nav-item dropdown">
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        {{ Auth::user()->name }} <span class="badge bg-primary ms-1">{{ ucfirst(Auth::user()->role) }}</span>
                                     </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('logout') }}"
+                                           onclick="event.preventDefault();
+                                                         document.getElementById('logout-form').submit();">
+                                            {{ __('Logout') }}
+                                        </a>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                            @csrf
+                                        </form>
+                                    </div>
+                                </li>
+                            @endguest
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const themeOptions = document.querySelectorAll('.theme-option');
-                const themeChecks = document.querySelectorAll('.theme-check');
+            </nav>
+
+            <main class="py-4">
+                @yield('content')
+            </main>
+        </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div id="sidebar-overlay" class="d-none"></div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', event => {
+            // Sidebar Toggle
+            const sidebarToggle = document.body.querySelector('#sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const wrapper = document.getElementById('wrapper');
+            
+            // Create Close Button for Mobile Sidebar
+            const sidebarWrapper = document.getElementById('sidebar-wrapper');
+            if (sidebarWrapper) {
+                const closeBtn = document.createElement('button');
+                closeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+                closeBtn.className = 'btn btn-link text-white position-absolute top-0 end-0 m-2 d-md-none sidebar-close-btn';
+                closeBtn.style.zIndex = '1001';
+                closeBtn.style.opacity = '0.8';
                 
-                // Update active theme indicator
-                function updateActiveTheme(selectedTheme) {
-                    themeOptions.forEach(option => {
-                        const check = option.querySelector('.theme-check');
-                        if (option.dataset.theme === selectedTheme) {
-                            check.classList.remove('d-none');
-                        } else {
-                            check.classList.add('d-none');
-                        }
-                    });
+                // Add to sidebar header or top of sidebar
+                const heading = sidebarWrapper.querySelector('.sidebar-heading');
+                if (heading) {
+                    heading.style.position = 'relative'; // Ensure positioning context
+                    heading.appendChild(closeBtn);
+                } else {
+                    sidebarWrapper.appendChild(closeBtn);
                 }
                 
-                // Show current theme on load
-                const currentTheme = localStorage.getItem('app-theme') || 'neobrutalism';
-                updateActiveTheme(currentTheme);
-                
-                // Handle theme change
+                closeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.body.classList.remove('sb-sidenav-toggled');
+                    sidebarOverlay.classList.add('d-none');
+                });
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', event => {
+                    event.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                    
+                    // Toggle overlay visibility on mobile
+                    if (window.innerWidth < 768) {
+                        if (document.body.classList.contains('sb-sidenav-toggled')) {
+                            sidebarOverlay.classList.remove('d-none');
+                        } else {
+                            sidebarOverlay.classList.add('d-none');
+                        }
+                    }
+                });
+            }
+            
+            // Close sidebar when clicking overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', () => {
+                   document.body.classList.remove('sb-sidenav-toggled');
+                   sidebarOverlay.classList.add('d-none');
+                });
+            }
+
+            // Theme Switcher Logic
+            const themeOptions = document.querySelectorAll('.theme-option');
+            const themeChecks = document.querySelectorAll('.theme-check');
+            
+            // Update active theme indicator
+            function updateActiveTheme(selectedTheme) {
                 themeOptions.forEach(option => {
-                    option.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const newTheme = this.dataset.theme;
+                    const check = option.querySelector('.theme-check');
+                    if (option.dataset.theme === selectedTheme) {
+                        check.classList.remove('d-none');
+                    } else {
+                        check.classList.add('d-none');
+                    }
+                });
+            }
+            
+            // Show current theme on load
+            const currentTheme = localStorage.getItem('app-theme') || 'neobrutalism';
+            updateActiveTheme(currentTheme);
+            
+            // Handle theme change
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const newTheme = this.dataset.theme;
+                    
+                    console.log('[THEME SWITCH] User clicked:', newTheme);
+                    
+                    // CRITICAL: Save to localStorage immediately and verify
+                    try {
+                        localStorage.setItem('app-theme', newTheme);
+                        const savedValue = localStorage.getItem('app-theme');
                         
-                        console.log('[THEME SWITCH] User clicked:', newTheme);
-                        
-                        // CRITICAL: Save to localStorage immediately and verify
-                        try {
-                            localStorage.setItem('app-theme', newTheme);
-                            const savedValue = localStorage.getItem('app-theme');
-                            console.log('[THEME SWITCH] localStorage.setItem executed');
-                            console.log('[THEME SWITCH] Verification - saved value:', savedValue);
-                            
-                            if (savedValue !== newTheme) {
-                                console.error('[THEME SWITCH] ERROR: localStorage did not save correctly!');
-                                alert('Error saving theme preference. Please try again.');
-                                return;
-                            }
-                        } catch(error) {
-                            console.error('[THEME SWITCH] localStorage error:', error);
-                            alert('Cannot save theme preference');
+                        if (savedValue !== newTheme) {
+                            console.error('[THEME SWITCH] ERROR: localStorage did not save correctly!');
+                            alert('Error saving theme preference. Please try again.');
                             return;
                         }
-                        
-                        // Update data-theme attribute on HTML element
-                        document.documentElement.setAttribute('data-theme', newTheme);
-                        console.log('[THEME SWITCH] Set data-theme attribute to:', newTheme);
-                        
-                        // Update CSS link dynamically
-                        const themeLink = document.getElementById('theme-css');
-                        if (themeLink) {
-                            if (newTheme === 'modern-gradient') {
-                                // Add timestamp to bust browser cache
-                                const timestamp = new Date().getTime();
-                                const cssUrl = '{{ asset("css/themes/modern-gradient.css") }}';
-                                themeLink.href = cssUrl + '?v=' + timestamp;
-                                console.log('[THEME SWITCH] Loaded modern-gradient CSS with cache buster');
-                            } else {
-                                themeLink.href = '';
-                                console.log('[THEME SWITCH] Cleared CSS link (using inline styles)');
-                            }
+                    } catch(error) {
+                        console.error('[THEME SWITCH] localStorage error:', error);
+                        alert('Cannot save theme preference');
+                        return;
+                    }
+                    
+                    // Update data-theme attribute on HTML element
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    
+                    // Update CSS link dynamically
+                    const themeLink = document.getElementById('theme-css');
+                    if (themeLink) {
+                        if (newTheme === 'modern-gradient') {
+                            const timestamp = new Date().getTime();
+                            const cssUrl = '{{ asset("css/themes/modern-gradient.css") }}';
+                            themeLink.href = cssUrl + '?v=' + timestamp;
+                        } else {
+                            themeLink.href = '';
                         }
-                        
-                        // Update active indicator
-                        updateActiveTheme(newTheme);
-                        
-                        // Show success toast
-                        const toast = document.createElement('div');
-                        toast.className = 'position-fixed top-0 end-0 p-3';
-                        toast.style.zIndex = '9999';
-                        toast.innerHTML = `
-                            <div class="toast show alert alert-success" role="alert">
-                                <div class="toast-header bg-success text-white">
-                                    <i class="bi bi-check-circle me-2"></i>
-                                    <strong class="me-auto">Theme Applied!</strong>
-                                    <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()"></button>
-                                </div>
-                                <div class="toast-body">
-                                    Successfully switched to <strong>${this.textContent.trim()}</strong>
-                                </div>
+                    }
+                    
+                    // Update active indicator
+                    updateActiveTheme(newTheme);
+                    
+                    // Show success toast
+                    const toast = document.createElement('div');
+                    toast.className = 'position-fixed top-0 end-0 p-3';
+                    toast.style.zIndex = '9999';
+                    toast.innerHTML = `
+                        <div class="toast show alert alert-success" role="alert">
+                            <div class="toast-header bg-success text-white">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong class="me-auto">Theme Applied!</strong>
+                                <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()"></button>
                             </div>
-                        `;
-                        document.body.appendChild(toast);
-                        setTimeout(() => toast.remove(), 3000);
-                        
-                        console.log('[THEME SWITCH] Theme change complete!');
-                    });
+                            <div class="toast-body">
+                                Successfully switched to <strong>${this.textContent.trim()}</strong>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
                 });
             });
-        </script>
-
-        <main class="py-4">
-            @yield('content')
-        </main>
-    </div>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
