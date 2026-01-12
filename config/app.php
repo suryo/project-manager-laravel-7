@@ -165,6 +165,11 @@ return [
         /*
          * Package Service Providers...
          */
+        Fideloper\Proxy\TrustedProxyServiceProvider::class,
+        Fruitcake\Cors\CorsServiceProvider::class,
+        Laravel\Sanctum\SanctumServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
+        Laravel\Ui\UiServiceProvider::class,
 
         /*
          * Application Service Providers...
