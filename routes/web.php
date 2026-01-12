@@ -72,7 +72,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Public Ticket Request (no auth required)
-Route::prefix('public')->name('public.')->group(function () {
+Route::name('public.')->group(function () {
     Route::get('ticket-request', [App\Http\Controllers\PublicTicketRequestController::class, 'showForm'])
         ->name('ticket-request');
     Route::post('ticket-request', [App\Http\Controllers\PublicTicketRequestController::class, 'submitRequest'])

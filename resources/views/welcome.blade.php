@@ -445,7 +445,7 @@ graph TD
         function checkStatus() {
             const token = document.getElementById('tokenInput').value.trim();
             if(token) {
-                window.location.href = "{{ url('/public/ticket-request/view') }}/" + token;
+                window.location.href = "{{ url('/ticket-request/view') }}/" + token;
             } else {
                 // Shake animation or simple alert
                 const input = document.getElementById('tokenInput');
