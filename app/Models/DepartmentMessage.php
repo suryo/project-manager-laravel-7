@@ -8,11 +8,14 @@ class DepartmentMessage extends Model
 {
     protected $fillable = [
         'department_id',
+        'conversation_id',
         'user_id',
         'guest_name',
         'guest_email',
         'guest_contact',
         'message',
+        'read_at',
+        'is_from_staff',
     ];
 
     protected $with = ['user'];
