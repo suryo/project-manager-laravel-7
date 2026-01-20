@@ -56,6 +56,10 @@ class HomeController extends Controller
             $totalBudget = $allProjects->sum('budget');
             $totalActualCost = $allProjects->sum(function($p) { return $p->tasks->sum('cost'); });
             $overloadedStaff = collect(); // Only relevant for admin
+            
+            // Allow all to see energy monitor? Or just admins? 
+            // The view expects it, so we must provide it.
+            $staffMembers = \App\Models\User::where('role', '!=', 'client')->get();
         }
 
         return view('home', compact(

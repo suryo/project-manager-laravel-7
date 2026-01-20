@@ -8,6 +8,7 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=nunito:200,600|poppins:300,400,500,600,700" rel="stylesheet">
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="{{ mix('js/app.js') }}" defer></script>
     <style>
         body {
@@ -49,5 +50,6 @@
     <div id="app" class="w-100">
         @yield('content')
     </div>
+    @stack('scripts')
 </body>
 </html>

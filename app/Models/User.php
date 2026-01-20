@@ -22,6 +22,7 @@ class User extends Authenticatable
         'role',
         'password',
         'monthly_energy_limit',
+        'last_seen_at',
     ];
 
     /**
@@ -42,7 +43,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'last_seen_at' => 'datetime',
     ];
+
+    public function isOnline()
+    {
+        return $this->last_seen_at && $this->last_seen_at->gt(now()->subMinutes(5));
+    }
 
     public function projects()
     {

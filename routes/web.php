@@ -110,3 +110,7 @@ Route::get('/department/{slug}', [App\Http\Controllers\DepartmentController::cla
 Route::get('/department/{slug}/meeting/create', [App\Http\Controllers\DepartmentController::class, 'createMeetingPublic'])->name('department.meeting.create');
 Route::get('/department/{slug}/meeting/{meetingId}', [App\Http\Controllers\DepartmentController::class, 'showMeetingPublic'])->name('department.meeting.show');
 Route::get('/department/{slug}/projects/{projectSlug}', [App\Http\Controllers\DepartmentController::class, 'showProjectPublic'])->name('department.projects.show');
+
+// Department Chat Routes
+Route::get('/department/{slug}/chat/messages', [App\Http\Controllers\DepartmentChatController::class, 'fetchMessages'])->name('department.chat.fetch');
+Route::post('/department/{slug}/chat/send', [App\Http\Controllers\DepartmentChatController::class, 'sendMessage'])->name('department.chat.send');
