@@ -409,7 +409,12 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Department <span class="required-mark">*</span></label>
-                            <input type="text" class="form-control" name="guest_department" required value="{{ old('guest_department') }}">
+                            <select class="form-select" name="guest_department" required>
+                                <option value="">Select department...</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->name }}" {{ old('guest_department') == $department->name ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Phone Number</label>
@@ -432,13 +437,20 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Request Type <span class="required-mark">*</span></label>
+                            <label class="form-label">Request to Department <span class="required-mark">*</span></label>
                             <select class="form-select" name="type" required>
-                                <option value="">Select type...</option>
-                                <option value="DM" {{ old('type') == 'DM' ? 'selected' : '' }}>DM</option>
-                                <option value="Design" {{ old('type') == 'Design' ? 'selected' : '' }}>Design</option>
-                                <option value="Web" {{ old('type') == 'Web' ? 'selected' : '' }}>Web</option>
+                                <option value="">Select department...</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->name }}" {{ old('type') == $department->name ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
                             </select>
+                            
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" id="detail_project_check" name="is_new_project" value="1" {{ old('is_new_project') ? 'checked' : '' }} onchange="toggleProjectSection(this)">
+                                <label class="form-check-label" for="detail_project_check">
+                                    Detail Project / New Project
+                                </label>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3 d-none">
                             <label class="form-label">Priority <span class="required-mark">*</span></label>
@@ -449,16 +461,16 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Project/System Name <span class="required-mark">*</span></label>
-                            <select class="form-select" name="project_id" required onchange="toggleProjectInput(this)">
-                                <option value="">Select project...</option>
+                        <div class="col-md-6 mb-3" id="project_section" style="display: {{ old('is_new_project') ? 'block' : 'none' }};">
+                            <label class="form-label">Project/System Name</label>
+                            <select class="form-select mb-2" name="project_id" id="project_select">
+                                <option value="">Select project (Optional)...</option>
                                 @foreach($projects as $project)
                                     <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>{{ $project->title }}</option>
                                 @endforeach
-                                <option value="other" {{ old('project_id') == 'other' ? 'selected' : '' }}>Other / Not Listed</option>
                             </select>
-                            <input type="text" class="form-control mt-2" name="project_name" id="project_name_input" value="{{ old('project_name') }}" placeholder="Enter Project Name" style="display: {{ old('project_id') == 'other' ? 'block' : 'none' }};">
+                            <small class="text-muted d-block mb-2">Or enter a new project name below:</small>
+                            <input type="text" class="form-control" name="project_name" id="project_name_input" value="{{ old('project_name') }}" placeholder="Enter Project Name">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Target Deadline <span class="required-mark">*</span></label>
@@ -669,15 +681,18 @@
             }
         }
 
-        function toggleProjectInput(selectElement) {
+        function toggleProjectSection(checkboxElement) {
+            const section = document.getElementById('project_section');
             const input = document.getElementById('project_name_input');
-            if (selectElement.value === 'other') {
-                input.style.display = 'block';
-                input.required = true;
+            const select = document.getElementById('project_select');
+            
+            if (checkboxElement.checked) {
+                section.style.display = 'block';
+                // No fields required by default, user can choose either
             } else {
-                input.style.display = 'none';
-                input.required = false;
+                section.style.display = 'none';
                 input.value = '';
+                select.value = '';
             }
         }
         

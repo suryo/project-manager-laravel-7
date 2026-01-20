@@ -298,6 +298,64 @@
             </div>
         </div>
     </div>
+    </div>
+
+    {{-- TICKETS LIST --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card" style="box-shadow: 8px 8px 0 #000;">
+                <div class="card-header d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom border-3 border-dark">
+                    <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h4">TICKETS LIST</h5>
+                    {{-- Optional: Add Ticket Button --}}
+                </div>
+                <div class="card-body p-0">
+                    @if($project->tickets->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0">Ticket No</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0">Title</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0">Type</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0">Status</th>
+                                        <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($project->tickets as $ticket)
+                                        <tr class="border-bottom border-1 border-dark">
+                                            <td class="ps-4 fw-bold text-dark">{{ $ticket->ticket_number }}</td>
+                                            <td>
+                                                <span class="fw-bold text-dark">{{ $ticket->title }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border border-1 border-dark small">{{ $ticket->type }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.65rem; box-shadow: 2px 2px 0 #000;">
+                                                    {{ $ticket->status }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-light bg-white border border-2 border-dark px-2 py-1 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.7rem;">
+                                                    VIEW
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="bi bi-ticket-perforated display-4 text-muted mb-3 d-block"></i>
+                            <p class="text-muted italic">No tickets found for this project.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Add Task Modal -->

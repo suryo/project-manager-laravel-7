@@ -43,6 +43,7 @@
             transform: translateY(-1px);
         }
     </style>
+    @stack('styles')
 </head>
 <body>
     <div id="app" class="w-100">

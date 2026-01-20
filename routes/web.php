@@ -93,3 +93,20 @@ Route::name('public.')->group(function () {
     Route::post('approval/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'submitApproval'])
         ->name('approval.submit');
 });
+
+// Department Members Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('departments/{department}/members', [App\Http\Controllers\DepartmentController::class, 'members'])->name('departments.members');
+    Route::post('departments/{department}/members', [App\Http\Controllers\DepartmentController::class, 'addMember'])->name('departments.members.add');
+    Route::delete('departments/{department}/members/{userId}', [App\Http\Controllers\DepartmentController::class, 'removeMember'])->name('departments.members.remove');
+    
+    // Meetings
+    Route::resource('meetings', App\Http\Controllers\MeetingController::class);
+    Route::post('meetings/{meeting}/attendance', [App\Http\Controllers\MeetingController::class, 'markAttendance'])->name('meetings.attendance');
+});
+
+// Department Landing Page (Public)
+Route::get('/department/{slug}', [App\Http\Controllers\DepartmentController::class, 'landingPage'])->name('department.landing');
+Route::get('/department/{slug}/meeting/create', [App\Http\Controllers\DepartmentController::class, 'createMeetingPublic'])->name('department.meeting.create');
+Route::get('/department/{slug}/meeting/{meetingId}', [App\Http\Controllers\DepartmentController::class, 'showMeetingPublic'])->name('department.meeting.show');
+Route::get('/department/{slug}/projects/{projectSlug}', [App\Http\Controllers\DepartmentController::class, 'showProjectPublic'])->name('department.projects.show');

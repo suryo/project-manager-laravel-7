@@ -25,8 +25,12 @@ class PublicTicketRequestController extends Controller
         $projects = \App\Models\Project::where('project_status_id', '!=', 3) // Assuming 3 is 'Completed' or similar, adjust if needed or just get all
             ->orderBy('title')
             ->get(['id', 'title']);
+        
+        // Fetch departments for dropdown
+        $departments = \App\Models\Department::orderBy('name')
+            ->get(['id', 'name']);
             
-        return view('public.ticket-request.form', compact('projects'));
+        return view('public.ticket-request.form', compact('projects', 'departments'));
     }
 
     /**
@@ -50,15 +54,15 @@ class PublicTicketRequestController extends Controller
                 // Ticket Details
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
-                'type' => 'required|in:DM,Design,Web',
+                'type' => 'required|string|max:255',
                 'priority' => 'nullable|string', // Hidden from user, defaults to medium
                 'asset_url' => 'nullable|url',
                 
                 // Request Form Data
                 
                 // Project Selection Logic
-                'project_id' => 'required|string',
-                'project_name' => 'required_if:project_id,other|nullable|string|max:255',
+                'project_id' => 'nullable|string',
+                'project_name' => 'nullable|string|max:255',
                 
                 // Merged Reason & Impact - Removed
                 // 'request_description' => 'required_if:form_method,inline|nullable|string', 
@@ -201,8 +205,10 @@ class PublicTicketRequestController extends Controller
             // Generate PDF from inline form
             
             // Determine project name
+            // Determine project name
             $projectName = $validated['project_id'];
-            if ($projectName === 'other') {
+            
+            if (empty($projectName) || $projectName === 'other') {
                 $projectName = $validated['project_name'];
             } else {
                 // If it's an ID, fetch the project title (optional but good for PDF)

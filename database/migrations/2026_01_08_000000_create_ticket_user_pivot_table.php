@@ -12,6 +12,10 @@ class CreateTicketUserPivotTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('ticket_user')) {
+            return;
+        }
+
         Schema::create('ticket_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ticket_id')->constrained()->cascadeOnDelete();

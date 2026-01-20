@@ -99,7 +99,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $this->authorize('view', $project);
-        $project->load(['tasks.assignees', 'status']);
+        $project->load(['tasks.assignees', 'status', 'tickets']);        $users = \App\Models\User::all();
         $users = \App\Models\User::all();
         return view('projects.show', compact('project', 'users'));
     }

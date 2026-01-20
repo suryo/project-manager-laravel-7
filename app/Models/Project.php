@@ -15,7 +15,9 @@ class Project extends Model
         'start_date',
         'end_date',
         'budget',
+        'budget',
         'user_id',
+        'slug',
     ];
 
     protected $casts = [
@@ -23,6 +25,23 @@ class Project extends Model
         'end_date' => 'date',
         'budget' => 'decimal:2',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($project) {
+            if (!$project->slug) {
+                $project->slug = \Illuminate\Support\Str::slug($project->title);
+            }
+        });
+
+        static::updating(function ($project) {
+            if ($project->isDirty('title') && !$project->isDirty('slug')) {
+                $project->slug = \Illuminate\Support\Str::slug($project->title);
+            }
+        });
+    }
 
     public function user()
     {
@@ -37,5 +56,10 @@ class Project extends Model
     public function status()
     {
         return $this->belongsTo(ProjectStatus::class, 'project_status_id');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

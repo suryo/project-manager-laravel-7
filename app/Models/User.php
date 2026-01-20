@@ -104,4 +104,24 @@ class User extends Authenticatable
     {
         return max(0, $this->monthly_energy_limit - $this->used_energy);
     }
+
+    /**
+     * Departments where user is a member
+     */
+    public function departments()
+    {
+        return $this->belongsToMany('App\Models\Department', 'department_members')
+            ->withPivot('role', 'joined_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Meetings user has attended
+     */
+    public function meetings()
+    {
+        return $this->belongsToMany('App\Models\Meeting', 'meeting_attendances')
+            ->withPivot('status', 'notes')
+            ->withTimestamps();
+    }
 }
