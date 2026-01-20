@@ -1,7 +1,62 @@
 @extends('layouts.guest')
 
 @section('content')
-<div class="container py-5">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 top-0 pt-4" style="z-index: 1000;">
+    <div class="container">
+        <a class="navbar-brand fw-black text-uppercase letter-spacing-1" href="{{ url('/') }}" style="font-weight: 900; letter-spacing: -0.5px;">
+            <i class="bi bi-kanban me-2"></i>{{ config('app.name', 'Project Manager') }}
+        </a>
+        
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav align-items-center gap-3">
+                @php
+                    $all_departments = \App\Models\Department::all();
+                @endphp
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-building me-1"></i> {{ __('Departments') }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                        @foreach($all_departments as $dept)
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('department.landing', $dept->slug) }}">
+                                    <i class="bi bi-chevron-right small"></i> {{ $dept->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-globe me-1"></i> {{ strtoupper(session('locale', 'id')) }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                        <li><a class="dropdown-item {{ session('locale') == 'id' ? 'active' : '' }}" href="{{ route('lang.switch', 'id') }}">🇮🇩 Indonesia</a></li>
+                        <li><a class="dropdown-item {{ session('locale') == 'en' ? 'active' : '' }}" href="{{ route('lang.switch', 'en') }}">🇬🇧 English</a></li>
+                    </ul>
+                </li>
+
+                @auth
+                    <li class="nav-item">
+                        <a href="{{ url('/projects') }}" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow-sm" style="border-width: 2px;">{{ __('Dashboard') }}</a>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <a href="{{ route('login') }}" class="btn btn-outline-light rounded-pill px-4 fw-bold shadow-sm" style="border-width: 2px;">{{ __('Login') }}</a>
+                    </li>
+                @endauth
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             {{-- Header/Hero Section for Department --}}
