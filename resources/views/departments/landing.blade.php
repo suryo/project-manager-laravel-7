@@ -21,146 +21,38 @@
             <div class="card shadow-lg border-0 rounded-lg overflow-hidden glass-card">
                 <div class="card-body p-5">
                     
-                    {{-- Description --}}
-                    <div class="mb-5">
-                        <h4 class="fw-bold mb-3 text-secondary">
-                            <i class="bi bi-info-circle me-2"></i>About Us
-                        </h4>
-                        <div class="ql-snow">
-                            <div class="ql-editor" style="padding: 0; min-height: auto;">
-                                @if($department->description)
-                                    {!! $department->description !!}
-                                @else
-                                    <em class="text-muted">No description currently available for this department.</em>
-                                @endif
-                            </div>
+                    {{-- Navigation Menu (Modal Based) --}}
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-white w-100 py-4 border-3 border-dark rounded-0 fw-bold text-uppercase shadow-btn hover-scale" 
+                                    data-bs-toggle="modal" data-bs-target="#modalAboutUs">
+                                <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                                About Us
+                            </button>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-white w-100 py-4 border-3 border-dark rounded-0 fw-bold text-uppercase shadow-btn hover-scale" 
+                                    data-bs-toggle="modal" data-bs-target="#modalTeamMembers">
+                                <i class="bi bi-people fs-3 d-block mb-2"></i>
+                                Team Members
+                            </button>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-white w-100 py-4 border-3 border-dark rounded-0 fw-bold text-uppercase shadow-btn hover-scale" 
+                                    data-bs-toggle="modal" data-bs-target="#modalRecentMeetings">
+                                <i class="bi bi-calendar-event fs-3 d-block mb-2"></i>
+                                Meetings
+                            </button>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-white w-100 py-4 border-3 border-dark rounded-0 fw-bold text-uppercase shadow-btn hover-scale" 
+                                    data-bs-toggle="modal" data-bs-target="#modalRecentProjects">
+                                <i class="bi bi-kanban fs-3 d-block mb-2"></i>
+                                Projects
+                            </button>
                         </div>
                     </div>
 
-                    @auth
-                    {{-- Team Members Section (Authenticated Only) --}}
-                    <hr class="my-5 border-light">
-                    
-                    <div class="mb-5">
-                        <h4 class="fw-bold mb-3 text-secondary">
-                            <i class="bi bi-people me-2"></i>Team Members
-                        </h4>
-                        @if($department->members && $department->members->count() > 0)
-                            <div class="row">
-                                @foreach($department->members as $member)
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card border-0 shadow-sm">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold mb-1">{{ $member->name }}</h6>
-                                                @if($member->pivot->role)
-                                                    <span class="badge bg-info">{{ $member->pivot->role }}</span>
-                                                @endif
-                                                <p class="text-muted small mb-0 mt-2">{{ $member->email }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-muted">No team members listed yet.</p>
-                        @endif
-                    </div>
-
-                    {{-- Meetings Section (Authenticated Only) --}}
-                    <hr class="my-5 border-light">
-                    
-                    <div class="mb-5">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="fw-bold mb-0 text-secondary">
-                                <i class="bi bi-calendar-event me-2"></i>Recent Meetings
-                            </h4>
-                            <a href="{{ route('department.meeting.create', $department->slug) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-plus-circle me-1"></i>Create Meeting
-                            </a>
-                        </div>
-                        
-                        @if($department->meetings && $department->meetings->count() > 0)
-                            <div class="list-group">
-                                @foreach($department->meetings as $meeting)
-                                    <a href="{{ route('department.meeting.show', [$department->slug, $meeting->id]) }}" class="list-group-item list-group-item-action">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1 fw-bold">{{ $meeting->title }}</h6>
-                                            <small class="text-muted">{{ $meeting->meeting_date->format('M d, Y') }}</small>
-                                        </div>
-                                        @if($meeting->description)
-                                            <p class="mb-1 text-muted small">{{ Str::limit($meeting->description, 100) }}</p>
-                                        @endif
-                                        @if($meeting->location)
-                                            <small class="text-muted">
-                                                <i class="bi bi-geo-alt me-1"></i>{{ $meeting->location }}
-                                            </small>
-                                        @endif
-                                    </a>
-                                @endforeach
-                            </div>
-                            <div class="text-center mt-3">
-                                <a href="{{ route('meetings.index', ['department_id' => $department->id]) }}" class="btn btn-sm btn-outline-secondary">
-                                    View All Meetings
-                                </a>
-                            </div>
-                        @else
-                            <p class="text-muted">No meetings scheduled yet.</p>
-                        @endif
-                    </div>
-
-                    {{-- Projects Section (Authenticated Only) --}}
-                    <hr class="my-5 border-light">
-                    
-                    <div class="mb-5">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="fw-bold mb-0 text-secondary">
-                                <i class="bi bi-kanban me-2"></i>Recent Projects
-                            </h4>
-                            {{-- Optional: Link to create project if needed, or view all --}}
-                        </div>
-                        
-                        @if(isset($department->recent_projects) && $department->recent_projects->count() > 0)
-                            <div class="row">
-                                @foreach($department->recent_projects as $project)
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <h6 class="fw-bold mb-0 text-primary">
-                                                        <a href="{{ route('department.projects.show', ['slug' => $department->slug, 'projectSlug' => $project->slug]) }}" class="text-decoration-none stretched-link">{{ $project->title }}</a>
-                                                    </h6>
-                                                    @if($project->status)
-                                                        <span class="badge rounded-pill" style="background-color: {{ $project->status->color }}; color: #fff;">
-                                                            {{ $project->status->name }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                @if($project->description)
-                                                    <p class="text-muted small mb-3 text-truncate-2">{{ Str::limit($project->description, 80) }}</p>
-                                                @endif
-                                                
-                                                <div class="d-flex justify-content-between align-items-center mt-auto">
-                                                    <small class="text-muted">
-                                                        <i class="bi bi-person me-1"></i>{{ $project->user->name ?? 'Unknown' }}
-                                                    </small>
-                                                    @if($project->end_date)
-                                                        <small class="{{ $project->end_date->isPast() ? 'text-danger' : 'text-success' }}">
-                                                            <i class="bi bi-calendar-check me-1"></i>Due: {{ $project->end_date->format('M d') }}
-                                                        </small>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="alert alert-light border-0 shadow-sm">
-                                <i class="bi bi-info-circle me-2"></i>No active projects found for this department's team.
-                            </div>
-                        @endif
-                    </div>
-                    @endauth
 
                     <hr class="my-5 border-light">
 
@@ -191,8 +83,8 @@
 
                 </div>
             </div>
-            
-            {{-- FLOATING LIVE CHAT WIDGET --}}
+
+            {{-- FLOATING LIVE CHAT WIDGET展 --}}
             <div id="chat-widget-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050; display: flex; flex-direction: column; align-items: flex-end;">
                 
                 {{-- Chat Window (Hidden by default) --}}
@@ -273,6 +165,205 @@
                 </button>
             </div>
 
+            {{-- MODALS --}}
+            
+            {{-- About Us Modal --}}
+            <div class="modal fade" id="modalAboutUs" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-3 border-dark rounded-0 shadow-lg" style="box-shadow: 10px 10px 0 #000 !important;">
+                        <div class="modal-header border-bottom border-3 border-dark bg-white rounded-0">
+                            <h5 class="modal-title fw-bold text-uppercase letter-spacing-1 h6">
+                                <i class="bi bi-info-circle me-2 text-primary"></i>About {{ $department->name }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="ql-snow">
+                                <div class="ql-editor" style="padding: 0; min-height: auto; font-size: 0.9rem;">
+                                    @if($department->description)
+                                        {!! $department->description !!}
+                                    @else
+                                        <em class="text-muted">No description currently available for this department.</em>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top border-3 border-dark bg-light rounded-0">
+                            <button type="button" class="btn btn-dark rounded-0 fw-bold px-4 border-2 border-dark shadow-btn-sm" data-bs-dismiss="modal">CLOSE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Team Members Modal --}}
+            <div class="modal fade" id="modalTeamMembers" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-3 border-dark rounded-0 shadow-lg" style="box-shadow: 10px 10px 0 #000 !important;">
+                        <div class="modal-header border-bottom border-3 border-dark bg-white rounded-0">
+                            <h5 class="modal-title fw-bold text-uppercase letter-spacing-1 h6">
+                                <i class="bi bi-people me-2 text-primary"></i>Team Members
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            @auth
+                                @if($department->members && $department->members->count() > 0)
+                                    <div class="row">
+                                        @foreach($department->members as $member)
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card border-2 border-dark rounded-0 shadow-btn-sm h-100 p-1">
+                                                    <div class="card-body">
+                                                        <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">{{ $member->name }}</h6>
+                                                        @if($member->pivot->role)
+                                                            <span class="badge bg-primary border border-dark rounded-0 text-uppercase" style="font-size: 0.55rem;">{{ $member->pivot->role }}</span>
+                                                        @endif
+                                                        <p class="text-muted small mb-0 mt-2" style="font-size: 0.75rem;">{{ $member->email }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <p class="text-muted mb-0">No team members listed yet.</p>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="bi bi-lock fs-1 text-muted d-block mb-3"></i>
+                                    <p class="fw-bold mb-3">Please login to view team members.</p>
+                                    <a href="{{ route('login') }}" class="btn btn-primary rounded-0 border-2 border-dark fw-bold px-4 shadow-btn">LOGIN NOW</a>
+                                </div>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Recent Meetings Modal --}}
+            <div class="modal fade" id="modalRecentMeetings" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-3 border-dark rounded-0 shadow-lg" style="box-shadow: 10px 10px 0 #000 !important;">
+                        <div class="modal-header border-bottom border-3 border-dark bg-white rounded-0 py-3">
+                            <h5 class="modal-title fw-bold text-uppercase letter-spacing-1 h6">
+                                <i class="bi bi-calendar-event me-2 text-primary"></i>Recent Meetings
+                            </h5>
+                            @auth
+                            <a href="{{ route('department.meeting.create', $department->slug) }}" class="btn btn-sm btn-outline-dark rounded-0 border-2 ms-auto me-3 fw-bold text-uppercase shadow-btn-sm" style="font-size: 0.7rem;">
+                                <i class="bi bi-plus-circle me-1"></i>New Meeting
+                            </a>
+                            @endauth
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            @auth
+                                @if($department->meetings && $department->meetings->count() > 0)
+                                    <div class="list-group rounded-0 gap-3">
+                                        @foreach($department->meetings as $meeting)
+                                            <a href="{{ route('department.meeting.show', [$department->slug, $meeting->id]) }}" class="list-group-item list-group-item-action border-2 border-dark mb-2 shadow-btn-sm p-3 rounded-0">
+                                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                                    <h6 class="mb-1 fw-bold" style="font-size: 0.9rem;">{{ $meeting->title }}</h6>
+                                                    <span class="badge bg-white text-dark border border-dark rounded-0" style="font-size: 0.65rem;">{{ $meeting->meeting_date->format('M d, Y') }}</span>
+                                                </div>
+                                                @if($meeting->description)
+                                                    <p class="mb-2 text-muted small mt-2" style="font-size: 0.8rem;">{{ Str::limit($meeting->description, 100) }}</p>
+                                                @endif
+                                                @if($meeting->location)
+                                                    <div class="mt-2">
+                                                        <small class="text-dark fw-bold" style="font-size: 0.7rem;">
+                                                            <i class="bi bi-geo-alt me-1 text-primary"></i>{{ $meeting->location }}
+                                                        </small>
+                                                    </div>
+                                                @endif
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <a href="{{ route('meetings.index', ['department_id' => $department->id]) }}" class="btn btn-dark border-2 border-dark rounded-0 fw-bold px-4 shadow-btn">
+                                            VIEW ALL MEETINGS
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <p class="text-muted">No meetings scheduled yet.</p>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="bi bi-lock fs-1 text-muted d-block mb-3"></i>
+                                    <p class="fw-bold mb-3">Please login to view recent meetings.</p>
+                                    <a href="{{ route('login') }}" class="btn btn-primary rounded-0 border-2 border-dark fw-bold px-4 shadow-btn">LOGIN NOW</a>
+                                </div>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Recent Projects Modal --}}
+            <div class="modal fade" id="modalRecentProjects" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content border-3 border-dark rounded-0 shadow-lg" style="box-shadow: 10px 10px 0 #000 !important;">
+                        <div class="modal-header border-bottom border-3 border-dark bg-white rounded-0">
+                            <h5 class="modal-title fw-bold text-uppercase letter-spacing-1 h6">
+                                <i class="bi bi-kanban me-2 text-primary"></i>Recent Projects
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4 bg-light">
+                            @auth
+                                @if(isset($department->recent_projects) && $department->recent_projects->count() > 0)
+                                    <div class="row">
+                                        @foreach($department->recent_projects as $project)
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card h-100 border-2 border-dark rounded-0 shadow-btn-sm hover-scale p-1">
+                                                    <div class="card-body d-flex flex-column">
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">
+                                                                <a href="{{ route('department.projects.show', ['slug' => $department->slug, 'projectSlug' => $project->slug]) }}" class="text-decoration-none text-dark stretched-link">{{ $project->title }}</a>
+                                                            </h6>
+                                                            @if($project->status)
+                                                                <span class="badge border border-dark rounded-0 text-uppercase" style="background-color: {{ $project->status->color }}; color: #fff; font-size: 0.55rem;">
+                                                                    {{ $project->status->name }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                        @if($project->description)
+                                                            <p class="text-muted small mb-4 text-truncate-2" style="font-size: 0.75rem;">{{ Str::limit($project->description, 80) }}</p>
+                                                        @endif
+                                                        
+                                                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                            <small class="text-dark fw-bold" style="font-size: 0.65rem;">
+                                                                <i class="bi bi-person me-1 text-primary"></i>{{ $project->user->name ?? 'Unknown' }}
+                                                            </small>
+                                                            @if($project->end_date)
+                                                                <small class="{{ $project->end_date->isPast() ? 'text-danger' : 'text-success' }} fw-bold" style="font-size: 0.65rem;">
+                                                                    <i class="bi bi-calendar-check me-1"></i>Due: {{ $project->end_date->format('M d') }}
+                                                                </small>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-4">
+                                        <p class="text-muted mb-0">No active projects found for this department's team.</p>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="bi bi-lock fs-1 text-muted d-block mb-3"></i>
+                                    <p class="fw-bold mb-3">Please login to view active projects.</p>
+                                    <a href="{{ route('login') }}" class="btn btn-primary rounded-0 border-2 border-dark fw-bold px-4 shadow-btn">LOGIN NOW</a>
+                                </div>
+                            @endauth
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -282,12 +373,44 @@
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
+        border: 4px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: 15px 15px 0 rgba(0,0,0,0.1) !important;
     }
     .hover-scale {
-        transition: transform 0.2s ease;
+        transition: all 0.2s ease;
     }
     .hover-scale:hover {
-        transform: translateY(-3px);
+        transform: translate(-3px, -3px);
+        box-shadow: 8px 8px 0 #000 !important;
+    }
+    .shadow-btn {
+        box-shadow: 6px 6px 0 #000 !important;
+        transition: all 0.2s ease;
+    }
+    .shadow-btn:active {
+        transform: translate(3px, 3px);
+        box-shadow: 2px 2px 0 #000 !important;
+    }
+    .shadow-btn-sm {
+        box-shadow: 4px 4px 0 #000 !important;
+        transition: all 0.2s ease;
+    }
+    .shadow-btn-sm:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 #000 !important;
+    }
+    .letter-spacing-1 {
+        letter-spacing: 1px;
+    }
+    .btn-white {
+        background: #fff;
+        color: #000;
+        border: 3px solid #000;
+    }
+    .btn-white:hover {
+        background: #f8f9fa;
+        color: #000;
     }
 </style>
 @push('styles')
