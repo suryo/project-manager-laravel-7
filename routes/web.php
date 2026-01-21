@@ -32,6 +32,8 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
+    Route::post('/projects/{project}/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateMgmt'])->name('projects.mgmt-update');
+    Route::post('/projects/{project}/tasks/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateTaskMgmt'])->name('projects.task-mgmt-update');
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
     Route::get('/tasks/{task}/details', [App\Http\Controllers\TaskController::class, 'details'])->name('tasks.details');
     Route::post('/tasks/{task}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('tasks.comments.store');
@@ -114,3 +116,7 @@ Route::get('/department/{slug}/projects/{projectSlug}', [App\Http\Controllers\De
 // Department Chat Routes
 Route::get('/department/{slug}/chat/messages', [App\Http\Controllers\DepartmentChatController::class, 'fetchMessages'])->name('department.chat.fetch');
 Route::post('/department/{slug}/chat/send', [App\Http\Controllers\DepartmentChatController::class, 'sendMessage'])->name('department.chat.send');
+
+// Department Project Management Update
+Route::post('/department/{slug}/projects/{projectSlug}/mgmt-update', [App\Http\Controllers\DepartmentController::class, 'updateMgmtPhase'])->name('department.project.mgmt-update');
+Route::post('/department/{slug}/projects/{projectSlug}/tasks/mgmt-update', [App\Http\Controllers\DepartmentController::class, 'updateTaskMgmt'])->name('department.task.mgmt-update');

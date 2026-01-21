@@ -174,7 +174,7 @@ class DepartmentController extends Controller
         
         $project = \App\Models\Project::where('slug', $projectSlug)
             ->whereIn('user_id', $department->members()->pluck('users.id'))
-            ->with(['tasks', 'status', 'tickets'])
+            ->with(['tasks.assignees', 'status', 'tickets'])
             ->firstOrFail();
 
         // Ensure user can view this
@@ -183,5 +183,58 @@ class DepartmentController extends Controller
         }
 
         return view('departments.public-project-show', compact('department', 'project'));
+    }
+
+    public function updateMgmtPhase(Request $request, $slug, $projectSlug)
+    {
+        $department = Department::where('slug', $slug)->firstOrFail();
+        
+        // Ensure user is a member of the department
+        if (!auth()->check() || !$department->members->contains(auth()->user())) {
+            abort(403);
+        }
+
+        $project = \App\Models\Project::where('slug', $projectSlug)->firstOrFail();
+        
+        $request->validate([
+            'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'phase_name' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'notes' => 'required',
+        ]);
+
+        $phase = $request->phase_name;
+        $column = 'mgmt_' . strtolower($phase) . '_notes';
+
+        $project->update([
+            'mgmt_phase' => $request->mgmt_phase,
+            $column => $request->notes
+        ]);
+
+        return back()->with('success', 'Management phase ' . $phase . ' updated successfully.');
+    }
+
+    public function updateTaskMgmt(Request $request, $slug, $projectSlug)
+    {
+        $department = Department::where('slug', $slug)->firstOrFail();
+        
+        // Ensure user is a member of the department
+        if (!auth()->check() || !$department->members->contains(auth()->user())) {
+            abort(403);
+        }
+
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'mgmt_notes' => 'nullable',
+        ]);
+
+        $task = \App\Models\Task::findOrFail($request->task_id);
+        
+        $task->update([
+            'mgmt_phase' => $request->mgmt_phase,
+            'mgmt_notes' => $request->mgmt_notes
+        ]);
+
+        return back()->with('success', 'Task management info updated successfully.');
     }
 }

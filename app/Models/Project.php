@@ -15,9 +15,12 @@ class Project extends Model
         'start_date',
         'end_date',
         'budget',
-        'budget',
-        'user_id',
         'slug',
+        'mgmt_phase',
+        'mgmt_planning_notes',
+        'mgmt_organizing_notes',
+        'mgmt_actuating_notes',
+        'mgmt_controlling_notes',
     ];
 
     protected $casts = [

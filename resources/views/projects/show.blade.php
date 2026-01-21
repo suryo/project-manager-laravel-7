@@ -62,6 +62,7 @@
     }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @endpush
 
 @section('content')
@@ -161,9 +162,118 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Team Workload Distribution (Moved to Sidebar) --}}
+            <div class="card border-3 border-dark rounded-0 mb-4" style="box-shadow: 8px 8px 0 #000;">
+                <div class="card-header bg-white border-bottom border-3 border-dark">
+                    <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h6">Team Workload</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 180px;">
+                        <canvas id="workloadChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Project Health (Moved to Sidebar) --}}
+            @php
+                $totalTasksCount = $project->tasks->count();
+                $doneTasksCount = $project->tasks->where('status', 'done')->count();
+                $projectProgress = $totalTasksCount > 0 ? round(($doneTasksCount / $totalTasksCount) * 100) : 0;
+                
+                $overdueTasksCount = $project->tasks->where('status', '!=', 'done')->filter(function($t) {
+                    return $t->due_date && $t->due_date->isPast();
+                })->count();
+            @endphp
+            <div class="card border-3 border-dark rounded-0 mb-4" style="box-shadow: 8px 8px 0 #000;">
+                <div class="card-header bg-white border-bottom border-3 border-dark">
+                    <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h6">Project Health</h5>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-2 text-center">
+                        <div class="col-6">
+                            <div class="p-2 bg-white border border-2 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Progress</div>
+                                <div class="h5 fw-black mb-0 text-success">{{ $projectProgress }}%</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 bg-white border border-2 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Overdue</div>
+                                <div class="h5 fw-black mb-0 {{ $overdueTasksCount > 0 ? 'text-danger' : 'text-success' }}">{{ $overdueTasksCount }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 bg-white border border-2 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Tickets</div>
+                                <div class="h5 fw-black mb-0 text-primary">{{ $project->tickets->count() }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 bg-white border border-2 border-dark" style="box-shadow: 2px 2px 0 #000;">
+                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Resources</div>
+                                <div class="h5 fw-black mb-0 text-dark">{{ $assignees->count() }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-8">
+            {{-- POAC Management Pillars --}}
+            <div class="card border-3 border-dark rounded-0 mb-4" style="box-shadow: 8px 8px 0 #000;">
+                <div class="card-header py-3 px-4 bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h6">
+                        <i class="bi bi-grid-3x3-gap me-2"></i> Management Framework (POAC)
+                    </h5>
+                    <div class="badge bg-warning text-dark border border-1 border-dark px-3 py-2 text-uppercase fw-900" style="font-size: 0.7rem;">
+                        Current Phase: {{ $project->mgmt_phase ?? 'Planning' }}
+                    </div>
+                </div>
+                <div class="card-body p-4 bg-light">
+                    <div class="row g-4">
+                        @php
+                            $phases = [
+                                'Planning' => ['icon' => 'bi-journal-check', 'color' => '#FF6B6B', 'notes' => 'mgmt_planning_notes'],
+                                'Organizing' => ['icon' => 'bi-diagram-3', 'color' => '#4D96FF', 'notes' => 'mgmt_organizing_notes'],
+                                'Actuating' => ['icon' => 'bi-play-circle', 'color' => '#6BCB77', 'notes' => 'mgmt_actuating_notes'],
+                                'Controlling' => ['icon' => 'bi-shield-check', 'color' => '#FFD93D', 'notes' => 'mgmt_controlling_notes'],
+                            ];
+                        @endphp
+                        @foreach($phases as $name => $info)
+                            <div class="col-lg-3 col-md-6">
+                                <div class="h-100 bg-white border border-3 border-dark p-3" 
+                                     style="box-shadow: 4px 4px 0 #000; position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: {{ $info['color'] }};"></div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="rounded-0 d-flex align-items-center justify-content-center text-white border border-2 border-dark" 
+                                             style="width: 28px; height: 28px; background-color: {{ $info['color'] }}; box-shadow: 2px 2px 0 #000;">
+                                            <i class="bi {{ $info['icon'] }} small"></i>
+                                        </div>
+                                        <h6 class="fw-900 mb-0 ms-2 text-uppercase" style="font-size: 0.75rem;">{{ $name }}</h6>
+                                    </div>
+                                    <div class="text-muted small" style="min-height: 60px; font-size: 0.7rem; line-height: 1.4;">
+                                        @if($project->{$info['notes']})
+                                            {!! nl2br(e($project->{$info['notes']})) !!}
+                                        @else
+                                            <span class="fst-italic opacity-50">No data.</span>
+                                        @endif
+                                    </div>
+                                    <div class="mt-2 pt-2 border-top border-1 border-dark">
+                                        <button class="btn btn-xs btn-dark w-100 rounded-0 text-uppercase fw-bold" 
+                                                style="font-size: 0.6rem;"
+                                                onclick="openMgmtEdit('{{ $name }}', `{{ $project->{$info['notes']} }}`)">
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
             <div class="card" style="box-shadow: 8px 8px 0 #000;">
                 <div class="card-header d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom border-3 border-dark">
                     <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h4">TASKS LIST</h5>
@@ -227,10 +337,25 @@
                                             <td>
                                                 @php
                                                     $statusClass = $task->status === 'done' ? 'bg-success' : ($task->status === 'in_progress' ? 'bg-info text-dark' : 'bg-secondary');
+                                                    $phaseColors = [
+                                                        'Planning' => '#FF6B6B',
+                                                        'Organizing' => '#4D96FF',
+                                                        'Actuating' => '#6BCB77',
+                                                        'Controlling' => '#FFD93D',
+                                                    ];
+                                                    $phaseColor = $phaseColors[$task->mgmt_phase] ?? '#6c757d';
                                                 @endphp
-                                                <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.65rem; box-shadow: 2px 2px 0 #000;">
-                                                    {{ str_replace('_', ' ', $task->status) }}
-                                                </span>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.55rem; box-shadow: 2px 2px 0 #000;">
+                                                        {{ str_replace('_', ' ', $task->status) }}
+                                                    </span>
+                                                    <span class="badge border border-1 border-dark px-2 py-1 text-uppercase text-dark cursor-pointer" 
+                                                          style="font-size: 0.55rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
+                                                          onclick="openTaskMgmtEdit({{ $task->id }}, '{{ $task->title }}', '{{ $task->mgmt_phase }}', `{{ $task->mgmt_notes }}`)">
+                                                        {{ $task->mgmt_phase }}
+                                                        <i class="bi bi-pencil-square ms-1"></i>
+                                                    </span>
+                                                </div>
                                             </td>
                                              <td>
                                                 <div class="d-flex align-items-center flex-wrap gap-1">
@@ -295,18 +420,10 @@
                         </div>
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    {{-- TICKETS LIST --}}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card" style="box-shadow: 8px 8px 0 #000;">
+            {{-- TICKETS LIST --}}
+            <div class="card border-3 border-dark rounded-0 mt-4" style="box-shadow: 8px 8px 0 #000;">
                 <div class="card-header d-flex justify-content-between align-items-center py-3 px-4 bg-white border-bottom border-3 border-dark">
                     <h5 class="fw-bold mb-0 text-uppercase letter-spacing-1 h4">TICKETS LIST</h5>
-                    {{-- Optional: Add Ticket Button --}}
                 </div>
                 <div class="card-body p-0">
                     @if($project->tickets->count() > 0)
@@ -314,11 +431,11 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0">Ticket No</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Title</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Type</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Status</th>
-                                        <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0">Actions</th>
+                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0" style="width: 15%;">Ticket No</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 50%;">Title</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 15%;">Type</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Status</th>
+                                        <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -337,7 +454,7 @@
                                                 </span>
                                             </td>
                                             <td class="text-end pe-4">
-                                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-light bg-white border border-2 border-dark px-2 py-1 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.7rem;">
+                                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-dark rounded-0 px-3 py-1 fw-bold text-uppercase" style="box-shadow: 2px 2px 0 #000; font-size: 0.65rem;">
                                                     VIEW
                                                 </a>
                                             </td>
@@ -356,7 +473,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> {{-- This closes the container --}}
 
 <!-- Add Task Modal -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -992,6 +1109,151 @@
         }, 500);
         @endif
 
+        // --- WORKLOAD CHART (Organizing) ---
+        @php
+            $workload = [];
+            foreach($project->tasks as $task) {
+                foreach($task->assignees as $assignee) {
+                    $workload[$assignee->name] = ($workload[$assignee->name] ?? 0) + 1;
+                }
+            }
+            $labels = array_keys($workload);
+            $data = array_values($workload);
+        @endphp
+
+        const ctx = document.getElementById('workloadChart');
+        if (ctx) {
+            const workloadLabels = {!! json_encode($labels) !!};
+            const workloadData = {!! json_encode($data) !!};
+            
+            if (workloadLabels.length > 0) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: workloadLabels,
+                        datasets: [{
+                            label: 'Tasks Assigned',
+                            data: workloadData,
+                            backgroundColor: '#4D96FF',
+                            borderColor: '#000',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, color: '#000', font: { weight: 'bold' } },
+                                grid: { color: '#ddd' }
+                            },
+                            x: {
+                                ticks: { color: '#000', font: { weight: 'bold' } },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            } else {
+                ctx.parentNode.innerHTML = '<div class="text-center py-4 text-muted small italic">No workload data available (no assignees on tasks).</div>';
+            }
+        }
     });
+</script>
+
+{{-- POAC Management Edit Modal --}}
+<div class="modal fade" id="modalEditMgmt" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-dark text-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="mgmtModalTitle">UPDATE PHASE</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('projects.mgmt-update', $project) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 bg-light">
+                    <input type="hidden" name="phase_name" id="inputPhaseName">
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Current Project Phase</label>
+                        <select name="mgmt_phase" class="form-select border-2 border-dark rounded-0 shadow-none fw-bold">
+                            <option value="Planning" {{ ($project->mgmt_phase ?? 'Planning') == 'Planning' ? 'selected' : '' }}>Planning</option>
+                            <option value="Organizing" {{ ($project->mgmt_phase ?? 'Planning') == 'Organizing' ? 'selected' : '' }}>Organizing</option>
+                            <option value="Actuating" {{ ($project->mgmt_phase ?? 'Planning') == 'Actuating' ? 'selected' : '' }}>Actuating</option>
+                            <option value="Controlling" {{ ($project->mgmt_phase ?? 'Planning') == 'Controlling' ? 'selected' : '' }}>Controlling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label fw-900 text-uppercase small text-muted" id="mgmtNotesLabel">Documentation</label>
+                        <textarea name="notes" id="mgmtNotesArea" class="form-control border-2 border-dark rounded-0 shadow-none" rows="6" placeholder="Enter details for this management phase..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
+                    <button type="button" class="btn btn-outline-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="submit" class="btn btn-primary border-2 border-dark rounded-0 fw-bold px-4 shadow-btn">SAVE CHANGES</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Task POAC Edit Modal --}}
+<div class="modal fade" id="modalEditTaskMgmt" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-dark text-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="taskMgmtTitle">UPDATE TASK MANAGEMENT</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('projects.task-mgmt-update', $project) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 bg-light">
+                    <input type="hidden" name="task_id" id="inputTaskId">
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Management Phase</label>
+                        <select name="mgmt_phase" id="inputTaskPhase" class="form-select border-2 border-dark rounded-0 shadow-none fw-bold">
+                            <option value="Planning">Planning</option>
+                            <option value="Organizing">Organizing</option>
+                            <option value="Actuating">Actuating</option>
+                            <option value="Controlling">Controlling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label fw-900 text-uppercase small text-muted">Management Notes</label>
+                        <textarea name="mgmt_notes" id="taskMgmtNotes" class="form-control border-2 border-dark rounded-0 shadow-none" rows="4" placeholder="Enter notes about this task's management..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
+                    <button type="button" class="btn btn-outline-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CLOSE</button>
+                    <button type="submit" class="btn btn-primary border-2 border-dark rounded-0 fw-bold px-4 shadow-btn">SAVE TASK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openMgmtEdit(phase, currentNotes) {
+        document.getElementById('inputPhaseName').value = phase;
+        document.getElementById('mgmtModalTitle').innerText = 'UPDATE: ' + phase.toUpperCase();
+        document.getElementById('mgmtNotesLabel').innerText = phase + ' Documentation';
+        document.getElementById('mgmtNotesArea').value = currentNotes;
+        
+        var modal = new bootstrap.Modal(document.getElementById('modalEditMgmt'));
+        modal.show();
+    }
+
+    function openTaskMgmtEdit(taskId, taskTitle, phase, notes) {
+        document.getElementById('inputTaskId').value = taskId;
+        document.getElementById('taskMgmtTitle').innerText = 'TASK MGMT: ' + taskTitle;
+        document.getElementById('inputTaskPhase').value = phase;
+        document.getElementById('taskMgmtNotes').value = notes;
+
+        var modal = new bootstrap.Modal(document.getElementById('modalEditTaskMgmt'));
+        modal.show();
+    }
 </script>
 @endpush

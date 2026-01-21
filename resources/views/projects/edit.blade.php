@@ -60,12 +60,27 @@
 
                         <div class="mb-3">
                             <label for="project_status_id" class="form-label text-muted small fw-bold">Status</label>
-                            <select id="project_status_id" class="form-select form-select-lg @error('project_status_id') is-invalid @enderror" name="project_status_id" required>
+                            <select id="project_status_id" class="form-select @error('project_status_id') is-invalid @enderror" name="project_status_id" required>
                                 @foreach($statuses as $status)
                                     <option value="{{ $status->id }}" {{ old('project_status_id', $project->project_status_id) == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
                                 @endforeach
                             </select>
                             @error('project_status_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mgmt_phase" class="form-label text-muted small fw-bold">Management Phase (POAC)</label>
+                            <select id="mgmt_phase" class="form-select @error('mgmt_phase') is-invalid @enderror" name="mgmt_phase">
+                                <option value="Planning" {{ old('mgmt_phase', $project->mgmt_phase) == 'Planning' ? 'selected' : '' }}>Planning</option>
+                                <option value="Organizing" {{ old('mgmt_phase', $project->mgmt_phase) == 'Organizing' ? 'selected' : '' }}>Organizing</option>
+                                <option value="Actuating" {{ old('mgmt_phase', $project->mgmt_phase) == 'Actuating' ? 'selected' : '' }}>Actuating</option>
+                                <option value="Controlling" {{ old('mgmt_phase', $project->mgmt_phase) == 'Controlling' ? 'selected' : '' }}>Controlling</option>
+                            </select>
+                            @error('mgmt_phase')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>

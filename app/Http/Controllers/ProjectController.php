@@ -126,6 +126,7 @@ class ProjectController extends Controller
             'group' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'project_status_id' => 'required|exists:project_statuses,id',
+            'mgmt_phase' => 'nullable|in:Planning,Organizing,Actuating,Controlling',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
@@ -147,5 +148,42 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
             ->with('success', 'Project deleted successfully.');
+    }
+
+    public function updateMgmt(Request $request, Project $project)
+    {
+        $request->validate([
+            'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'phase_name' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'notes' => 'required',
+        ]);
+
+        $phase = $request->phase_name;
+        $column = 'mgmt_' . strtolower($phase) . '_notes';
+
+        $project->update([
+            'mgmt_phase' => $request->mgmt_phase,
+            $column => $request->notes
+        ]);
+
+        return back()->with('success', 'Management phase ' . $phase . ' updated successfully.');
+    }
+
+    public function updateTaskMgmt(Request $request, Project $project)
+    {
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'mgmt_notes' => 'nullable',
+        ]);
+
+        $task = \App\Models\Task::findOrFail($request->task_id);
+        
+        $task->update([
+            'mgmt_phase' => $request->mgmt_phase,
+            'mgmt_notes' => $request->mgmt_notes
+        ]);
+
+        return back()->with('success', 'Task management info updated successfully.');
     }
 }

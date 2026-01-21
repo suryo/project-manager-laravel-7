@@ -15,6 +15,8 @@ class Task extends Model
         'cost',
         'start_date',
         'due_date',
+        'mgmt_phase',
+        'mgmt_notes',
     ];
 
     protected $casts = [
