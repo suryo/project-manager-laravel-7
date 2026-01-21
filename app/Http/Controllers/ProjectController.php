@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectStatus;
+use App\Models\PoacLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -99,9 +100,10 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $this->authorize('view', $project);
-        $project->load(['tasks.assignees', 'status', 'tickets']);        $users = \App\Models\User::all();
+        $project->load(['tasks.assignees', 'status', 'tickets', 'user.departments']);
         $users = \App\Models\User::all();
-        return view('projects.show', compact('project', 'users'));
+        $department = $project->user->departments->first();
+        return view('projects.show', compact('project', 'users', 'department'));
     }
 
     /**
@@ -155,18 +157,26 @@ class ProjectController extends Controller
         $request->validate([
             'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
             'phase_name' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'title' => 'required|string|max:255',
             'notes' => 'required',
         ]);
 
         $phase = $request->phase_name;
-        $column = 'mgmt_' . strtolower($phase) . '_notes';
 
-        $project->update([
-            'mgmt_phase' => $request->mgmt_phase,
-            $column => $request->notes
+        // Create the log entry
+        $project->poacLogs()->create([
+            'phase' => $phase,
+            'title' => $request->title,
+            'description' => $request->notes,
+            'user_id' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Management phase ' . $phase . ' updated successfully.');
+        // Keep the current phase in project for quick access
+        $project->update([
+            'mgmt_phase' => $request->mgmt_phase
+        ]);
+
+        return back()->with('success', 'Management action for ' . $phase . ' recorded successfully.');
     }
 
     public function updateTaskMgmt(Request $request, Project $project)
@@ -174,16 +184,24 @@ class ProjectController extends Controller
         $request->validate([
             'task_id' => 'required|exists:tasks,id',
             'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
-            'mgmt_notes' => 'nullable',
+            'title' => 'required|string|max:255',
+            'mgmt_notes' => 'required',
         ]);
 
         $task = \App\Models\Task::findOrFail($request->task_id);
         
-        $task->update([
-            'mgmt_phase' => $request->mgmt_phase,
-            'mgmt_notes' => $request->mgmt_notes
+        // Create log entry
+        $task->poacLogs()->create([
+            'phase' => $request->mgmt_phase,
+            'title' => $request->title,
+            'description' => $request->mgmt_notes,
+            'user_id' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Task management info updated successfully.');
+        $task->update([
+            'mgmt_phase' => $request->mgmt_phase
+        ]);
+
+        return back()->with('success', 'Task management action recorded successfully.');
     }
 }

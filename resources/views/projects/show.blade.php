@@ -211,8 +211,8 @@
                         </div>
                         <div class="col-6">
                             <div class="p-2 bg-white border border-2 border-dark" style="box-shadow: 2px 2px 0 #000;">
-                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Resources</div>
-                                <div class="h5 fw-black mb-0 text-dark">{{ $assignees->count() }}</div>
+                                <div class="extra-small fw-900 text-muted text-uppercase" style="font-size: 0.5rem;">Team</div>
+                                <div class="h5 fw-black mb-0 text-dark">{{ $department ? $department->members->count() : $assignees->count() }}</div>
                             </div>
                         </div>
                     </div>
@@ -235,15 +235,15 @@
                     <div class="row g-4">
                         @php
                             $phases = [
-                                'Planning' => ['icon' => 'bi-journal-check', 'color' => '#FF6B6B', 'notes' => 'mgmt_planning_notes'],
-                                'Organizing' => ['icon' => 'bi-diagram-3', 'color' => '#4D96FF', 'notes' => 'mgmt_organizing_notes'],
-                                'Actuating' => ['icon' => 'bi-play-circle', 'color' => '#6BCB77', 'notes' => 'mgmt_actuating_notes'],
-                                'Controlling' => ['icon' => 'bi-shield-check', 'color' => '#FFD93D', 'notes' => 'mgmt_controlling_notes'],
+                                'Planning' => ['icon' => 'bi-journal-check', 'color' => '#FF6B6B'],
+                                'Organizing' => ['icon' => 'bi-diagram-3', 'color' => '#4D96FF'],
+                                'Actuating' => ['icon' => 'bi-play-circle', 'color' => '#6BCB77'],
+                                'Controlling' => ['icon' => 'bi-shield-check', 'color' => '#FFD93D'],
                             ];
                         @endphp
                         @foreach($phases as $name => $info)
                             <div class="col-lg-3 col-md-6">
-                                <div class="h-100 bg-white border border-3 border-dark p-3" 
+                                <div class="h-100 bg-white border border-3 border-dark p-3 d-flex flex-column" 
                                      style="box-shadow: 4px 4px 0 #000; position: relative;">
                                     <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: {{ $info['color'] }};"></div>
                                     <div class="d-flex align-items-center mb-3">
@@ -253,18 +253,28 @@
                                         </div>
                                         <h6 class="fw-900 mb-0 ms-2 text-uppercase" style="font-size: 0.75rem;">{{ $name }}</h6>
                                     </div>
-                                    <div class="text-muted small" style="min-height: 60px; font-size: 0.7rem; line-height: 1.4;">
-                                        @if($project->{$info['notes']})
-                                            {!! nl2br(e($project->{$info['notes']})) !!}
-                                        @else
-                                            <span class="fst-italic opacity-50">No data.</span>
-                                        @endif
+                                    <div class="poac-logs-list mb-3" style="min-height: 120px; max-height: 150px; overflow-y: auto; font-size: 0.7rem;">
+                                        @php
+                                            $logs = $project->poacLogs->where('phase', $name);
+                                        @endphp
+                                        @forelse($logs as $log)
+                                            <div class="mb-2 pb-1 border-bottom border-dashed">
+                                                <a href="javascript:void(0)" 
+                                                   class="text-decoration-none text-dark hover-link fw-bold d-block"
+                                                   onclick="viewPoacDetail('{{ addslashes($log->title) }}', `{!! addslashes(nl2br(e($log->description))) !!}`, '{{ $log->created_at->format('d/m/Y H:i') }}', '{{ addslashes($log->user ? $log->user->name : 'System') }}')">
+                                                    {{ $log->created_at->format('d/m/Y H:i') }}
+                                                </a>
+                                                <span class="extra-small text-muted">{{ Str::limit($log->title, 30) }}</span>
+                                            </div>
+                                        @empty
+                                            <span class="fst-italic opacity-50 small">No logs recorded.</span>
+                                        @endforelse
                                     </div>
-                                    <div class="mt-2 pt-2 border-top border-1 border-dark">
+                                    <div class="mt-auto pt-2 border-top border-1 border-dark">
                                         <button class="btn btn-xs btn-dark w-100 rounded-0 text-uppercase fw-bold" 
                                                 style="font-size: 0.6rem;"
-                                                onclick="openMgmtEdit('{{ $name }}', `{{ $project->{$info['notes']} }}`)">
-                                            Update
+                                                onclick="openMgmtEdit('{{ $name }}')">
+                                            + Log Action
                                         </button>
                                     </div>
                                 </div>
@@ -351,7 +361,7 @@
                                                     </span>
                                                     <span class="badge border border-1 border-dark px-2 py-1 text-uppercase text-dark cursor-pointer" 
                                                           style="font-size: 0.55rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
-                                                          onclick="openTaskMgmtEdit({{ $task->id }}, '{{ $task->title }}', '{{ $task->mgmt_phase }}', `{{ $task->mgmt_notes }}`)">
+                                                          onclick="openTaskMgmtEdit({{ $task->id }}, '{{ addslashes($task->title) }}', '{{ $task->mgmt_phase }}')">
                                                         {{ $task->mgmt_phase }}
                                                         <i class="bi bi-pencil-square ms-1"></i>
                                                     </span>
@@ -1186,9 +1196,14 @@
                             <option value="Controlling" {{ ($project->mgmt_phase ?? 'Planning') == 'Controlling' ? 'selected' : '' }}>Controlling</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="form-label fw-900 text-uppercase small text-muted" id="mgmtNotesLabel">Documentation</label>
-                        <textarea name="notes" id="mgmtNotesArea" class="form-control border-2 border-dark rounded-0 shadow-none" rows="6" placeholder="Enter details for this management phase..."></textarea>
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Action Title</label>
+                        <input type="text" name="title" id="mgmtTitle" class="form-control border-2 border-dark rounded-0 shadow-none fw-bold" placeholder="E.g. Kick-off Meeting, Resource Allocation...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-900 text-uppercase small text-muted" id="mgmtNotesLabel">Description/Notes</label>
+                        <div id="mgmtQuillEditor" class="bg-white border-2 border-dark" style="height: 200px;"></div>
+                        <input type="hidden" name="notes" id="mgmtNotesArea">
                     </div>
                 </div>
                 <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
@@ -1221,9 +1236,14 @@
                             <option value="Controlling">Controlling</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="form-label fw-900 text-uppercase small text-muted">Management Notes</label>
-                        <textarea name="mgmt_notes" id="taskMgmtNotes" class="form-control border-2 border-dark rounded-0 shadow-none" rows="4" placeholder="Enter notes about this task's management..."></textarea>
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Action Title</label>
+                        <input type="text" name="title" id="taskMgmtTitleInput" class="form-control border-2 border-dark rounded-0 shadow-none fw-bold" placeholder="E.g. Task Defined, Code Review Done...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Description/Notes</label>
+                        <div id="taskQuillEditor" class="bg-white border-2 border-dark" style="height: 150px;"></div>
+                        <input type="hidden" name="mgmt_notes" id="taskMgmtNotes">
                     </div>
                 </div>
                 <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
@@ -1235,22 +1255,101 @@
     </div>
 </div>
 
+{{-- POAC Log View Modal --}}
+<div class="modal fade" id="modalViewPoac" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="viewPoacTitle">ACTION DETAIL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="mb-3">
+                    <span class="badge bg-dark rounded-0 extra-small" id="viewPoacDate">DATE</span>
+                </div>
+                <div id="viewPoacDescription" class="bg-white border border-2 border-dark p-3 small" style="box-shadow: 4px 4px 0 rgba(0,0,0,0.1); white-space: pre-wrap;">
+                </div>
+            </div>
+            <div class="modal-footer p-3 border-top border-3 border-dark bg-white">
+                <button type="button" class="btn btn-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    function openMgmtEdit(phase, currentNotes) {
+    let mgmtQuill, taskQuill;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Project MGMT Quill
+        if (document.getElementById('mgmtQuillEditor')) {
+            mgmtQuill = new Quill('#mgmtQuillEditor', {
+                theme: 'snow',
+                placeholder: 'Enter details for this management action...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
+        // Initialize Task MGMT Quill
+        if (document.getElementById('taskQuillEditor')) {
+            taskQuill = new Quill('#taskQuillEditor', {
+                theme: 'snow',
+                placeholder: 'Enter notes about this task\'s management...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
+        // Sync Quill to hidden input on form submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                if (mgmtQuill && this.contains(document.getElementById('mgmtQuillEditor'))) {
+                    document.getElementById('mgmtNotesArea').value = mgmtQuill.root.innerHTML;
+                }
+                if (taskQuill && this.contains(document.getElementById('taskQuillEditor'))) {
+                    document.getElementById('taskMgmtNotes').value = taskQuill.root.innerHTML;
+                }
+            });
+        });
+    });
+
+    function viewPoacDetail(title, description, date, user) {
+        document.getElementById('viewPoacTitle').innerText = title;
+        document.getElementById('viewPoacDate').innerText = date + ' | By: ' + user;
+        document.getElementById('viewPoacDescription').innerHTML = description;
+        var modal = new bootstrap.Modal(document.getElementById('modalViewPoac'));
+        modal.show();
+    }
+
+    function openMgmtEdit(phase) {
         document.getElementById('inputPhaseName').value = phase;
         document.getElementById('mgmtModalTitle').innerText = 'UPDATE: ' + phase.toUpperCase();
-        document.getElementById('mgmtNotesLabel').innerText = phase + ' Documentation';
-        document.getElementById('mgmtNotesArea').value = currentNotes;
+        document.getElementById('mgmtNotesLabel').innerText = phase + ' Description';
+        // Clear previous values
+        document.getElementById('mgmtTitle').value = '';
+        if (mgmtQuill) mgmtQuill.setContents([]);
         
         var modal = new bootstrap.Modal(document.getElementById('modalEditMgmt'));
         modal.show();
     }
 
-    function openTaskMgmtEdit(taskId, taskTitle, phase, notes) {
+    function openTaskMgmtEdit(taskId, taskTitle, phase) {
         document.getElementById('inputTaskId').value = taskId;
         document.getElementById('taskMgmtTitle').innerText = 'TASK MGMT: ' + taskTitle;
         document.getElementById('inputTaskPhase').value = phase;
-        document.getElementById('taskMgmtNotes').value = notes;
+        document.getElementById('taskMgmtTitleInput').value = '';
+        if (taskQuill) taskQuill.setContents([]);
 
         var modal = new bootstrap.Modal(document.getElementById('modalEditTaskMgmt'));
         modal.show();

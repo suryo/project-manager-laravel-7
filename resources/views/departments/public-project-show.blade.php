@@ -70,37 +70,47 @@
                     <div class="row g-4">
                         @php
                             $phases = [
-                                'Planning' => ['icon' => 'bi-journal-check', 'color' => '#FF6B6B', 'notes' => 'mgmt_planning_notes'],
-                                'Organizing' => ['icon' => 'bi-diagram-3', 'color' => '#4D96FF', 'notes' => 'mgmt_organizing_notes'],
-                                'Actuating' => ['icon' => 'bi-play-circle', 'color' => '#6BCB77', 'notes' => 'mgmt_actuating_notes'],
-                                'Controlling' => ['icon' => 'bi-shield-check', 'color' => '#FFD93D', 'notes' => 'mgmt_controlling_notes'],
+                                'Planning' => ['icon' => 'bi-journal-check', 'color' => '#FF6B6B'],
+                                'Organizing' => ['icon' => 'bi-diagram-3', 'color' => '#4D96FF'],
+                                'Actuating' => ['icon' => 'bi-play-circle', 'color' => '#6BCB77'],
+                                'Controlling' => ['icon' => 'bi-shield-check', 'color' => '#FFD93D'],
                             ];
                         @endphp
                         @foreach($phases as $name => $info)
                             <div class="col-lg-3 col-md-6">
-                                <div class="h-100 bg-white border border-3 border-dark p-3 transition-hover" 
+                                <div class="h-100 bg-white border border-3 border-dark p-3 transition-hover d-flex flex-column" 
                                      style="box-shadow: 5px 5px 0 #000; position: relative; overflow: hidden;">
                                     <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: {{ $info['color'] }};"></div>
                                     <div class="d-flex align-items-center mb-3">
                                         <div class="rounded-0 d-flex align-items-center justify-content-center text-white border border-2 border-dark" 
                                              style="width: 32px; height: 32px; background-color: {{ $info['color'] }}; box-shadow: 2px 2px 0 #000;">
-                                            <i class="bi {{ $info['icon'] }} small"></i>
-                                        </div>
-                                        <h6 class="fw-900 mb-0 ms-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">{{ $name }}</h6>
+                                             <i class="bi {{ $info['icon'] }} small"></i>
+                                         </div>
+                                         <h6 class="fw-900 mb-0 ms-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">{{ $name }}</h6>
                                     </div>
-                                    <div class="mgmt-notes-content text-muted small" style="min-height: 80px; font-size: 0.75rem; line-height: 1.5;">
-                                        @if($project->{$info['notes']})
-                                            {!! nl2br(e($project->{$info['notes']})) !!}
-                                        @else
-                                            <span class="fst-italic opacity-50">No documentation for this phase yet.</span>
-                                        @endif
+                                    <div class="poac-logs-list mb-3" style="min-height: 120px; max-height: 150px; overflow-y: auto; font-size: 0.75rem;">
+                                        @php
+                                            $logs = $project->poacLogs->where('phase', $name);
+                                        @endphp
+                                        @forelse($logs as $log)
+                                            <div class="mb-2 pb-1 border-bottom border-dashed">
+                                                <a href="javascript:void(0)" 
+                                                   class="text-decoration-none text-dark hover-link fw-bold d-block"
+                                                   onclick="viewPoacDetail('{{ addslashes($log->title) }}', `{!! addslashes(nl2br(e($log->description))) !!}`, '{{ $log->created_at->format('d/m/Y H:i') }}', '{{ addslashes($log->user ? $log->user->name : 'System') }}')">
+                                                    {{ $log->created_at->format('d/m/Y H:i') }}
+                                                </a>
+                                                <span class="extra-small text-muted">{{ Str::limit($log->title, 30) }}</span>
+                                            </div>
+                                        @empty
+                                            <span class="fst-italic opacity-50 small">No logs recorded.</span>
+                                        @endforelse
                                     </div>
                                     @if(auth()->check() && $department->members->contains(auth()->user()))
-                                        <div class="mt-3 pt-3 border-top border-1 border-dark opacity-75">
+                                        <div class="mt-auto pt-3 border-top border-1 border-dark opacity-75">
                                             <button class="btn btn-sm btn-dark w-100 rounded-0 text-uppercase fw-bold" 
                                                     style="font-size: 0.65rem;"
-                                                    onclick="openMgmtEdit('{{ $name }}', `{{ $project->{$info['notes']} }}`)">
-                                                Update Phase
+                                                    onclick="openMgmtEdit('{{ $name }}')">
+                                                + Log Action
                                             </button>
                                         </div>
                                     @endif
@@ -131,6 +141,27 @@
                                 <span class="fw-900 text-dark" style="font-size: 0.95rem; line-height: 1.1;">{{ $project->user->name }}</span>
                                 <span class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Project Lead</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-uppercase extra-small fw-900 d-block mb-2 text-muted">Assigned Team</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @php
+                                $assignees = $project->tasks->flatMap->assignees->unique('id');
+                            @endphp
+                            @forelse($assignees as $member)
+                                <div class="d-flex align-items-center bg-white border border-2 border-dark py-1 px-2" style="box-shadow: 2px 2px 0 #000;">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2 border border-1 border-dark" style="width: 20px; height: 20px; font-size: 0.65rem; font-weight: 800;">
+                                        {{ strtoupper(substr($member->name, 0, 1)) }}
+                                    </div>
+                                    <span class="fw-bold text-dark" style="font-size: 0.8rem;">{{ $member->name }}</span>
+                                </div>
+                            @empty
+                                <div class="p-2 border border-2 border-dark bg-light w-100 text-center">
+                                    <span class="text-muted italic small">No team members assigned.</span>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
 
@@ -314,7 +345,7 @@
                                                     <span class="badge border border-1 border-dark px-2 py-1 text-uppercase text-dark {{ auth()->check() && $department->members->contains(auth()->user()) ? 'cursor-pointer' : '' }}" 
                                                           style="font-size: 0.55rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
                                                           @if(auth()->check() && $department->members->contains(auth()->user()))
-                                                            onclick="openTaskMgmtEdit({{ $task->id }}, '{{ $task->title }}', '{{ $task->mgmt_phase }}', `{{ $task->mgmt_notes }}`)"
+                                                            onclick="openTaskMgmtEdit({{ $task->id }}, '{{ addslashes($task->title) }}', '{{ $task->mgmt_phase }}')"
                                                           @endif>
                                                         {{ $task->mgmt_phase }}
                                                         @if(auth()->check() && $department->members->contains(auth()->user()))
@@ -381,9 +412,14 @@
                             <option value="Controlling" {{ $project->mgmt_phase == 'Controlling' ? 'selected' : '' }}>4. Controlling (Pengendalian)</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Action Title</label>
+                        <input type="text" name="title" id="mgmtTitle" class="form-control border-2 border-dark rounded-0 shadow-none fw-bold" placeholder="E.g. Kick-off Meeting, Resource Allocation...">
+                    </div>
                     <div class="mb-2">
-                        <label class="form-label fw-900 text-uppercase small text-muted" id="mgmtNotesLabel">Documentation</label>
-                        <textarea name="notes" id="mgmtNotesArea" class="form-control border-2 border-dark rounded-0 shadow-none" rows="8" placeholder="Enter documentation for this phase..." required></textarea>
+                        <label class="form-label fw-900 text-uppercase small text-muted" id="mgmtNotesLabel">Description/Notes</label>
+                        <div id="mgmtQuillEditor" class="bg-white border-2 border-dark" style="height: 200px;"></div>
+                        <input type="hidden" name="notes" id="mgmtNotesArea">
                     </div>
                 </div>
                 <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
@@ -416,9 +452,14 @@
                             <option value="Controlling">Controlling</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="form-label fw-900 text-uppercase small text-muted">Management Notes</label>
-                        <textarea name="mgmt_notes" id="taskMgmtNotes" class="form-control border-2 border-dark rounded-0 shadow-none" rows="4" placeholder="Enter notes about this task's management..."></textarea>
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Action Title</label>
+                        <input type="text" name="title" id="taskMgmtTitleInput" class="form-control border-2 border-dark rounded-0 shadow-none fw-bold" placeholder="E.g. Task Defined, Code Review Done...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Description/Notes</label>
+                        <div id="taskQuillEditor" class="bg-white border-2 border-dark" style="height: 150px;"></div>
+                        <input type="hidden" name="mgmt_notes" id="taskMgmtNotes">
                     </div>
                 </div>
                 <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
@@ -430,6 +471,28 @@
     </div>
 </div>
 @endif
+
+{{-- POAC Log View Modal --}}
+<div class="modal fade" id="modalViewPoac" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="viewPoacTitle">ACTION DETAIL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="mb-3">
+                    <span class="badge bg-dark rounded-0 extra-small" id="viewPoacDate">DATE</span>
+                </div>
+                <div id="viewPoacDescription" class="bg-white border border-2 border-dark p-3 small" style="box-shadow: 4px 4px 0 rgba(0,0,0,0.1); white-space: pre-wrap;">
+                </div>
+            </div>
+            <div class="modal-footer p-3 border-top border-3 border-dark bg-white">
+                <button type="button" class="btn btn-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.min.js"></script>
@@ -532,21 +595,80 @@
         }
     });
 
-    function openMgmtEdit(phase, currentNotes) {
+    let mgmtQuill, taskQuill;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Project MGMT Quill
+        if (document.getElementById('mgmtQuillEditor')) {
+            mgmtQuill = new Quill('#mgmtQuillEditor', {
+                theme: 'snow',
+                placeholder: 'Enter details for this management action...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
+        // Initialize Task MGMT Quill
+        if (document.getElementById('taskQuillEditor')) {
+            taskQuill = new Quill('#taskQuillEditor', {
+                theme: 'snow',
+                placeholder: 'Enter notes about this task\'s management...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
+        // Sync Quill to hidden input on form submit
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                if (mgmtQuill && this.contains(document.getElementById('mgmtQuillEditor'))) {
+                    document.getElementById('mgmtNotesArea').value = mgmtQuill.root.innerHTML;
+                }
+                if (taskQuill && this.contains(document.getElementById('taskQuillEditor'))) {
+                    document.getElementById('taskMgmtNotes').value = taskQuill.root.innerHTML;
+                }
+            });
+        });
+    });
+
+    function viewPoacDetail(title, description, date, user) {
+        document.getElementById('viewPoacTitle').innerText = title;
+        document.getElementById('viewPoacDate').innerText = date + ' | By: ' + user;
+        document.getElementById('viewPoacDescription').innerHTML = description;
+        var modal = new bootstrap.Modal(document.getElementById('modalViewPoac'));
+        modal.show();
+    }
+
+    function openMgmtEdit(phase) {
         document.getElementById('inputPhaseName').value = phase;
         document.getElementById('mgmtModalTitle').innerText = 'UPDATE: ' + phase.toUpperCase();
-        document.getElementById('mgmtNotesLabel').innerText = phase + ' Documentation';
-        document.getElementById('mgmtNotesArea').value = currentNotes;
+        document.getElementById('mgmtNotesLabel').innerText = phase + ' Description';
+        // Clear previous values
+        const titleInput = document.getElementById('mgmtTitle');
+        if (titleInput) titleInput.value = '';
+        if (mgmtQuill) mgmtQuill.setContents([]);
         
         var modal = new bootstrap.Modal(document.getElementById('modalEditMgmt'));
         modal.show();
     }
 
-    function openTaskMgmtEdit(taskId, taskTitle, phase, notes) {
+    function openTaskMgmtEdit(taskId, taskTitle, phase) {
         document.getElementById('inputTaskId').value = taskId;
         document.getElementById('taskMgmtTitle').innerText = 'TASK MGMT: ' + taskTitle;
         document.getElementById('inputTaskPhase').value = phase;
-        document.getElementById('taskMgmtNotes').value = notes;
+        const taskTitleInput = document.getElementById('taskMgmtTitleInput');
+        if (taskTitleInput) taskTitleInput.value = '';
+        if (taskQuill) taskQuill.setContents([]);
 
         var modal = new bootstrap.Modal(document.getElementById('modalEditTaskMgmt'));
         modal.show();

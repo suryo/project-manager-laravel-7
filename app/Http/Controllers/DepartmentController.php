@@ -7,7 +7,9 @@ use App\Models\Department;
 use App\Models\User;
 use App\Models\DepartmentMember;
 use App\Models\Meeting;
+use App\Models\PoacLog;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class DepartmentController extends Controller
 {
@@ -190,7 +192,7 @@ class DepartmentController extends Controller
         $department = Department::where('slug', $slug)->firstOrFail();
         
         // Ensure user is a member of the department
-        if (!auth()->check() || !$department->members->contains(auth()->user())) {
+        if (!Auth::check() || !$department->members->contains(Auth::user())) {
             abort(403);
         }
 
@@ -199,18 +201,25 @@ class DepartmentController extends Controller
         $request->validate([
             'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
             'phase_name' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'title' => 'required|string|max:255',
             'notes' => 'required',
         ]);
 
         $phase = $request->phase_name;
-        $column = 'mgmt_' . strtolower($phase) . '_notes';
+
+        // Create log entry
+        $project->poacLogs()->create([
+            'phase' => $phase,
+            'title' => $request->title,
+            'description' => $request->notes,
+            'user_id' => Auth::id(),
+        ]);
 
         $project->update([
             'mgmt_phase' => $request->mgmt_phase,
-            $column => $request->notes
         ]);
 
-        return back()->with('success', 'Management phase ' . $phase . ' updated successfully.');
+        return back()->with('success', 'Management action for ' . $phase . ' recorded successfully.');
     }
 
     public function updateTaskMgmt(Request $request, $slug, $projectSlug)
@@ -218,23 +227,31 @@ class DepartmentController extends Controller
         $department = Department::where('slug', $slug)->firstOrFail();
         
         // Ensure user is a member of the department
-        if (!auth()->check() || !$department->members->contains(auth()->user())) {
+        if (!Auth::check() || !$department->members->contains(Auth::user())) {
             abort(403);
         }
 
         $request->validate([
             'task_id' => 'required|exists:tasks,id',
             'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
-            'mgmt_notes' => 'nullable',
+            'title' => 'required|string|max:255',
+            'mgmt_notes' => 'required',
         ]);
 
         $task = \App\Models\Task::findOrFail($request->task_id);
         
-        $task->update([
-            'mgmt_phase' => $request->mgmt_phase,
-            'mgmt_notes' => $request->mgmt_notes
+        // Create log entry
+        $task->poacLogs()->create([
+            'phase' => $request->mgmt_phase,
+            'title' => $request->title,
+            'description' => $request->mgmt_notes,
+            'user_id' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Task management info updated successfully.');
+        $task->update([
+            'mgmt_phase' => $request->mgmt_phase,
+        ]);
+
+        return back()->with('success', 'Task management action recorded successfully.');
     }
 }

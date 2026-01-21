@@ -65,4 +65,9 @@ class Project extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function poacLogs()
+    {
+        return $this->morphMany(PoacLog::class, 'poacable')->latest();
+    }
 }
