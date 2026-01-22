@@ -21,6 +21,8 @@ class Project extends Model
         'mgmt_organizing_notes',
         'mgmt_actuating_notes',
         'mgmt_controlling_notes',
+        'department_id',
+        'user_id',
     ];
 
     protected $casts = [
@@ -69,5 +71,10 @@ class Project extends Model
     public function poacLogs()
     {
         return $this->morphMany(PoacLog::class, 'poacable')->latest();
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

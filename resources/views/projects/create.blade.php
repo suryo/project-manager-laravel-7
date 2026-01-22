@@ -72,6 +72,29 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3">
+                            <label for="department_id" class="form-label text-muted small fw-bold">Department (Optional)</label>
+                            @php
+                                $isAdmin = Auth::user()->role === 'admin';
+                            @endphp
+                            <select id="department_id_select" class="form-select form-select-lg @error('department_id') is-invalid @enderror" {{ $isAdmin ? 'name=department_id' : 'disabled' }}>
+                                <option value="">Select Department</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->id }}" {{ (old('department_id', $userDepartmentId) == $department->id) ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
+                            </select>
+                            
+                            @if(!$isAdmin)
+                                <input type="hidden" name="department_id" value="{{ old('department_id', $userDepartmentId) }}">
+                            @endif
+
+                            @error('department_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="start_date" class="form-label">Start Date</label>

@@ -64,6 +64,7 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th class="ps-4">Title</th>
+                                    <th>Department</th>
                                     <th>Status</th>
                                     <th>Budget</th>
                                     <th>Actual</th>
@@ -74,7 +75,21 @@
                             <tbody>
                                 @foreach($allProjects as $project)
                                     <tr>
-                                        <td class="ps-4 fw-bold">{{ $project->title }}</td>
+                                        <td class="ps-4">
+                                            <div class="fw-bold">{{ $project->title }}</div>
+                                            @if($project->group)
+                                                <div class="extra-small text-primary fw-bold">{{ $project->group }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($project->department)
+                                                <span class="badge bg-light text-secondary border border-1 border-secondary extra-small">
+                                                    {{ $project->department->name }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted extra-small italic">N/A</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @php
                                                 $statusName = strtolower($project->status->name ?? '');

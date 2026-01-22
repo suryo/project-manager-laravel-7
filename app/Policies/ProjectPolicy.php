@@ -13,7 +13,7 @@ class ProjectPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -26,20 +26,14 @@ class ProjectPolicy
             return true;
         }
         
-        // Project owner can view
-        if ($user->id === $project->user_id) {
-            return true;
-        }
+        // Strict baseline: Project must belong to one of the user's departments
+        $userDepartmentIds = $user->departments()->pluck('departments.id');
         
-        // Check if user is assigned to any task in this project
-        $project->loadMissing('tasks.assignees');
-        foreach ($project->tasks as $task) {
-            if ($task->assignees->contains($user->id)) {
-                return true;
-            }
+        if (!$project->department_id || !$userDepartmentIds->contains($project->department_id)) {
+            return false;
         }
-        
-        return false;
+
+        return true;
     }
 
     /**
@@ -55,7 +49,14 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Must match department AND be the owner
+        return $project->department_id && 
+               $user->departments->contains($project->department_id) && 
+               $user->id === $project->user_id;
     }
 
     /**
@@ -63,7 +64,14 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        // Must match department AND be the owner
+        return $project->department_id && 
+               $user->departments->contains($project->department_id) && 
+               $user->id === $project->user_id;
     }
 
     /**

@@ -65,16 +65,26 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                             <h5 class="card-title text-truncate" title="{{ $project->title }}">{{ $project->title }}</h5>
-                     <span class="badge bg-{{ $project->status ? $project->status->color : 'secondary' }}">
-                        {{ $project->status ? $project->status->name : 'No Status' }}
-                    </span>
-                </div>
-                        <p class="card-text text-muted small mb-2">Since {{ $project->created_at->format('M d, Y') }}</p>
-                        @if($project->group)
-                            <p class="card-text mb-1"><small class="text-primary fw-bold">{{ $project->group }}</small></p>
-                        @endif
+                         <div class="d-flex justify-content-between align-items-start">
+                              <h5 class="card-title text-truncate mb-0" title="{{ $project->title }}">{{ $project->title }}</h5>
+                      <span class="badge bg-{{ $project->status ? $project->status->color : 'secondary' }}">
+                         {{ $project->status ? $project->status->name : 'No Status' }}
+                     </span>
+                 </div>
+                         
+                         @if($project->department)
+                             <div class="my-1">
+                                 <span class="fw-bold text-muted extra-small">
+                                     <i class="bi bi-building me-1"></i>{{ $project->department->name }}
+                                 </span>
+                             </div>
+                         @endif
+
+                         <p class="card-text text-muted extra-small mb-2">Since {{ $project->created_at->format('M d, Y') }}</p>
+
+                         @if($project->group)
+                             <p class="card-text mb-1"><small class="text-primary fw-bold">{{ $project->group }}</small></p>
+                         @endif
                         <p class="card-text">{{ Str::limit(strip_tags($project->description), 100) }}</p>
                         
                         <div class="mt-2 pt-2 border-top border-1 border-dark-subtle">

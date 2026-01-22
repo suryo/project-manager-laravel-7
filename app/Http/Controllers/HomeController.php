@@ -35,7 +35,7 @@ class HomeController extends Controller
                 $q->where('name', 'Completed');
             })->count();
             
-            $allProjects = \App\Models\Project::with(['status', 'user', 'tasks'])->latest()->get();
+            $allProjects = \App\Models\Project::with(['status', 'user', 'tasks', 'department'])->latest()->get();
             $totalBudget = $allProjects->sum('budget');
             $totalActualCost = $allProjects->sum(function($p) { return $p->tasks->sum('cost'); });
             $overloadedStaff = \App\Models\User::withCount(['assignedTasks' => function($q) {
@@ -52,7 +52,11 @@ class HomeController extends Controller
                 $q->where('name', 'Completed');
             })->count();
             
-            $allProjects = $user->projects()->with(['status', 'user', 'tasks'])->latest()->get();
+            $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+            $allProjects = \App\Models\Project::whereIn('department_id', $userDepartmentIds)
+                ->with(['status', 'user', 'tasks', 'department'])
+                ->latest()
+                ->get();
             $totalBudget = $allProjects->sum('budget');
             $totalActualCost = $allProjects->sum(function($p) { return $p->tasks->sum('cost'); });
             $overloadedStaff = collect(); // Only relevant for admin

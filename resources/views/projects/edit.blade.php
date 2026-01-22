@@ -73,6 +73,29 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="department_id" class="form-label text-muted small fw-bold">Department (Optional)</label>
+                            @php
+                                $isAdmin = Auth::user()->role === 'admin';
+                            @endphp
+                            <select id="department_id_select" class="form-select @error('department_id') is-invalid @enderror" {{ $isAdmin ? 'name=department_id' : 'disabled' }}>
+                                <option value="">Select Department</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->id }}" {{ old('department_id', $project->department_id) == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if(!$isAdmin)
+                                <input type="hidden" name="department_id" value="{{ old('department_id', $project->department_id) }}">
+                            @endif
+
+                            @error('department_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="mgmt_phase" class="form-label text-muted small fw-bold">Management Phase (POAC)</label>
                             <select id="mgmt_phase" class="form-select @error('mgmt_phase') is-invalid @enderror" name="mgmt_phase">
                                 <option value="Planning" {{ old('mgmt_phase', $project->mgmt_phase) == 'Planning' ? 'selected' : '' }}>Planning</option>

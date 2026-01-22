@@ -72,8 +72,17 @@
             <div class="card mb-4" style="box-shadow: 8px 8px 0 #000;">
                 <div class="card-header border-bottom border-3">
                     <h1 class="fw-bold mb-2 h3">{{ $project->title }}</h1>
-                    @if($project->group)
-                        <p class="text-primary fw-bold mb-1 small text-uppercase letter-spacing-1">{{ $project->group }}</p>
+                    @if($project->group || $project->department)
+                        <div class="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                            @if($project->group)
+                                <span class="text-primary fw-bold small text-uppercase letter-spacing-1">{{ $project->group }}</span>
+                            @endif
+                            @if($project->department)
+                                <span class="badge bg-light text-secondary border border-1 border-secondary extra-small">
+                                    <i class="bi bi-building me-1"></i>{{ $project->department->name }}
+                                </span>
+                            @endif
+                        </div>
                     @endif
                     <span class="badge bg-{{ $project->status ? $project->status->color : 'secondary' }} border border-2 border-dark">
                         {{ $project->status ? $project->status->name : 'No Status' }}

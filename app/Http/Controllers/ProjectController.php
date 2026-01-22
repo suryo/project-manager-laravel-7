@@ -17,23 +17,19 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         
-        // Get projects owned by user OR where user is assigned to tasks
+        // Admin sees all projects, non-admins see only projects from their department
         if ($user->role === 'admin') {
-            // Admin sees all projects
-            $query = Project::with(['status', 'tasks.assignees']);
+            $query = Project::with(['status', 'tasks.assignees', 'department']);
+            $projectIds = Project::pluck('id');
         } else {
-            // Get project IDs where user is owner
-            $ownedProjectIds = $user->projects()->pluck('id');
+            // Get department IDs for the current user as an array
+            $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
             
-            // Get project IDs where user is assigned to tasks
-            $assignedProjectIds = Project::whereHas('tasks.assignees', function($q) use ($user) {
-                $q->where('users.id', $user->id);
-            })->pluck('id');
+            // Strictly filter projects by these department IDs
+            $query = Project::whereIn('department_id', $userDepartmentIds)->with(['status', 'tasks.assignees', 'department']);
             
-            // Merge both collections
-            $projectIds = $ownedProjectIds->merge($assignedProjectIds)->unique();
-            
-            $query = Project::whereIn('id', $projectIds)->with(['status', 'tasks.assignees']);
+            // Get project IDs for later use (like group filtering)
+            $projectIds = $query->pluck('id');
         }
 
         // Filter by Status
@@ -64,18 +60,14 @@ class ProjectController extends Controller
         return view('projects.index', compact('projects', 'statuses', 'groups'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $statuses = ProjectStatus::all();
-        return view('projects.create', compact('statuses'));
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $userDepartmentId = optional(Auth::user()->departments->first())->id;
+        return view('projects.create', compact('statuses', 'departments', 'userDepartmentId'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -83,12 +75,16 @@ class ProjectController extends Controller
             'group' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'project_status_id' => 'required|exists:project_statuses,id',
+            'department_id' => 'nullable|exists:departments,id',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
         ]);
 
-        $project = Auth::user()->projects()->create($validated);
+        // Set user_id to the authenticated user
+        $validated['user_id'] = Auth::id();
+
+        $project = Project::create($validated);
 
         return redirect()->route('projects.index')
             ->with('success', 'Project created successfully.');
@@ -106,14 +102,12 @@ class ProjectController extends Controller
         return view('projects.show', compact('project', 'users', 'department'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Project $project)
     {
         $this->authorize('update', $project);
         $statuses = ProjectStatus::all();
-        return view('projects.edit', compact('project', 'statuses'));
+        $departments = \App\Models\Department::orderBy('name')->get();
+        return view('projects.edit', compact('project', 'statuses', 'departments'));
     }
 
     /**
@@ -128,6 +122,7 @@ class ProjectController extends Controller
             'group' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'project_status_id' => 'required|exists:project_statuses,id',
+            'department_id' => 'nullable|exists:departments,id',
             'mgmt_phase' => 'nullable|in:Planning,Organizing,Actuating,Controlling',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
