@@ -66,7 +66,7 @@
                                     {{ ucfirst($user->role) }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-muted">{{ $user->created_at->format('M d, Y') }}</td>
+                            <td class="px-4 py-3 text-muted">{{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}</td>
                             <td class="text-end pe-4 py-3">
                                 <div class="d-flex justify-content-end gap-2">
                                     @if($user->id !== auth()->id())

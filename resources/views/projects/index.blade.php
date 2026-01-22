@@ -80,7 +80,7 @@
                              </div>
                          @endif
 
-                         <p class="card-text text-muted extra-small mb-2">Since {{ $project->created_at->format('M d, Y') }}</p>
+                         <p class="card-text text-muted extra-small mb-2">Since {{ $project->created_at ? $project->created_at->format('M d, Y') : 'N/A' }}</p>
 
                          @if($project->group)
                              <p class="card-text mb-1"><small class="text-primary fw-bold">{{ $project->group }}</small></p>
