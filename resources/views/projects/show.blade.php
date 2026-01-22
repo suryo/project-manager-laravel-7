@@ -325,13 +325,14 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0">Title</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Status</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Assignee</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Cost</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Start</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0">Due</th>
-                                        <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0">Actions</th>
+                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0" style="width: 25%;">Title</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Status</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">POAC Logs</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 12%;">Assignee</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Cost</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 8%;">Start</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 8%;">Due</th>
+                                        <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0" style="width: 12%;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -347,6 +348,13 @@
                                             <td>
                                                 @php
                                                     $statusClass = $task->status === 'done' ? 'bg-success' : ($task->status === 'in_progress' ? 'bg-info text-dark' : 'bg-secondary');
+                                                @endphp
+                                                <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.65rem; box-shadow: 2px 2px 0 #000;">
+                                                    {{ str_replace('_', ' ', $task->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @php
                                                     $phaseColors = [
                                                         'Planning' => '#FF6B6B',
                                                         'Organizing' => '#4D96FF',
@@ -356,15 +364,16 @@
                                                     $phaseColor = $phaseColors[$task->mgmt_phase] ?? '#6c757d';
                                                 @endphp
                                                 <div class="d-flex flex-column gap-1">
-                                                    <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.55rem; box-shadow: 2px 2px 0 #000;">
-                                                        {{ str_replace('_', ' ', $task->status) }}
-                                                    </span>
-                                                    <span class="badge border border-1 border-dark px-2 py-1 text-uppercase text-dark cursor-pointer" 
-                                                          style="font-size: 0.55rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
-                                                          onclick="openTaskMgmtEdit({{ $task->id }}, '{{ addslashes($task->title) }}', '{{ $task->mgmt_phase }}')">
-                                                        {{ $task->mgmt_phase }}
-                                                        <i class="bi bi-pencil-square ms-1"></i>
-                                                    </span>
+                                                    <button type="button" class="btn btn-sm btn-outline-dark border-2 rounded-0 px-2 py-1 fw-bold text-uppercase" 
+                                                            style="font-size: 0.6rem; box-shadow: 2px 2px 0 #000;"
+                                                            onclick="viewTaskPoacHistory({{ $task->id }}, '{{ addslashes($task->title) }}')">
+                                                        <i class="bi bi-clock-history me-1"></i> History
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm border-2 border-dark rounded-0 px-2 py-1 fw-bold text-uppercase text-dark" 
+                                                            style="font-size: 0.6rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
+                                                            onclick="openTaskMgmtEdit({{ $task->id }}, '{{ addslashes($task->title) }}', '{{ $task->mgmt_phase }}')">
+                                                        <i class="bi bi-plus-circle me-1"></i> Add Log
+                                                    </button>
                                                 </div>
                                             </td>
                                              <td>
@@ -441,10 +450,11 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0" style="width: 15%;">Ticket No</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 50%;">Title</th>
-                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 15%;">Type</th>
+                                        <th class="ps-4 py-3 text-uppercase small fw-900 border-0" style="width: 12%;">Ticket No</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 30%;">Title</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Type</th>
                                         <th class="py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Status</th>
+                                        <th class="py-3 text-uppercase small fw-900 border-0" style="width: 13%;">POAC Logs</th>
                                         <th class="text-end pe-4 py-3 text-uppercase small fw-900 border-0" style="width: 10%;">Actions</th>
                                     </tr>
                                 </thead>
@@ -459,9 +469,51 @@
                                                 <span class="badge bg-light text-dark border border-1 border-dark small">{{ $ticket->type }}</span>
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.65rem; box-shadow: 2px 2px 0 #000;">
-                                                    {{ $ticket->status }}
+                                                @php
+                                                    // PHP 7 compatible status class assignment
+                                                    switch($ticket->status) {
+                                                        case 'open':
+                                                            $statusClass = 'bg-warning';
+                                                            break;
+                                                        case 'in_progress':
+                                                            $statusClass = 'bg-info';
+                                                            break;
+                                                        case 'completed':
+                                                            $statusClass = 'bg-success';
+                                                            break;
+                                                        case 'closed':
+                                                            $statusClass = 'bg-secondary';
+                                                            break;
+                                                        default:
+                                                            $statusClass = 'bg-secondary';
+                                                    }
+                                                @endphp
+                                                <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.65rem; box-shadow: 2px 2px 0 #000;">
+                                                    {{ str_replace('_', ' ', $ticket->status) }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $phaseColors = [
+                                                        'Planning' => '#FF6B6B',
+                                                        'Organizing' => '#4D96FF',
+                                                        'Actuating' => '#6BCB77',
+                                                        'Controlling' => '#FFD93D',
+                                                    ];
+                                                    $phaseColor = $phaseColors[$ticket->mgmt_phase ?? 'Planning'] ?? '#6c757d';
+                                                @endphp
+                                                <div class="d-flex flex-column gap-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-dark border-2 rounded-0 px-2 py-1 fw-bold text-uppercase" 
+                                                            style="font-size: 0.6rem; box-shadow: 2px 2px 0 #000;"
+                                                            onclick="viewTicketPoacHistory({{ $ticket->id }}, '{{ addslashes($ticket->title) }}')">
+                                                        <i class="bi bi-clock-history me-1"></i> History
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm border-2 border-dark rounded-0 px-2 py-1 fw-bold text-uppercase text-dark" 
+                                                            style="font-size: 0.6rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
+                                                            onclick="openTicketMgmtEdit({{ $ticket->id }}, '{{ addslashes($ticket->title) }}', '{{ $ticket->mgmt_phase ?? 'Planning' }}')">
+                                                        <i class="bi bi-plus-circle me-1"></i> Add Log
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td class="text-end pe-4">
                                                 <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-dark rounded-0 px-3 py-1 fw-bold text-uppercase" style="box-shadow: 2px 2px 0 #000; font-size: 0.65rem;">
@@ -1255,6 +1307,66 @@
     </div>
 </div>
 
+{{-- Ticket POAC Edit Modal --}}
+<div class="modal fade" id="modalEditTicketMgmt" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-dark text-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="ticketMgmtTitle">UPDATE TICKET MANAGEMENT</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('projects.ticket-mgmt-update', $project) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4 bg-light">
+                    <input type="hidden" name="ticket_id" id="inputTicketId">
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Management Phase</label>
+                        <select name="mgmt_phase" id="inputTicketPhase" class="form-select border-2 border-dark rounded-0 shadow-none fw-bold">
+                            <option value="Planning">Planning</option>
+                            <option value="Organizing">Organizing</option>
+                            <option value="Actuating">Actuating</option>
+                            <option value="Controlling">Controlling</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Action Title</label>
+                        <input type="text" name="title" id="ticketMgmtTitleInput" class="form-control border-2 border-dark rounded-0 shadow-none fw-bold" placeholder="E.g. Requirements Gathered, Testing Complete...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-900 text-uppercase small text-muted">Description/Notes</label>
+                        <div id="ticketQuillEditor" class="bg-white border-2 border-dark" style="height: 150px;"></div>
+                        <input type="hidden" name="mgmt_notes" id="ticketMgmtNotes">
+                    </div>
+                </div>
+                <div class="modal-footer p-4 border-top border-3 border-dark bg-white">
+                    <button type="button" class="btn btn-outline-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CLOSE</button>
+                    <button type="submit" class="btn btn-primary border-2 border-dark rounded-0 fw-bold px-4 shadow-btn">SAVE TICKET</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- POAC History Modal --}}
+<div class="modal fade" id="modalPoacHistory" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-3 border-dark rounded-0">
+            <div class="modal-header py-3 px-4 bg-dark text-white border-bottom border-3 border-dark">
+                <h5 class="modal-title fw-black text-uppercase letter-spacing-1 h6" id="poacHistoryTitle">POAC LOGS</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="row g-3" id="poacHistoryContent">
+                    <!-- POAC history columns will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer p-3 border-top border-3 border-dark bg-white">
+                <button type="button" class="btn btn-dark border-2 rounded-0 fw-bold px-4" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- POAC Log View Modal --}}
 <div class="modal fade" id="modalViewPoac" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -1278,7 +1390,7 @@
 </div>
 
 <script>
-    let mgmtQuill, taskQuill;
+    let mgmtQuill, taskQuill, ticketQuill;
 
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Project MGMT Quill
@@ -1311,6 +1423,21 @@
             });
         }
 
+        // Initialize Ticket MGMT Quill
+        if (document.getElementById('ticketQuillEditor')) {
+            ticketQuill = new Quill('#ticketQuillEditor', {
+                theme: 'snow',
+                placeholder: 'Enter notes about this ticket\'s management...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+
         // Sync Quill to hidden input on form submit
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function() {
@@ -1319,6 +1446,9 @@
                 }
                 if (taskQuill && this.contains(document.getElementById('taskQuillEditor'))) {
                     document.getElementById('taskMgmtNotes').value = taskQuill.root.innerHTML;
+                }
+                if (ticketQuill && this.contains(document.getElementById('ticketQuillEditor'))) {
+                    document.getElementById('ticketMgmtNotes').value = ticketQuill.root.innerHTML;
                 }
             });
         });
@@ -1353,6 +1483,235 @@
 
         var modal = new bootstrap.Modal(document.getElementById('modalEditTaskMgmt'));
         modal.show();
+    }
+
+    function openTicketMgmtEdit(ticketId, ticketTitle, phase) {
+        document.getElementById('inputTicketId').value = ticketId;
+        document.getElementById('ticketMgmtTitle').innerText = 'TICKET MGMT: ' + ticketTitle;
+        document.getElementById('inputTicketPhase').value = phase;
+        document.getElementById('ticketMgmtTitleInput').value = '';
+        if (ticketQuill) ticketQuill.setContents([]);
+
+        var modal = new bootstrap.Modal(document.getElementById('modalEditTicketMgmt'));
+        modal.show();
+    }
+
+
+    function viewTaskPoacHistory(taskId, taskTitle) {
+        document.getElementById('poacHistoryTitle').innerText = 'POAC LOGS: ' + taskTitle;
+        
+        // Fetch POAC logs for this task
+        fetch(`/tasks/${taskId}/poac-logs`)
+            .then(response => response.json())
+            .then(data => {
+                const historyContent = document.getElementById('poacHistoryContent');
+                
+                const phaseConfig = {
+                    'Planning': { color: '#FF6B6B', icon: 'bi-clipboard-check', borderColor: '#dc3545' },
+                    'Organizing': { color: '#4D96FF', icon: 'bi-diagram-3', borderColor: '#0d6efd' },
+                    'Actuating': { color: '#6BCB77', icon: 'bi-play-circle', borderColor: '#198754' },
+                    'Controlling': { color: '#FFD93D', icon: 'bi-speedometer2', borderColor: '#ffc107' }
+                };
+                
+                if (data.logs && data.logs.length > 0) {
+                    // Group logs by phase
+                    const logsByPhase = {
+                        'Planning': [],
+                        'Organizing': [],
+                        'Actuating': [],
+                        'Controlling': []
+                    };
+                    
+                    data.logs.forEach(log => {
+                        if (logsByPhase[log.phase]) {
+                            logsByPhase[log.phase].push(log);
+                        }
+                    });
+                    
+                    let html = '';
+                    
+                    // Create a column for each phase
+                    Object.keys(phaseConfig).forEach(phase => {
+                        const config = phaseConfig[phase];
+                        const logs = logsByPhase[phase];
+                        
+                        html += `
+                            <div class="col-md-3">
+                                <div class="card border-3 border-dark rounded-0 h-100" style="box-shadow: 4px 4px 0 #000;">
+                                    <div class="card-header text-white border-bottom border-3 border-dark py-2 px-3" style="background-color: ${config.color};">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi ${config.icon} me-2"></i>
+                                            <span class="fw-bold text-uppercase small">${phase}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2 bg-white" style="max-height: 400px; overflow-y: auto;">
+                        `;
+                        
+                        if (logs.length > 0) {
+                            logs.forEach(log => {
+                                html += `
+                                    <div class="border border-2 border-dark rounded-0 p-2 mb-2 bg-light" style="box-shadow: 2px 2px 0 rgba(0,0,0,0.1);">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">${log.created_at}</small>
+                                            <i class="bi bi-caret-up-fill text-muted" style="font-size: 0.6rem;"></i>
+                                        </div>
+                                        <div class="small fw-bold text-dark mb-1" style="font-size: 0.75rem;">${log.title}</div>
+                                        <div class="extra-small text-muted" style="font-size: 0.7rem;">${log.description ? log.description.substring(0, 50) + '...' : ''}</div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            html += `
+                                <div class="text-center py-3 text-muted">
+                                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                    <small>No logs</small>
+                                </div>
+                            `;
+                        }
+                        
+                        html += `
+                                    </div>
+                                    <div class="card-footer border-top border-3 border-dark bg-dark p-2">
+                                        <button type="button" class="btn btn-sm btn-light w-100 border-2 border-dark rounded-0 fw-bold text-uppercase" 
+                                                style="font-size: 0.65rem; box-shadow: 2px 2px 0 rgba(0,0,0,0.3);"
+                                                onclick="closeHistoryAndOpenEdit('task', ${taskId}, '${taskTitle.replace(/'/g, "\\'")}',' ${phase}')">
+                                            + LOG ACTION
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    historyContent.innerHTML = html;
+                } else {
+                    historyContent.innerHTML = '<div class="col-12 text-center py-4 text-muted"><i class="bi bi-inbox display-4 d-block mb-2"></i><p>No POAC logs found for this task.</p></div>';
+                }
+                
+                var modal = new bootstrap.Modal(document.getElementById('modalPoacHistory'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching POAC logs:', error);
+                document.getElementById('poacHistoryContent').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading POAC logs.</div></div>';
+            });
+    }
+
+    function viewTicketPoacHistory(ticketId, ticketTitle) {
+        document.getElementById('poacHistoryTitle').innerText = 'POAC LOGS: ' + ticketTitle;
+        
+        // Fetch POAC logs for this ticket
+        fetch(`/tickets/${ticketId}/poac-logs`)
+            .then(response => response.json())
+            .then(data => {
+                const historyContent = document.getElementById('poacHistoryContent');
+                
+                const phaseConfig = {
+                    'Planning': { color: '#FF6B6B', icon: 'bi-clipboard-check', borderColor: '#dc3545' },
+                    'Organizing': { color: '#4D96FF', icon: 'bi-diagram-3', borderColor: '#0d6efd' },
+                    'Actuating': { color: '#6BCB77', icon: 'bi-play-circle', borderColor: '#198754' },
+                    'Controlling': { color: '#FFD93D', icon: 'bi-speedometer2', borderColor: '#ffc107' }
+                };
+                
+                if (data.logs && data.logs.length > 0) {
+                    // Group logs by phase
+                    const logsByPhase = {
+                        'Planning': [],
+                        'Organizing': [],
+                        'Actuating': [],
+                        'Controlling': []
+                    };
+                    
+                    data.logs.forEach(log => {
+                        if (logsByPhase[log.phase]) {
+                            logsByPhase[log.phase].push(log);
+                        }
+                    });
+                    
+                    let html = '';
+                    
+                    // Create a column for each phase
+                    Object.keys(phaseConfig).forEach(phase => {
+                        const config = phaseConfig[phase];
+                        const logs = logsByPhase[phase];
+                        
+                        html += `
+                            <div class="col-md-3">
+                                <div class="card border-3 border-dark rounded-0 h-100" style="box-shadow: 4px 4px 0 #000;">
+                                    <div class="card-header text-white border-bottom border-3 border-dark py-2 px-3" style="background-color: ${config.color};">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi ${config.icon} me-2"></i>
+                                            <span class="fw-bold text-uppercase small">${phase}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2 bg-white" style="max-height: 400px; overflow-y: auto;">
+                        `;
+                        
+                        if (logs.length > 0) {
+                            logs.forEach(log => {
+                                html += `
+                                    <div class="border border-2 border-dark rounded-0 p-2 mb-2 bg-light" style="box-shadow: 2px 2px 0 rgba(0,0,0,0.1);">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted fw-bold" style="font-size: 0.7rem;">${log.created_at}</small>
+                                            <i class="bi bi-caret-up-fill text-muted" style="font-size: 0.6rem;"></i>
+                                        </div>
+                                        <div class="small fw-bold text-dark mb-1" style="font-size: 0.75rem;">${log.title}</div>
+                                        <div class="extra-small text-muted" style="font-size: 0.7rem;">${log.description ? log.description.substring(0, 50) + '...' : ''}</div>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            html += `
+                                <div class="text-center py-3 text-muted">
+                                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                    <small>No logs</small>
+                                </div>
+                            `;
+                        }
+                        
+                        html += `
+                                    </div>
+                                    <div class="card-footer border-top border-3 border-dark bg-dark p-2">
+                                        <button type="button" class="btn btn-sm btn-light w-100 border-2 border-dark rounded-0 fw-bold text-uppercase" 
+                                                style="font-size: 0.65rem; box-shadow: 2px 2px 0 rgba(0,0,0,0.3);"
+                                                onclick="closeHistoryAndOpenEdit('ticket', ${ticketId}, '${ticketTitle.replace(/'/g, "\\'")}',' ${phase}')">
+                                            + LOG ACTION
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    historyContent.innerHTML = html;
+                } else {
+                    historyContent.innerHTML = '<div class="col-12 text-center py-4 text-muted"><i class="bi bi-inbox display-4 d-block mb-2"></i><p>No POAC logs found for this ticket.</p></div>';
+                }
+                
+                var modal = new bootstrap.Modal(document.getElementById('modalPoacHistory'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching POAC logs:', error);
+                document.getElementById('poacHistoryContent').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading POAC logs.</div></div>';
+            });
+    }
+
+    function closeHistoryAndOpenEdit(type, id, title, phase) {
+        // Close the history modal first
+        var historyModal = bootstrap.Modal.getInstance(document.getElementById('modalPoacHistory'));
+        if (historyModal) {
+            historyModal.hide();
+        }
+        
+        // Wait for modal to close, then open edit modal
+        setTimeout(function() {
+            if (type === 'task') {
+                openTaskMgmtEdit(id, title, phase);
+            } else if (type === 'ticket') {
+                openTicketMgmtEdit(id, title, phase);
+            }
+        }, 300);
     }
 </script>
 @endpush

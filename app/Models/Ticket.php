@@ -17,6 +17,7 @@ class Ticket extends Model
         'type',
         'priority',
         'status',
+        'mgmt_phase',
         'current_stage',
         'requester_id',
         'assigned_to',
@@ -79,6 +80,11 @@ class Ticket extends Model
     public function stages()
     {
         return $this->hasMany(TicketStage::class)->orderBy('stage_number');
+    }
+
+    public function poacLogs()
+    {
+        return $this->morphMany(PoacLog::class, 'poacable')->latest();
     }
 
     // Helper methods

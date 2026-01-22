@@ -34,8 +34,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::post('/projects/{project}/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateMgmt'])->name('projects.mgmt-update');
     Route::post('/projects/{project}/tasks/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateTaskMgmt'])->name('projects.task-mgmt-update');
+    Route::post('/projects/{project}/tickets/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateTicketMgmt'])->name('projects.ticket-mgmt-update');
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
     Route::get('/tasks/{task}/details', [App\Http\Controllers\TaskController::class, 'details'])->name('tasks.details');
+    Route::get('/tasks/{task}/poac-logs', [App\Http\Controllers\TaskController::class, 'getPoacLogs'])->name('tasks.poac-logs');
     Route::post('/tasks/{task}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('tasks.comments.store');
 
     // Ticketing System Routes
@@ -44,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/stage', [App\Http\Controllers\TicketController::class, 'progressStage'])->name('tickets.stage');
     Route::post('tickets/{ticket}/complete', [App\Http\Controllers\TicketController::class, 'complete'])->name('tickets.complete');
     Route::post('tickets/{ticket}/update-status', [App\Http\Controllers\TicketController::class, 'updateStatus'])->name('tickets.update-status');
+    Route::get('/tickets/{ticket}/poac-logs', [App\Http\Controllers\TicketController::class, 'getPoacLogs'])->name('tickets.poac-logs');
     
     // Ticket Document Routes
     Route::post('tickets/{ticket}/documents', [App\Http\Controllers\TicketDocumentController::class, 'upload'])->name('tickets.documents.upload');

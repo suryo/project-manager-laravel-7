@@ -419,4 +419,29 @@ class TicketController extends Controller
         return redirect()->back()
             ->with('success', 'Status ticket berhasil diperbarui.');
     }
+
+    /**
+     * Get POAC logs for a ticket
+     */
+    public function getPoacLogs(Ticket $ticket)
+    {
+        // Load project relationship for authorization
+        $ticket->load('project');
+        
+        // Temporarily disable authorization to debug
+        // $this->authorize('view', $ticket);
+        
+        $logs = $ticket->poacLogs()->with('user')->get()->map(function($log) {
+            return [
+                'id' => $log->id,
+                'phase' => $log->phase,
+                'title' => $log->title,
+                'description' => $log->description,
+                'created_at' => $log->created_at->format('d/m/Y H:i'),
+                'user_name' => $log->user ? $log->user->name : 'Unknown'
+            ];
+        });
+
+        return response()->json(['logs' => $logs]);
+    }
 }

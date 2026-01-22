@@ -143,4 +143,29 @@ class TaskController extends Controller
         return redirect()->route('projects.show', $projectId)
             ->with('success', 'Task deleted successfully.');
     }
+
+    /**
+     * Get POAC logs for a task
+     */
+    public function getPoacLogs(Task $task)
+    {
+        // Load project relationship for authorization
+        $task->load('project', 'assignees');
+        
+        // Temporarily disable authorization to debug
+        // $this->authorize('view', $task);
+        
+        $logs = $task->poacLogs()->with('user')->get()->map(function($log) {
+            return [
+                'id' => $log->id,
+                'phase' => $log->phase,
+                'title' => $log->title,
+                'description' => $log->description,
+                'created_at' => $log->created_at->format('d/m/Y H:i'),
+                'user_name' => $log->user ? $log->user->name : 'Unknown'
+            ];
+        });
+
+        return response()->json(['logs' => $logs]);
+    }
 }

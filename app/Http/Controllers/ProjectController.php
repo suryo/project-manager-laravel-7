@@ -204,4 +204,30 @@ class ProjectController extends Controller
 
         return back()->with('success', 'Task management action recorded successfully.');
     }
+
+    public function updateTicketMgmt(Request $request, Project $project)
+    {
+        $request->validate([
+            'ticket_id' => 'required|exists:tickets,id',
+            'mgmt_phase' => 'required|in:Planning,Organizing,Actuating,Controlling',
+            'title' => 'required|string|max:255',
+            'mgmt_notes' => 'required',
+        ]);
+
+        $ticket = \App\Models\Ticket::findOrFail($request->ticket_id);
+        
+        // Create log entry
+        $ticket->poacLogs()->create([
+            'phase' => $request->mgmt_phase,
+            'title' => $request->title,
+            'description' => $request->mgmt_notes,
+            'user_id' => Auth::id(),
+        ]);
+
+        $ticket->update([
+            'mgmt_phase' => $request->mgmt_phase
+        ]);
+
+        return back()->with('success', 'Ticket management action recorded successfully.');
+    }
 }
