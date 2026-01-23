@@ -12,6 +12,10 @@ class ProjectSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
         DB::table('projects')->truncate();
+        DB::table('tasks')->truncate();
+        DB::table('task_user')->truncate();
+        DB::table('comments')->truncate();
+        DB::table('poac_logs')->truncate();
         Schema::enableForeignKeyConstraints();
 
         $projects = [
