@@ -8,6 +8,13 @@ use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
 {
+    public function before($user, $ability)
+    {
+        if ($user->role === 'admin') {
+            return true;
+        }
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -21,10 +28,6 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        // Admin can view everything
-        if ($user->role === 'admin') {
-            return true;
-        }
         
         // Project owner can view
         if ($user->id === $task->project->user_id) {
@@ -53,10 +56,6 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        // Admin can update everything
-        if ($user->role === 'admin') {
-            return true;
-        }
         
         // Project owner can update
         if ($user->id === $task->project->user_id) {

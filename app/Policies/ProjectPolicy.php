@@ -8,6 +8,13 @@ use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
+    public function before($user, $ability)
+    {
+        if ($user->role === 'admin') {
+            return true;
+        }
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -21,10 +28,6 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        // Admin can view everything
-        if ($user->role === 'admin') {
-            return true;
-        }
         
         // Strict baseline: Project must belong to one of the user's departments
         $userDepartmentIds = $user->departments()->pluck('departments.id');

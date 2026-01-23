@@ -26,8 +26,8 @@ class TaskController extends Controller
      */
     public function create(Request $request)
     {
-        // Users can create tasks for their own projects
-        $projects = Auth::user()->projects;
+        // Admins can create tasks for any project, users for their own
+        $projects = Auth::user()->role === 'admin' ? Project::all() : Auth::user()->projects;
         // And assign to any user (or maybe just restrict to system users)
         $users = User::all();
         $selectedProjectId = $request->input('project_id');
@@ -51,9 +51,9 @@ class TaskController extends Controller
             'cost' => 'nullable|numeric|min:0',
         ]);
 
-        // Verify project belongs to user
+        // Verify permissions
         $project = Project::findOrFail($validated['project_id']);
-        if ($project->user_id !== Auth::id()) {
+        if (Auth::user()->role !== 'admin' && $project->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -96,7 +96,7 @@ class TaskController extends Controller
     public function edit(Task $task)
     {
         $this->authorize('update', $task);
-        $projects = Auth::user()->projects;
+        $projects = Auth::user()->role === 'admin' ? Project::all() : Auth::user()->projects;
         $users = User::all();
         return view('tasks.edit', compact('task', 'projects', 'users'));
     }
