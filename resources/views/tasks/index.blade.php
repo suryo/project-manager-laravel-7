@@ -17,7 +17,7 @@
                                 </span>
                             </div>
                             <h6 class="card-subtitle mb-2 text-muted">Project: {{ $task->project->title }}</h6>
-                            <p class="card-text">{{ Str::limit($task->description, 100) }}</p>
+                            <p class="card-text">{{ Str::limit(strip_tags($task->description), 100) }}</p>
                             
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <small class="text-muted">Due: {{ optional($task->due_date)->format('M d, Y') ?? 'N/A' }}</small>

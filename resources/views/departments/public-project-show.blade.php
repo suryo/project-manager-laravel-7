@@ -330,29 +330,10 @@
                                             <td>
                                                 @php
                                                     $statusClass = $task->status === 'done' ? 'bg-success' : ($task->status === 'in_progress' ? 'bg-info text-dark' : 'bg-secondary');
-                                                    $phaseColors = [
-                                                        'Planning' => '#FF6B6B',
-                                                        'Organizing' => '#4D96FF',
-                                                        'Actuating' => '#6BCB77',
-                                                        'Controlling' => '#FFD93D',
-                                                    ];
-                                                    $phaseColor = $phaseColors[$task->mgmt_phase] ?? '#6c757d';
                                                 @endphp
-                                                <div class="d-flex flex-column gap-1">
-                                                    <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.55rem; box-shadow: 2px 2px 0 #000;">
-                                                        {{ str_replace('_', ' ', $task->status) }}
-                                                    </span>
-                                                    <span class="badge border border-1 border-dark px-2 py-1 text-uppercase text-dark {{ auth()->check() && $department->members->contains(auth()->user()) ? 'cursor-pointer' : '' }}" 
-                                                          style="font-size: 0.55rem; background-color: {{ $phaseColor }}; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);"
-                                                          @if(auth()->check() && $department->members->contains(auth()->user()))
-                                                            onclick="openTaskMgmtEdit({{ $task->id }}, '{{ addslashes($task->title) }}', '{{ $task->mgmt_phase }}')"
-                                                          @endif>
-                                                        {{ $task->mgmt_phase }}
-                                                        @if(auth()->check() && $department->members->contains(auth()->user()))
-                                                            <i class="bi bi-pencil-square ms-1"></i>
-                                                        @endif
-                                                    </span>
-                                                </div>
+                                                <span class="badge {{ $statusClass }} border border-1 border-dark px-2 py-1 text-uppercase" style="font-size: 0.55rem; box-shadow: 2px 2px 0 #000;">
+                                                    {{ str_replace('_', ' ', $task->status) }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center flex-wrap gap-1">

@@ -268,7 +268,7 @@
                                                     <span class="badge bg-white text-dark border border-dark rounded-0" style="font-size: 0.65rem;">{{ $meeting->meeting_date->format('M d, Y') }}</span>
                                                 </div>
                                                 @if($meeting->description)
-                                                    <p class="mb-2 text-muted small mt-2" style="font-size: 0.8rem;">{{ Str::limit($meeting->description, 100) }}</p>
+                                                    <p class="mb-2 text-muted small mt-2" style="font-size: 0.8rem;">{{ Str::limit(strip_tags($meeting->description), 100) }}</p>
                                                 @endif
                                                 @if($meeting->location)
                                                     <div class="mt-2">
@@ -331,7 +331,7 @@
                                                             @endif
                                                         </div>
                                                         @if($project->description)
-                                                            <p class="text-muted small mb-4 text-truncate-2" style="font-size: 0.75rem;">{{ Str::limit($project->description, 80) }}</p>
+                                                            <p class="text-muted small mb-4 text-truncate-2" style="font-size: 0.75rem;">{{ Str::limit(strip_tags($project->description), 80) }}</p>
                                                         @endif
                                                         
                                                         <div class="d-flex justify-content-between align-items-center mt-auto">
