@@ -66,8 +66,12 @@ class TicketController extends Controller
 
         // Get filter options
         $users = User::orderBy('name')->get();
-        // Fetch staff for Energy Monitor
-        $staffMembers = User::where('role', '!=', 'client')->get();
+        // Fetch staff for Energy Monitor (restricted for non-admins)
+        if ($user->role === 'admin') {
+            $staffMembers = User::with('departments')->where('role', '!=', 'client')->get();
+        } else {
+            $staffMembers = collect([$user->load('departments')]);
+        }
 
         return view('tickets.index', compact('tickets', 'users', 'staffMembers'));
     }

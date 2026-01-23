@@ -10,6 +10,18 @@
         <a href="{{ route('projects.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Project</a>
     </div>
 
+    @if(isset($hasNoDepartment) && $hasNoDepartment && Auth::user()->role !== 'admin')
+        <div class="alert alert-warning border border-3 border-dark mb-4" style="box-shadow: 6px 6px 0 #000;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill fs-3 me-3 text-dark"></i>
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark">Akses Terbatas: Departemen Belum Diatur</h5>
+                    <p class="mb-0 text-dark">Anda belum memiliki departemen yang ditugaskan. Silakan hubungi <strong>Administrator</strong> untuk mengatur departemen Anda agar dapat melihat dan mengelola proyek.</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-md-3 mb-4">
             <div class="card h-100 bg-primary text-white" style="box-shadow: 6px 6px 0 #000; border: 2px solid #000;">
@@ -177,22 +189,31 @@
                     <h6 class="fw-bold small text-muted text-uppercase mb-3">Monthly Capacity (176 Units)</h6>
                     
                     @foreach($staffMembers as $staff)
-                        @php
-                            $used = $staff->used_energy;
-                            $limit = $staff->monthly_energy_limit;
-                            $percentage = ($limit > 0) ? ($used / $limit) * 100 : 0;
-                            $color = $percentage > 100 ? 'danger' : ($percentage > 80 ? 'warning' : 'success');
-                        @endphp
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold small">{{ $staff->name }}</span>
-                                <span class="small fw-bold text-{{ $color }}">{{ $used }} / {{ $limit }}</span>
+                                @if($staff->departments->isNotEmpty())
+                                    @php
+                                        $used = $staff->used_energy;
+                                        $limit = $staff->monthly_energy_limit;
+                                        $percentage = ($limit > 0) ? ($used / $limit) * 100 : 0;
+                                        $color = $percentage > 100 ? 'danger' : ($percentage > 80 ? 'warning' : 'success');
+                                    @endphp
+                                    <span class="small fw-bold text-{{ $color }}">{{ $used }} / {{ $limit }}</span>
+                                @endif
                             </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ min(100, $percentage) }}%" aria-valuenow="{{ $used }}" aria-valuemin="0" aria-valuemax="{{ $limit }}"></div>
-                            </div>
-                            @if($percentage > 100)
-                                <small class="text-danger extra-small fw-bold">Over Capacity!</small>
+
+                            @if($staff->departments->isEmpty())
+                                <div class="alert alert-soft-warning border border-1 border-warning p-2 extra-small mb-0" style="font-size: 0.7rem;">
+                                    <i class="bi bi-exclamation-circle me-1"></i> User belum terdaftar pada departemen
+                                </div>
+                            @else
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ min(100, $percentage) }}%" aria-valuenow="{{ $used }}" aria-valuemin="0" aria-valuemax="{{ $limit }}"></div>
+                                </div>
+                                @if(isset($percentage) && $percentage > 100)
+                                    <small class="text-danger extra-small fw-bold">Over Capacity!</small>
+                                @endif
                             @endif
                         </div>
                     @endforeach

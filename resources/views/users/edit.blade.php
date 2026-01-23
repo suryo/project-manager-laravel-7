@@ -36,12 +36,29 @@
                         <div class="mb-3">
                             <label for="role" class="form-label text-uppercase small fw-900">Role</label>
                             <select id="role" class="form-select form-select-lg border-2 border-dark rounded-0 @error('role') is-invalid @enderror" name="role" required>
-                                <option value="user" {{ $user->role === 'user' ? 'selected' : '' }}>User</option>
-                                <option value="client" {{ $user->role === 'client' ? 'selected' : '' }}>Client</option>
-                                <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>User</option>
+                                <option value="client" {{ old('role', $user->role) === 'client' ? 'selected' : '' }}>Client</option>
+                                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
                             </select>
                             @error('role')
                                 <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="departments" class="form-label text-uppercase small fw-900">Departments</label>
+                            <select id="departments" class="form-select border-2 border-dark rounded-0 @error('departments') is-invalid @enderror" name="departments[]" multiple style="height: 120px;">
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}" {{ collect(old('departments', $userDepartmentIds))->contains($dept->id) ? 'selected' : '' }}>
+                                        {{ $dept->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple departments.</small>
+                            @error('departments')
+                                <span class="invalid-feedback d-block" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror

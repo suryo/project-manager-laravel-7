@@ -43,6 +43,7 @@
                             <th class="ps-4 py-3 border-0">Name</th>
                             <th class="py-3 border-0">Email</th>
                             <th class="py-3 border-0">Role</th>
+                            <th class="py-3 border-0">Department</th>
                             <th class="py-3 border-0">Joined</th>
                             <th class="text-end pe-4 py-3 border-0">Actions</th>
                         </tr>
@@ -65,6 +66,15 @@
                                 <span class="badge rounded-pill bg-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'client' ? 'info' : 'secondary') }} border border-1 border-dark" style="box-shadow: 2px 2px 0 #000;">
                                     {{ ucfirst($user->role) }}
                                 </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                @forelse($user->departments as $dept)
+                                    <span class="badge bg-light text-dark border border-1 border-dark extra-small mb-1">
+                                        {{ $dept->name }}
+                                    </span>
+                                @empty
+                                    <span class="text-danger small fw-bold"><i class="bi bi-exclamation-circle me-1"></i>None</span>
+                                @endforelse
                             </td>
                             <td class="px-4 py-3 text-muted">{{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}</td>
                             <td class="text-end pe-4 py-3">

@@ -43,7 +43,8 @@ class HomeController extends Controller
             }])->having('assigned_tasks_count', '>', 3)->get();
             
             // Fetch all staff for Energy Monitor
-            $staffMembers = \App\Models\User::where('role', '!=', 'client')->get();
+            $staffMembers = \App\Models\User::with('departments')->where('role', '!=', 'client')->get();
+            $hasNoDepartment = $user->departments->isEmpty();
         } else {
             $projectsCount = $user->projects()->count();
             $tasksCount = $user->assignedTasks()->where('status', '!=', 'done')->count();
@@ -53,6 +54,8 @@ class HomeController extends Controller
             })->count();
             
             $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+            $hasNoDepartment = empty($userDepartmentIds);
+            
             $allProjects = \App\Models\Project::whereIn('department_id', $userDepartmentIds)
                 ->with(['status', 'user', 'tasks', 'department'])
                 ->latest()
@@ -61,9 +64,8 @@ class HomeController extends Controller
             $totalActualCost = $allProjects->sum(function($p) { return $p->tasks->sum('cost'); });
             $overloadedStaff = collect(); // Only relevant for admin
             
-            // Allow all to see energy monitor? Or just admins? 
-            // The view expects it, so we must provide it.
-            $staffMembers = \App\Models\User::where('role', '!=', 'client')->get();
+            // Non-admins only see their own energy
+            $staffMembers = collect([$user]);
         }
 
         return view('home', compact(
@@ -76,7 +78,8 @@ class HomeController extends Controller
             'isAdmin',
             'totalBudget',
             'totalActualCost',
-            'staffMembers'
+            'staffMembers',
+            'hasNoDepartment'
         ));
     }
 }

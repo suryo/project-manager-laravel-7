@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with('departments')->latest()->paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -23,7 +23,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        $departments = \App\Models\Department::orderBy('name')->get();
+        return view('users.create', compact('departments'));
     }
 
     /**
@@ -36,14 +37,20 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'user', 'client'])],
+            'departments' => ['nullable', 'array'],
+            'departments.*' => ['exists:departments,id'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        if (!empty($validated['departments'])) {
+            $user->departments()->attach($validated['departments'], ['joined_at' => now()]);
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'User created successfully.');
@@ -54,7 +61,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+        return view('users.edit', compact('user', 'departments', 'userDepartmentIds'));
     }
 
     /**
@@ -67,6 +76,8 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(['admin', 'user', 'client'])],
+            'departments' => ['nullable', 'array'],
+            'departments.*' => ['exists:departments,id'],
         ]);
 
         $userData = [
@@ -80,6 +91,17 @@ class UserController extends Controller
         }
 
         $user->update($userData);
+
+        // Sync departments
+        if (isset($validated['departments'])) {
+            $syncData = [];
+            foreach ($validated['departments'] as $deptId) {
+                $syncData[$deptId] = ['joined_at' => now()];
+            }
+            $user->departments()->sync($syncData);
+        } else {
+            $user->departments()->detach();
+        }
 
         return redirect()->route('users.index')
             ->with('success', 'User updated successfully.');
