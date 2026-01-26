@@ -48,7 +48,16 @@
 
                         <div class="form-group mb-3">
                             <label for="role" class="form-label fw-bold">Role <span class="text-muted">(Optional)</span></label>
-                            <input type="text" class="form-control @error('role') is-invalid @enderror" id="role" name="role" placeholder="e.g., Head, Member, Secretary">
+                            <select class="form-control @error('role') is-invalid @enderror" id="role" name="role">
+                                <option value="">-- Select Role --</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Supervisor">Supervisor</option>
+                                <option value="Manager">Manager</option>
+                                <option value="General Manager">General Manager</option>
+                                <option value="Direktur">Direktur</option>
+                                <option value="CEO">CEO</option>
+                                <option value="Komisioner">Komisioner</option>
+                            </select>
                             @error('role')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
