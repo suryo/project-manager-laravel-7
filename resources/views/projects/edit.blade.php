@@ -110,7 +110,22 @@
                             @enderror
                         </div>
 
-                        <div class="row">
+                        <div class="mb-3">
+                            <label for="pic_id" class="form-label text-muted small fw-bold">PIC (Person In Charge) - Optional</label>
+                            <select id="pic_id" class="form-select @error('pic_id') is-invalid @enderror" name="pic_id">
+                                <option value="">Select PIC</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('pic_id', $project->pic_id) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('pic_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <div class="col-md-6 mb-3">
                                 <label for="start_date" class="form-label">Start Date</label>
                                 <input type="date" class="form-control @error('start_date') is-invalid @enderror" id="start_date" name="start_date" value="{{ old('start_date', optional($project->start_date)->format('Y-m-d')) }}">

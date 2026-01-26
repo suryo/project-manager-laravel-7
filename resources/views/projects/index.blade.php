@@ -103,6 +103,19 @@
                             </div>
                         </div>
                         
+                        @if($project->pic)
+                            <div class="mt-2 pt-2 border-top border-1 border-dark-subtle">
+                                <p class="text-uppercase extra-small fw-900 mb-2 text-muted" style="letter-spacing: 1px;">PIC</p>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center border border-2 border-dark me-2" 
+                                         style="width: 32px; height: 32px; font-size: 0.8rem; font-weight: 800; background-color: #4D96FF !important; color: white !important;">
+                                        {{ strtoupper(substr($project->pic->name, 0, 1)) }}
+                                    </div>
+                                    <span class="fw-bold small">{{ $project->pic->name }}</span>
+                                </div>
+                            </div>
+                        @endif
+                        
                         <div class="mt-3">
                             <p class="text-uppercase extra-small fw-900 mb-2 text-muted" style="letter-spacing: 1px;">Assignees</p>
                             <div class="d-flex align-items-center flex-wrap gap-1">

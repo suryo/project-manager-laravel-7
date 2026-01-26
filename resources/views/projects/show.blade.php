@@ -95,7 +95,14 @@
                     <hr class="border-2 border-dark opacity-100 mb-3">
                     
                     <div class="mb-4">
-                        <label class="text-uppercase extra-small fw-900 d-block mb-2 text-muted">Project Owner</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="text-uppercase extra-small fw-900 d-block mb-0 text-muted">Project Owner</label>
+                            @if(Auth::user()->role === 'admin')
+                                <button type="button" class="btn btn-sm btn-link p-0 text-dark" data-bs-toggle="modal" data-bs-target="#editOwnerModal" title="Edit Project Owner">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            @endif
+                        </div>
                         <div class="d-flex align-items-center bg-white border border-2 border-dark p-2" style="box-shadow: 3px 3px 0 #000;">
                             <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-3 border border-2 border-dark" style="width: 36px; height: 36px; font-size: 0.9rem; font-weight: 800; box-shadow: 2px 2px 0 rgba(0,0,0,0.2);">
                                 {{ strtoupper(substr($project->user->name, 0, 1)) }}
@@ -107,8 +114,37 @@
                         </div>
                     </div>
                     
+                    @if($project->pic)
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="text-uppercase extra-small fw-900 d-block mb-0 text-muted">PIC (Person In Charge)</label>
+                                @if(Auth::user()->role === 'admin')
+                                    <button type="button" class="btn btn-sm btn-link p-0 text-dark" data-bs-toggle="modal" data-bs-target="#editPicModal" title="Edit PIC">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                @endif
+                            </div>
+                            <div class="d-flex align-items-center bg-white border border-2 border-dark p-2" style="box-shadow: 3px 3px 0 #000;">
+                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center me-3 border border-2 border-dark" style="width: 36px; height: 36px; font-size: 0.9rem; font-weight: 800; box-shadow: 2px 2px 0 rgba(0,0,0,0.2); background-color: #4D96FF;">
+                                    {{ strtoupper(substr($project->pic->name, 0, 1)) }}
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-900 text-dark" style="font-size: 0.95rem; line-height: 1.1;">{{ $project->pic->name }}</span>
+                                    <span class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Person In Charge</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    
                     <div class="mb-4">
-                        <label class="text-uppercase extra-small fw-900 d-block mb-2 text-muted">Assigned Team</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="text-uppercase extra-small fw-900 d-block mb-0 text-muted">Assigned Team</label>
+                            @if(Auth::user()->role === 'admin')
+                                <button type="button" class="btn btn-sm btn-link p-0 text-dark" data-bs-toggle="modal" data-bs-target="#editTeamModal" title="Edit Team">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            @endif
+                        </div>
                         <div class="d-flex flex-wrap gap-2">
                             @php
                                 $assignees = $project->tasks->flatMap->assignees->unique('id');
@@ -1723,4 +1759,106 @@
         }, 300);
     }
 </script>
+
+<!-- Edit Project Owner Modal -->
+<div class="modal fade" id="editOwnerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-900 text-uppercase">Edit Project Owner</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('projects.update', $project) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="user_id" class="form-label fw-bold">Project Owner</label>
+                        <select id="user_id" class="form-select" name="user_id" required>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ $project->user_id == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Owner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit PIC Modal -->
+<div class="modal fade" id="editPicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-900 text-uppercase">Edit PIC (Person In Charge)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('projects.update', $project) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="pic_id_modal" class="form-label fw-bold">PIC</label>
+                        <select id="pic_id_modal" class="form-select" name="pic_id">
+                            <option value="">None</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ $project->pic_id == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update PIC</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Assigned Team Modal -->
+<div class="modal fade" id="editTeamModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-900 text-uppercase">Edit Assigned Team</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Note:</strong> Team members are assigned through individual tasks. To modify the team, please edit the task assignments.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Team Members</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @php
+                            $assignees = $project->tasks->flatMap->assignees->unique('id');
+                        @endphp
+                        @forelse($assignees as $member)
+                            <div class="d-flex align-items-center bg-light border border-2 border-dark py-1 px-2" style="box-shadow: 2px 2px 0 #000;">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2 border border-1 border-dark" style="width: 24px; height: 24px; font-size: 0.7rem; font-weight: 800;">
+                                    {{ strtoupper(substr($member->name, 0, 1)) }}
+                                </div>
+                                <span class="fw-bold text-dark small">{{ $member->name }}</span>
+                            </div>
+                        @empty
+                            <span class="text-muted">No team members assigned yet.</span>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ route('projects.show', $project) }}#tasks" class="btn btn-primary" data-bs-dismiss="modal">Manage Tasks</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endpush

@@ -23,6 +23,7 @@ class Project extends Model
         'mgmt_controlling_notes',
         'department_id',
         'user_id',
+        'pic_id',
     ];
 
     protected $casts = [
@@ -76,5 +77,10 @@ class Project extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function pic()
+    {
+        return $this->belongsTo(User::class, 'pic_id');
     }
 }

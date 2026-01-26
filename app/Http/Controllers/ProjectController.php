@@ -19,14 +19,14 @@ class ProjectController extends Controller
         
         // Admin sees all projects, non-admins see only projects from their department
         if ($user->role === 'admin') {
-            $query = Project::with(['status', 'tasks.assignees', 'department']);
+            $query = Project::with(['status', 'tasks.assignees', 'department', 'pic']);
             $projectIds = Project::pluck('id');
         } else {
             // Get department IDs for the current user as an array
             $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
             
             // Strictly filter projects by these department IDs
-            $query = Project::whereIn('department_id', $userDepartmentIds)->with(['status', 'tasks.assignees', 'department']);
+            $query = Project::whereIn('department_id', $userDepartmentIds)->with(['status', 'tasks.assignees', 'department', 'pic']);
             
             // Get project IDs for later use (like group filtering)
             $projectIds = $query->pluck('id');
@@ -64,8 +64,9 @@ class ProjectController extends Controller
     {
         $statuses = ProjectStatus::all();
         $departments = \App\Models\Department::orderBy('name')->get();
+        $users = \App\Models\User::orderBy('name')->get();
         $userDepartmentId = optional(Auth::user()->departments->first())->id;
-        return view('projects.create', compact('statuses', 'departments', 'userDepartmentId'));
+        return view('projects.create', compact('statuses', 'departments', 'users', 'userDepartmentId'));
     }
 
     public function store(Request $request)
@@ -76,6 +77,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'project_status_id' => 'required|exists:project_statuses,id',
             'department_id' => 'nullable|exists:departments,id',
+            'pic_id' => 'nullable|exists:users,id',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
@@ -96,7 +98,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $this->authorize('view', $project);
-        $project->load(['tasks.assignees', 'status', 'tickets', 'user.departments']);
+        $project->load(['tasks.assignees', 'status', 'tickets', 'user.departments', 'pic']);
         $users = \App\Models\User::all();
         $department = $project->user->departments->first();
         return view('projects.show', compact('project', 'users', 'department'));
@@ -107,7 +109,8 @@ class ProjectController extends Controller
         $this->authorize('update', $project);
         $statuses = ProjectStatus::all();
         $departments = \App\Models\Department::orderBy('name')->get();
-        return view('projects.edit', compact('project', 'statuses', 'departments'));
+        $users = \App\Models\User::orderBy('name')->get();
+        return view('projects.edit', compact('project', 'statuses', 'departments', 'users'));
     }
 
     /**
@@ -123,6 +126,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'project_status_id' => 'required|exists:project_statuses,id',
             'department_id' => 'nullable|exists:departments,id',
+            'pic_id' => 'nullable|exists:users,id',
             'mgmt_phase' => 'nullable|in:Planning,Organizing,Actuating,Controlling',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
