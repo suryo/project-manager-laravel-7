@@ -60,7 +60,7 @@
         .hero-section {
             background: var(--primary-gradient);
             color: white;
-            padding: 140px 0 100px;
+            padding: 100px 0 100px; /* Reduced top padding */
             position: relative;
             clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
         }
@@ -84,18 +84,18 @@
         .navbar-brand {
             font-weight: 800;
             font-size: 1.5rem;
-            color: white !important;
+            color: #4e73df !important; /* Changed from white to primary blue */
             letter-spacing: -0.5px;
         }
         
         .nav-link {
-            color: rgba(255,255,255,0.9) !important;
-            font-weight: 500;
+            color: #4e73df !important; /* Changed from white to primary blue */
+            font-weight: 600;
             transition: color 0.2s;
         }
         
         .nav-link:hover {
-            color: white !important;
+            color: #764ba2 !important;
         }
 
         .btn-hero-primary {
@@ -269,7 +269,7 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 top-0 pt-4" style="z-index: 1000;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm py-3" style="z-index: 1000;">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
                 <i class="bi bi-kanban me-2"></i>{{ config('app.name', 'IGI Project Manager') }}
@@ -285,7 +285,7 @@
                         $all_departments = \App\Models\Department::all();
                     @endphp
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-building me-1"></i> {{ __('Departments') }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
@@ -304,7 +304,7 @@
 
                     <!-- Language Switcher -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-globe me-1"></i> {{ strtoupper(session('locale', 'id')) }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
@@ -316,7 +316,7 @@
                     @if (Route::has('login'))
                         @auth
                             <li class="nav-item">
-                                <a href="{{ url('/projects') }}" class="btn btn-outline-light rounded-pill px-4">{{ __('Dashboard') }}</a>
+                                <a href="{{ url('/projects') }}" class="btn btn-primary rounded-pill px-4">{{ __('Dashboard') }}</a>
                             </li>
                         @else
                             <li class="nav-item">

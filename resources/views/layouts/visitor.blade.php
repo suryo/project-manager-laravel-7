@@ -11,88 +11,183 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="{{ mix('js/app.js') }}" defer></script>
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --navbar-height: 70px;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #f8f9fa;
             font-family: 'Poppins', sans-serif;
-            color: #fff;
+            padding-top: var(--navbar-height); /* Offset for fixed-top navbar */
         }
+
         .visitor-navbar {
-            background: rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: var(--navbar-height);
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+            transition: all 0.3s ease;
         }
+
         .visitor-navbar .navbar-brand {
             font-weight: 800;
-            color: #fff !important;
+            color: #4e73df !important;
             letter-spacing: -0.5px;
+            font-size: 1.5rem;
         }
+
         .visitor-navbar .nav-link {
-            color: rgba(255,255,255,0.9) !important;
+            color: #4e73df !important;
             font-weight: 600;
+            padding: 0.5rem 1rem !important;
         }
+
         .visitor-navbar .nav-link:hover {
-            color: #fff !important;
+            color: #764ba2 !important;
         }
-        .dropdown-menu, .modal-content, 
-        .dropdown-menu *, .modal-content * {
-            color: #212529 !important; /* Force dark text for light backgrounds */
+
+        .navbar-toggler {
+            border: 1px solid #e3e6f0 !important;
+            padding: 0.5rem;
         }
-        .modal-content {
-            border: 4px solid #000 !important;
-            border-radius: 0 !important;
-            box-shadow: 10px 10px 0 #000;
+
+        @media (max-width: 991px) {
+            .visitor-navbar {
+                background-color: #667eea !important; /* Force solid color on mobile bar */
+                background: #667eea !important;
+                border-bottom: 2px solid rgba(0,0,0,0.1);
+            }
+
+            .visitor-navbar .navbar-brand, 
+            .visitor-navbar .nav-link {
+                color: #ffffff !important; /* Use white text for better contrast on solid color */
+            }
+
+            .navbar-collapse {
+                background-color: #667eea !important; /* Force solid color for the dropdown */
+                background: #667eea !important;
+                opacity: 1 !important;
+                position: fixed;
+                top: var(--navbar-height);
+                left: 0;
+                width: 100%;
+                padding: 1.5rem;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                border-top: 1px solid rgba(255,255,255,0.1);
+                z-index: 9999 !important;
+                visibility: visible !important;
+                display: none; /* Let Bootstrap handle show/hide but keep it solid */
+            }
+
+            .navbar-collapse.show, .navbar-collapse.collapsing {
+                display: block !important;
+                background-color: #667eea !important;
+                background: #667eea !important;
+                opacity: 1 !important;
+            }
+
+            #navIcon {
+                color: #ffffff !important; /* White icon on mobile */
+            }
+
+            .navbar-nav .nav-item {
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding: 0.5rem 0;
+            }
+
+            .navbar-nav .dropdown-menu {
+                border: none;
+                background-color: rgba(0,0,0,0.1) !important; /* Slightly darker for nested */
+                padding-left: 1rem;
+                margin-top: 0.5rem;
+            }
+            
+            .navbar-nav .dropdown-item {
+                color: #ffffff !important;
+            }
         }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .dropdown-item {
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+        }
+
+        .dropdown-item:active {
+            background-color: #4e73df;
+        }
+
         .footer-visitor {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 2rem 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 4rem;
-            color: rgba(255, 255, 255, 0.7);
+            background-color: #ffffff;
+            padding: 3rem 0;
+            border-top: 1px solid #e3e6f0;
+            margin-top: 5rem;
+            color: #858796;
         }
     </style>
     @stack('styles')
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-lg visitor-navbar py-3">
+        <nav class="navbar navbar-expand-lg visitor-navbar fixed-top" id="topNav">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    <i class="bi bi-kanban me-2"></i>{{ config('app.name', 'IGI Manager') }}
+                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                    <i class="bi bi-kanban-fill me-2"></i>
+                    <span>{{ config('app.name', 'Project Manager') }}</span>
                 </a>
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#visitorNav">
-                    <span class="navbar-toggler-icon"></span>
+                    <span class="bi bi-list fs-3" id="navIcon" style="color: #4e73df;"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="visitorNav">
-                    <ul class="navbar-nav ms-auto align-items-center gap-3">
+                    <ul class="navbar-nav ms-auto align-items-center">
                         @php $depts = \App\Models\Department::all(); @endphp
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-building me-1"></i> Departments
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 @foreach($depts as $dept)
                                     <li><a class="dropdown-item" href="{{ route('department.landing', $dept->slug) }}">{{ $dept->name }}</a></li>
                                 @endforeach
                             </ul>
                         </li>
                         @guest
-                            <li class="nav-item"><a href="{{ route('login') }}" class="nav-link">Login</a></li>
+                            <li class="nav-item ms-lg-3">
+                                <a href="{{ route('login') }}" class="nav-link text-primary">Login</a>
+                            </li>
+                            <li class="nav-item ms-lg-2">
+                                <a href="{{ route('register') }}" class="btn btn-primary rounded-pill px-4 fw-bold">Sign Up</a>
+                            </li>
                         @else
-                            <li class="nav-item"><a href="{{ route('projects.index') }}" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">Dashboard</a></li>
+                            <li class="nav-item ms-lg-3">
+                                <a href="{{ route('home') }}" class="btn btn-primary rounded-pill px-4 fw-bold">Dashboard</a>
+                            </li>
                         @endguest
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <main class="py-4">
+        <main>
             @yield('content')
         </main>
 
-        <footer class="footer-visitor text-center">
-            <div class="container">
-                <p class="mb-0 text-muted small">&copy; {{ date('Y') }} {{ config('app.name') }} - Indraco Web Dev Division</p>
+        <footer class="footer-visitor">
+            <div class="container text-center">
+                <div class="mb-3">
+                    <a class="navbar-brand text-decoration-none" href="{{ url('/') }}">
+                        {{ config('app.name', 'Project Manager') }}
+                    </a>
+                </div>
+                <p class="mb-0 small">&copy; {{ date('Y') }} {{ config('app.name') }} - Indraco Web Dev Division</p>
+                <div class="mt-3 small">
+                    <span class="badge bg-light text-muted border">v1.2.0</span>
+                </div>
             </div>
         </footer>
     </div>
