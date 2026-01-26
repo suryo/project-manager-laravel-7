@@ -122,4 +122,46 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // Initialize Select2 on user dropdown - wait for full page load
+    window.addEventListener('load', function() {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
+            jQuery('#user_id').select2({
+                placeholder: 'Search and select user...',
+                allowClear: true,
+                width: '100%',
+                templateResult: formatUser,
+                templateSelection: formatUserSelection
+            });
+        } else {
+            console.error('Select2 or jQuery not loaded');
+        }
+    });
+    
+    // Format user option with name and email
+    function formatUser(user) {
+        if (!user.id) {
+            return user.text;
+        }
+        
+        var $user = jQuery(
+            '<div class="d-flex flex-column">' +
+                '<span class="fw-bold">' + jQuery(user.element).text().split(' (')[0] + '</span>' +
+                '<small class="text-muted">' + jQuery(user.element).text().match(/\((.*?)\)/)?.[1] + '</small>' +
+            '</div>'
+        );
+        return $user;
+    }
+    
+    // Format selected user
+    function formatUserSelection(user) {
+        if (!user.id) {
+            return user.text;
+        }
+        return jQuery(user.element).text().split(' (')[0];
+    }
+</script>
+@endpush
 @endsection
