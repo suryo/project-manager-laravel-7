@@ -43,8 +43,8 @@
                 <div class="col-md-2">
                     <label for="limit" class="form-label small fw-bold text-muted">Show</label>
                     <select name="limit" id="limit" class="form-select">
-                        @foreach([10, 20, 50, 100] as $limit)
-                            <option value="{{ $limit }}" {{ request('limit', 10) == $limit ? 'selected' : '' }}>
+                        @foreach([12, 24, 36, 48] as $limit)
+                            <option value="{{ $limit }}" {{ request('limit', 12) == $limit ? 'selected' : '' }}>
                                 {{ $limit }} Entries
                             </option>
                         @endforeach

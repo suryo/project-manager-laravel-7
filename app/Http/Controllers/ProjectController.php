@@ -48,7 +48,7 @@ class ProjectController extends Controller
         }
 
         // Per Page Limit
-        $perPage = $request->get('limit', 10);
+        $perPage = $request->get('limit', 12);
         
         $projects = $query->latest()->paginate($perPage)->withQueryString();
         
