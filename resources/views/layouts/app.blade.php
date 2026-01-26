@@ -976,12 +976,19 @@
                     <div class="sidebar-user-section d-md-none">
                         <div class="user-profile-card">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="user-avatar me-3">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                </div>
+                                <a href="{{ route('profile.edit') }}" class="text-decoration-none">
+                                    <div class="user-avatar me-3">
+                                        @if(Auth::user()->avatar_url)
+                                            <img src="{{ Auth::user()->avatar_url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                        @else
+                                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        @endif
+                                    </div>
+                                </a>
                                 <div class="user-info flex-grow-1">
                                     <div class="user-name">{{ Auth::user()->name }}</div>
                                     <div class="user-email">{{ Auth::user()->email }}</div>
+                                    <a href="{{ route('profile.edit') }}" class="badge bg-light text-dark text-decoration-none mt-1" style="font-size: 0.7rem;">Edit Profile</a>
                                 </div>
                             </div>
                             <form action="{{ route('logout') }}" method="POST">
@@ -1059,8 +1066,11 @@
                                 @endif
                             @else
                                 <li class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        {{ Auth::user()->name }} 
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle fw-bold d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        @if(Auth::user()->avatar_url)
+                                            <img src="{{ Auth::user()->avatar_url }}" alt="Av" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        @endif
+                                        <span>{{ Auth::user()->name }}</span>
                                         <span class="badge bg-primary ms-1">{{ ucfirst(Auth::user()->role) }}</span>
                                         @if(Auth::user()->departments->isNotEmpty())
                                             <span class="badge bg-secondary ms-1">
@@ -1070,10 +1080,14 @@
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                            <i class="bi bi-person me-2"></i> My Profile
+                                        </a>
+                                        <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                            onclick="event.preventDefault();
                                                          document.getElementById('logout-form').submit();">
-                                            {{ __('Logout') }}
+                                            <i class="bi bi-box-arrow-right me-2"></i> {{ __('Logout') }}
                                         </a>
 
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

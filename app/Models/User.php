@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'role',
+        'avatar',
         'password',
         'monthly_energy_limit',
         'last_seen_at',
@@ -45,6 +46,21 @@ class User extends Authenticatable
         'password' => 'hashed',
         'last_seen_at' => 'datetime',
     ];
+
+    /**
+     * Get the user's avatar URL.
+     *
+     * @return string
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && \Storage::disk('public')->exists($this->avatar)) {
+            return \Storage::url($this->avatar);
+        }
+        
+        // Return null or a default placeholder if needed
+        return null;
+    }
 
     public function isOnline()
     {

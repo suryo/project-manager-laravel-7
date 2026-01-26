@@ -30,6 +30,9 @@ Route::get('lang/{locale}', function ($locale) {
 Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::post('/projects/{project}/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateMgmt'])->name('projects.mgmt-update');
