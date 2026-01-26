@@ -851,6 +851,7 @@
                 background: #4e73df !important; /* Solid blue */
                 background-image: none !important;
                 border-bottom: 1px solid #3e63cf !important;
+                color: #ffffff !important;
             }
             
             #sidebar-wrapper .sidebar-heading .neo-logo {
@@ -890,33 +891,37 @@
                 font-weight: 700 !important;
             }
 
-            /* Ensure User Section is Solid */
-            .sidebar-user-section {
+            /* FORCE SOLID BACKGROUND for User Section */
+            #sidebar-wrapper .sidebar-user-section {
                 background: #f8f9fc !important; /* Light gray solid */
+                background-color: #f8f9fc !important;
+                background-image: none !important; /* KILL GRADIENT */
                 border-top: 1px solid #e3e6f0 !important;
                 padding: 1rem !important;
+                margin-top: auto !important;
             }
             
-            .user-avatar {
+            #sidebar-wrapper .sidebar-user-section .user-avatar {
                 background: #ffffff !important;
                 color: #4e73df !important;
                 border: 2px solid #e3e6f0 !important;
                 box-shadow: none !important;
             }
             
-            .user-name {
-                color: #3a3b45 !important;
+            #sidebar-wrapper .sidebar-user-section .user-name {
+                color: #3a3b45 !important; /* Dark text */
             }
             
-            .user-email {
-                color: #858796 !important;
+            #sidebar-wrapper .sidebar-user-section .user-email {
+                color: #858796 !important; /* Gray text */
             }
             
-            .btn-logout {
+            #sidebar-wrapper .sidebar-user-section .btn-logout {
                 background: #e74a3b !important; /* Solid Red */
                 color: #ffffff !important;
                 border: none !important;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+                width: 100% !important;
             }
         }
     </style>
@@ -968,7 +973,7 @@
                     @endif
                     
                     <!-- User Profile & Logout Section (Mobile) -->
-                    <div class="sidebar-user-section">
+                    <div class="sidebar-user-section d-md-none">
                         <div class="user-profile-card">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="user-avatar me-3">
