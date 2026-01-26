@@ -1,69 +1,95 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="mb-0">📝 All My Notes</h1>
-            <p class="text-muted small">Notes from all your departments</p>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold mb-2">
+                        <i class="bi bi-sticky-fill text-primary me-2"></i>All My Notes
+                    </h1>
+                    <p class="text-muted mb-0">Manage notes from all your departments in one place</p>
+                </div>
+                @if(Auth::user()->role === 'admin')
+                    <button type="button" class="btn btn-primary btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Note
+                    </button>
+                @endif
+            </div>
         </div>
-        @if(Auth::user()->role === 'admin')
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNoteModal">
-                <i class="bi bi-plus-circle me-2"></i>New Note
-            </button>
-        @endif
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
-    <!-- Search and Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form action="{{ route('notes.all') }}" method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" name="search" class="form-control" placeholder="🔍 Search notes..." value="{{ request('search') }}">
-                </div>
-                <div class="col-md-3">
-                    <select name="department" class="form-select">
-                        <option value="">All Departments</option>
-                        @foreach($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ request('department') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="color" class="form-select">
-                        <option value="">All Colors</option>
-                        <option value="yellow" {{ request('color') == 'yellow' ? 'selected' : '' }}>🟡 Yellow</option>
-                        <option value="blue" {{ request('color') == 'blue' ? 'selected' : '' }}>🔵 Blue</option>
-                        <option value="green" {{ request('color') == 'green' ? 'selected' : '' }}>🟢 Green</option>
-                        <option value="pink" {{ request('color') == 'pink' ? 'selected' : '' }}>🩷 Pink</option>
-                        <option value="purple" {{ request('color') == 'purple' ? 'selected' : '' }}>🟣 Purple</option>
-                        <option value="orange" {{ request('color') == 'orange' ? 'selected' : '' }}>🟠 Orange</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+    <!-- Filter Card -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
+            <form action="{{ route('notes.all') }}" method="GET">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-muted mb-2">SEARCH</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                                   placeholder="Search by title or content..." value="{{ request('search') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small text-muted mb-2">DEPARTMENT</label>
+                        <select name="department" class="form-select">
+                            <option value="">All Departments</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}" {{ request('department') == $dept->id ? 'selected' : '' }}>
+                                    {{ $dept->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small text-muted mb-2">COLOR</label>
+                        <select name="color" class="form-select">
+                            <option value="">All Colors</option>
+                            <option value="yellow" {{ request('color') == 'yellow' ? 'selected' : '' }}>🟡 Yellow</option>
+                            <option value="blue" {{ request('color') == 'blue' ? 'selected' : '' }}>🔵 Blue</option>
+                            <option value="green" {{ request('color') == 'green' ? 'selected' : '' }}>🟢 Green</option>
+                            <option value="pink" {{ request('color') == 'pink' ? 'selected' : '' }}>🩷 Pink</option>
+                            <option value="purple" {{ request('color') == 'purple' ? 'selected' : '' }}>🟣 Purple</option>
+                            <option value="orange" {{ request('color') == 'orange' ? 'selected' : '' }}>🟠 Orange</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel me-1"></i>Apply Filters
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Departments Quick Links -->
+    <!-- Department Quick Links -->
+    @if($departments->count() > 0)
     <div class="mb-4">
+        <h6 class="text-muted fw-semibold mb-3 small">QUICK ACCESS BY DEPARTMENT</h6>
         <div class="d-flex flex-wrap gap-2">
             @foreach($departments as $dept)
-                <a href="{{ route('departments.notes.index', $dept) }}" class="btn btn-outline-primary btn-sm">
+                <a href="{{ route('departments.notes.index', $dept) }}" 
+                   class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
                     <i class="bi bi-building me-1"></i>{{ $dept->name }}
                 </a>
             @endforeach
         </div>
     </div>
+    @endif
 
     <!-- Sticky Notes Grid -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
@@ -119,15 +145,27 @@
             </div>
         @empty
             <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="bi bi-sticky display-1 text-muted"></i>
-                    <p class="text-muted mt-3">No notes yet. Go to a department to create your first sticky note!</p>
-                    <div class="mt-3">
-                        @foreach($departments as $dept)
-                            <a href="{{ route('departments.notes.index', $dept) }}" class="btn btn-primary me-2">
-                                <i class="bi bi-plus-circle me-1"></i>Create Note in {{ $dept->name }}
-                            </a>
-                        @endforeach
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-sticky display-1 text-muted opacity-50"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">No Notes Yet</h4>
+                        <p class="text-muted mb-4">Start creating sticky notes to organize your thoughts and ideas!</p>
+                        
+                        @if(Auth::user()->role === 'admin')
+                            <button type="button" class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+                                <i class="bi bi-plus-circle me-2"></i>Create Your First Note
+                            </button>
+                        @else
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                @foreach($departments as $dept)
+                                    <a href="{{ route('departments.notes.index', $dept) }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-plus-circle me-1"></i>Create in {{ $dept->name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
