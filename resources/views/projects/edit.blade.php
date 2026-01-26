@@ -193,5 +193,18 @@
         var description = document.getElementById('description');
         description.value = quill.root.innerHTML;
     };
+    
+    // Initialize Select2 for PIC dropdown - wait for full page load
+    window.addEventListener('load', function() {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
+            jQuery('#pic_id').select2({
+                placeholder: 'Search and select PIC...',
+                allowClear: true,
+                width: '100%'
+            });
+        } else {
+            console.error('Select2 or jQuery not loaded');
+        }
+    });
 </script>
 @endpush

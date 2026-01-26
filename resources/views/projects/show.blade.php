@@ -1861,4 +1861,28 @@
     </div>
 </div>
 
+<script>
+    // Initialize Select2 on modal user dropdowns - wait for full page load
+    window.addEventListener('load', function() {
+        if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
+            // Re-initialize when modals are shown
+            jQuery('#editOwnerModal, #editPicModal').on('shown.bs.modal', function() {
+                jQuery(this).find('select').select2({
+                    placeholder: 'Search and select user...',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: jQuery(this).find('.modal-content')
+                });
+            });
+            
+            // Destroy Select2 when modal is hidden to prevent duplicates
+            jQuery('#editOwnerModal, #editPicModal').on('hidden.bs.modal', function() {
+                jQuery(this).find('select').select2('destroy');
+            });
+        } else {
+            console.error('Select2 or jQuery not loaded for modals');
+        }
+    });
+</script>
+
 @endpush
