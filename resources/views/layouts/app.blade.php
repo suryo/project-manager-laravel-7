@@ -763,6 +763,10 @@
                         <i class="bi bi-ticket-perforated me-2"></i> Tickets
                     </a>
                     
+                    <a class="list-group-item list-group-item-action {{ request()->routeIs('notes.all') || request()->routeIs('departments.notes.*') ? 'active' : '' }}" href="{{ route('notes.all') }}">
+                        <i class="bi bi-sticky me-2"></i> Notes
+                    </a>
+                    
                     @if(Auth::user()->role === 'admin')
                         <div class="sidebar-label mt-3 mb-1 text-uppercase fw-bold">Administration</div>
                         <a class="list-group-item list-group-item-action {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">

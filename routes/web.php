@@ -74,6 +74,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Leave impersonation (accessible by impersonated user)
     Route::post('/leave-impersonation', [App\Http\Controllers\UserController::class, 'leaveImpersonation'])->name('leave-impersonation');
+    
+    // Department Notes
+    Route::get('/notes', [App\Http\Controllers\DepartmentNoteController::class, 'allNotes'])->name('notes.all');
+    Route::resource('departments.notes', App\Http\Controllers\DepartmentNoteController::class)->except(['show', 'create', 'edit']);
+    Route::post('departments/{department}/notes/{note}/toggle-pin', [App\Http\Controllers\DepartmentNoteController::class, 'togglePin'])->name('departments.notes.toggle-pin');
 });
 
 // Public Ticket Request (no auth required)

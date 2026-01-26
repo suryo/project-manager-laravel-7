@@ -50,4 +50,10 @@ class Department extends Model
     {
         return $this->hasMany('App\Models\Meeting');
     }
+
+    // Notes relationship
+    public function notes()
+    {
+        return $this->hasMany(DepartmentNote::class);
+    }
 }
