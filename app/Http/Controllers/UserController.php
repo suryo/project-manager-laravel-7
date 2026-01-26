@@ -12,10 +12,35 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('departments')->latest()->paginate(10);
-        return view('users.index', compact('users'));
+        $query = User::with('departments');
+        
+        // Search by name or email
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        // Filter by role
+        if ($request->has('role') && $request->role) {
+            $query->where('role', $request->role);
+        }
+        
+        // Filter by department
+        if ($request->has('department') && $request->department) {
+            $query->whereHas('departments', function($q) use ($request) {
+                $q->where('departments.id', $request->department);
+            });
+        }
+        
+        $users = $query->latest()->paginate(10)->withQueryString();
+        $departments = \App\Models\Department::orderBy('name')->get();
+        
+        return view('users.index', compact('users', 'departments'));
     }
 
     /**

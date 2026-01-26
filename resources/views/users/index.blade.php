@@ -34,6 +34,58 @@
         </div>
     @endif
 
+    <!-- Search and Filter Section -->
+    <div class="card card-custom border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form action="{{ route('users.index') }}" method="GET">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-muted mb-2">SEARCH</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                                   placeholder="Search by name or email..." value="{{ request('search') }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small text-muted mb-2">ROLE</label>
+                        <select name="role" class="form-select">
+                            <option value="">All Roles</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                            <option value="client" {{ request('role') == 'client' ? 'selected' : '' }}>Client</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold small text-muted mb-2">DEPARTMENT</label>
+                        <select name="department" class="form-select">
+                            <option value="">All Departments</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}" {{ request('department') == $dept->id ? 'selected' : '' }}>
+                                    {{ $dept->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 border border-2 border-dark fw-bold" style="box-shadow: 3px 3px 0 #000;">
+                            <i class="bi bi-funnel me-1"></i>FILTER
+                        </button>
+                    </div>
+                </div>
+                @if(request('search') || request('role') || request('department'))
+                    <div class="mt-3">
+                        <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Clear Filters
+                        </a>
+                    </div>
+                @endif
+            </form>
+        </div>
+    </div>
+
     <div class="card card-custom border-0 shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
