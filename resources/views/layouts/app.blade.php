@@ -494,6 +494,7 @@
             display: flex;
             flex-direction: column;
         }
+        
 
         #sidebar-wrapper .sidebar-heading {
             padding: 1rem 1.25rem;
@@ -542,6 +543,95 @@
             margin-right: -2px; /* Merge with content */
             position: relative;
             z-index: 2;
+        }
+        
+        /* Sidebar User Section */
+        .sidebar-user-section {
+            margin-top: auto;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-top: 3px solid var(--neo-border-color);
+        }
+        
+        .user-profile-card {
+            padding: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border: 3px solid var(--neo-border-color);
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+        
+        .user-info {
+            color: white;
+        }
+        
+        .user-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: white;
+        }
+        
+        .user-email {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .btn-logout {
+            width: 100%;
+            padding: 0.75rem;
+            background: #dc3545;
+            color: white;
+            border: 3px solid var(--neo-border-color);
+            border-radius: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+        }
+        
+        .btn-logout:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+        
+        /* Make sidebar scrollable on mobile */
+        @media (max-width: 767px) {
+            #sidebar-wrapper {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #sidebar-wrapper .list-group {
+                overflow-y: visible;
+                padding-bottom: 0;
+            }
+            
+            .sidebar-user-section {
+                position: sticky;
+                bottom: 0;
+                z-index: 10;
+            }
         }
 
         #page-content-wrapper {
@@ -701,8 +791,16 @@
             height: 100vh;
             background: rgba(0,0,0,0.5);
             z-index: 1039; /* Below sidebar (1040) but above sticky (1020) */
-            backdrop-filter: blur(2px);
+            backdrop-filter: none;
             transition: opacity 0.3s ease;
+        }
+        
+        /* Mobile specific: solid dark overlay */
+        @media (max-width: 767px) {
+            #sidebar-overlay {
+                background: rgba(0,0,0,0.7); /* Darker solid overlay */
+                backdrop-filter: none;
+            }
         }
 
         /* Modern Gradient Global Styles */
@@ -731,6 +829,95 @@
         [data-theme="modern-gradient"] .navbar-custom {
             background: rgba(255, 255, 255, 0.9) !important;
             backdrop-filter: blur(10px);
+        }
+
+        /* ---------------------------------------------------------
+           CRITICAL MOBILE OVERRIDES - MUST BE AT THE BOTTOM 
+           TO ENSURE SOLID BACKGROUNDS AND NO TRANSPARENCY
+           --------------------------------------------------------- */
+        @media (max-width: 767px) {
+            #sidebar-wrapper {
+                background: #ffffff !important; /* Pure solid white */
+                background-image: none !important;
+                box-shadow: 4px 0 25px rgba(0,0,0,0.2) !important;
+                border-right: 1px solid #dee2e6 !important;
+            }
+            
+            #sidebar-wrapper .list-group {
+                background: #ffffff !important;
+            }
+            
+            #sidebar-wrapper .sidebar-heading {
+                background: #4e73df !important; /* Solid blue */
+                background-image: none !important;
+                border-bottom: 1px solid #3e63cf !important;
+            }
+            
+            #sidebar-wrapper .sidebar-heading .neo-logo {
+                color: #ffffff !important;
+                text-shadow: none !important;
+            }
+            
+            #sidebar-wrapper .list-group-item {
+                color: #3a3b45 !important;
+                background: #ffffff !important; /* Solid white instead of transparent */
+                font-weight: 600 !important;
+                border: none !important;
+            }
+            
+            #sidebar-wrapper .list-group-item:hover {
+                background-color: #eaecf4 !important; /* Solid light gray */
+                color: #4e73df !important;
+            }
+            
+            #sidebar-wrapper .list-group-item.active {
+                background: #4e73df !important; /* Solid blue */
+                background-image: none !important;
+                color: #ffffff !important;
+                border-left: 4px solid #224abe !important;
+                border-top: none !important;
+                border-bottom: none !important;
+                margin-right: 0 !important;
+            }
+            
+            #sidebar-wrapper .sidebar-label {
+                color: #858796 !important;
+                background: #f8f9fc !important; /* Solid very light gray */
+                margin: 0.5rem 1rem !important;
+                padding: 0.5rem 1rem !important;
+                border-radius: 4px !important;
+                font-size: 0.75rem !important;
+                font-weight: 700 !important;
+            }
+
+            /* Ensure User Section is Solid */
+            .sidebar-user-section {
+                background: #f8f9fc !important; /* Light gray solid */
+                border-top: 1px solid #e3e6f0 !important;
+                padding: 1rem !important;
+            }
+            
+            .user-avatar {
+                background: #ffffff !important;
+                color: #4e73df !important;
+                border: 2px solid #e3e6f0 !important;
+                box-shadow: none !important;
+            }
+            
+            .user-name {
+                color: #3a3b45 !important;
+            }
+            
+            .user-email {
+                color: #858796 !important;
+            }
+            
+            .btn-logout {
+                background: #e74a3b !important; /* Solid Red */
+                color: #ffffff !important;
+                border: none !important;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            }
         }
     </style>
     
@@ -779,6 +966,27 @@
                             <i class="bi bi-kanban me-2"></i> Statuses
                         </a>
                     @endif
+                    
+                    <!-- User Profile & Logout Section (Mobile) -->
+                    <div class="sidebar-user-section">
+                        <div class="user-profile-card">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="user-avatar me-3">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </div>
+                                <div class="user-info flex-grow-1">
+                                    <div class="user-name">{{ Auth::user()->name }}</div>
+                                    <div class="user-email">{{ Auth::user()->email }}</div>
+                                </div>
+                            </div>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 @endauth
             </div>
         </div>
