@@ -5,10 +5,17 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="display-6 fw-bold mb-2">
-                <i class="bi bi-journal-text text-primary me-2"></i>POAC Logs
-            </h1>
-            <p class="text-muted mb-0">View all POAC activity logs from the system</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold mb-2">
+                        <i class="bi bi-journal-text text-primary me-2"></i>POAC Logs
+                    </h1>
+                    <p class="text-muted mb-0">View all POAC activity logs from the system</p>
+                </div>
+                <a href="{{ route('poac-logs.report') }}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-text me-2"></i>Generate Report
+                </a>
+            </div>
         </div>
     </div>
 

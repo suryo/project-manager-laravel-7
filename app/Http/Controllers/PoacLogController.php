@@ -9,12 +9,12 @@ class PoacLogController extends Controller
 {
     public function index(Request $request)
     {
-        // Only admin can access
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-
+        // Admin sees all logs, regular users see only their own logs
         $query = PoacLog::with(['user', 'poacable']);
+        
+        if (auth()->user()->role !== 'admin') {
+            $query->where('user_id', auth()->id());
+        }
 
         // Filter by phase
         if ($request->has('phase') && $request->phase) {
@@ -54,5 +54,116 @@ class PoacLogController extends Controller
         $users = \App\Models\User::orderBy('name')->get();
 
         return view('poac-logs.index', compact('logs', 'users'));
+    }
+    
+    public function showReportForm()
+    {
+        return view('poac-logs.report');
+    }
+    
+    public function generateReport(Request $request)
+    {
+        $request->validate([
+            'report_type' => 'required|in:custom,today,week,month,year',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date|after_or_equal:date_from',
+            'month' => 'nullable|integer|min:1|max:12',
+            'year' => 'nullable|integer|min:2020|max:2100',
+        ]);
+        
+        $query = PoacLog::with(['user', 'poacable']);
+        
+        // Filter by user (admin sees all, users see their own)
+        if (auth()->user()->role !== 'admin') {
+            $query->where('user_id', auth()->id());
+        }
+        
+        // Apply date filters based on report type
+        switch ($request->report_type) {
+            case 'today':
+                $query->whereDate('created_at', today());
+                $periodLabel = 'Today (' . today()->format('d M Y') . ')';
+                break;
+                
+            case 'week':
+                $query->whereBetween('created_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ]);
+                $periodLabel = 'This Week (' . now()->startOfWeek()->format('d M') . ' - ' . now()->endOfWeek()->format('d M Y') . ')';
+                break;
+                
+            case 'month':
+                if ($request->month && $request->year) {
+                    $date = \Carbon\Carbon::createFromDate($request->year, $request->month, 1);
+                    $query->whereYear('created_at', $request->year)
+                          ->whereMonth('created_at', $request->month);
+                    $periodLabel = $date->format('F Y');
+                } else {
+                    $query->whereMonth('created_at', now()->month)
+                          ->whereYear('created_at', now()->year);
+                    $periodLabel = now()->format('F Y');
+                }
+                break;
+                
+            case 'year':
+                $year = $request->year ?? now()->year;
+                $query->whereYear('created_at', $year);
+                $periodLabel = 'Year ' . $year;
+                break;
+                
+            case 'custom':
+                if ($request->date_from && $request->date_to) {
+                    $query->whereBetween('created_at', [
+                        $request->date_from . ' 00:00:00',
+                        $request->date_to . ' 23:59:59'
+                    ]);
+                    $periodLabel = \Carbon\Carbon::parse($request->date_from)->format('d M Y') . ' - ' . 
+                                   \Carbon\Carbon::parse($request->date_to)->format('d M Y');
+                }
+                break;
+        }
+        
+        $logs = $query->orderBy('created_at', 'desc')->get();
+        
+        // Generate text report
+        $report = "POAC ACTIVITY REPORT\n";
+        $report .= "==========================================\n\n";
+        $report .= "User: " . auth()->user()->name . "\n";
+        $report .= "Period: " . ($periodLabel ?? 'Custom Range') . "\n";
+        $report .= "Generated: " . now()->format('d M Y, H:i') . "\n";
+        $report .= "Total Logs: " . $logs->count() . "\n\n";
+        $report .= "==========================================\n\n";
+        
+        if ($logs->isEmpty()) {
+            $report .= "No activity logs found for this period.\n";
+        } else {
+            foreach ($logs as $log) {
+                $phaseIcons = [
+                    'Planning' => '📋',
+                    'Organizing' => '🗂️',
+                    'Actuating' => '⚡',
+                    'Controlling' => '📊'
+                ];
+                
+                $report .= ($phaseIcons[$log->phase] ?? '') . " " . strtoupper($log->phase) . " - " . $log->title . "\n";
+                
+                if ($log->poacable) {
+                    $type = class_basename($log->poacable_type);
+                    $name = $log->poacable->title ?? $log->poacable->name ?? 'N/A';
+                    $report .= "$type: $name\n";
+                }
+                
+                $report .= "Date: " . $log->created_at->format('d M Y, H:i') . "\n";
+                $report .= "Description: " . strip_tags($log->description) . "\n";
+                $report .= "\n------------------------------------------\n\n";
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'report' => $report,
+            'count' => $logs->count()
+        ]);
     }
 }

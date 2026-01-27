@@ -85,6 +85,8 @@ Route::middleware(['auth'])->group(function () {
     
     // POAC Logs (Admin only)
     Route::get('/poac-logs', [App\Http\Controllers\PoacLogController::class, 'index'])->name('poac-logs.index');
+    Route::get('/poac-logs/report', [App\Http\Controllers\PoacLogController::class, 'showReportForm'])->name('poac-logs.report');
+    Route::post('/poac-logs/generate-report', [App\Http\Controllers\PoacLogController::class, 'generateReport'])->name('poac-logs.generate-report');
 });
 
 // Public Ticket Request (no auth required)

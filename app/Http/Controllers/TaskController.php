@@ -18,7 +18,16 @@ class TaskController extends Controller
         // Show tasks assigned to user or created by user's projects?
         // Let's show tasks assigned to the current user
         $tasks = Auth::user()->assignedTasks()->with('project')->latest()->paginate(10);
-        return view('tasks.index', compact('tasks'));
+        
+        // Get POAC logs for tasks assigned to this user (created by this user)
+        $poacLogs = \App\Models\PoacLog::where('user_id', Auth::id())
+            ->where('poacable_type', 'App\Models\Task')
+            ->with(['poacable'])
+            ->latest()
+            ->take(10)
+            ->get();
+        
+        return view('tasks.index', compact('tasks', 'poacLogs'));
     }
 
     /**
