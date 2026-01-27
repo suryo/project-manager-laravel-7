@@ -12,11 +12,9 @@
                     </h1>
                     <p class="text-muted mb-0">Manage notes from all your departments in one place</p>
                 </div>
-                @if(Auth::user()->role === 'admin')
-                    <button type="button" class="btn btn-primary btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#createNoteModal">
-                        <i class="bi bi-plus-circle me-2"></i>Create New Note
-                    </button>
-                @endif
+                <button type="button" class="btn btn-primary btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+                    <i class="bi bi-plus-circle me-2"></i>New Note
+                </button>
             </div>
         </div>
     </div>
@@ -153,19 +151,9 @@
                         <h4 class="fw-bold mb-2">No Notes Yet</h4>
                         <p class="text-muted mb-4">Start creating sticky notes to organize your thoughts and ideas!</p>
                         
-                        @if(Auth::user()->role === 'admin')
-                            <button type="button" class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal" data-bs-target="#createNoteModal">
-                                <i class="bi bi-plus-circle me-2"></i>Create Your First Note
-                            </button>
-                        @else
-                            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                                @foreach($departments as $dept)
-                                    <a href="{{ route('departments.notes.index', $dept) }}" class="btn btn-outline-primary">
-                                        <i class="bi bi-plus-circle me-1"></i>Create in {{ $dept->name }}
-                                    </a>
-                                @endforeach
-                            </div>
-                        @endif
+                        <button type="button" class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal" data-bs-target="#createNoteModal">
+                            <i class="bi bi-plus-circle me-2"></i>Create Your First Note
+                        </button>
                     </div>
                 </div>
             </div>
@@ -262,8 +250,7 @@
 </style>
 @endpush
 
-<!-- Create Note Modal for Admin -->
-@if(Auth::user()->role === 'admin')
+<!-- Create Note Modal -->
 <div class="modal fade" id="createNoteModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -276,12 +263,15 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="department_id" class="form-label fw-bold">Department <span class="text-danger">*</span></label>
-                        <select id="department_id" class="form-select" name="department_id" required>
+                        <select id="department_id" class="form-select" name="department_id" required {{ Auth::user()->role !== 'admin' && $departments->count() === 1 ? 'readonly' : '' }}>
                             <option value="">Select Department</option>
                             @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                <option value="{{ $dept->id }}" {{ Auth::user()->role !== 'admin' && $departments->count() === 1 ? 'selected' : '' }}>{{ $dept->name }}</option>
                             @endforeach
                         </select>
+                        @if(Auth::user()->role !== 'admin' && $departments->count() === 1)
+                            <small class="text-muted">Auto-selected based on your department</small>
+                        @endif
                     </div>
                     
                     <div class="mb-3">
@@ -371,4 +361,3 @@
     });
 </script>
 @endpush
-@endif
