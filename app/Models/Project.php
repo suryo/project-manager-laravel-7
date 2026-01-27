@@ -16,6 +16,7 @@ class Project extends Model
         'end_date',
         'budget',
         'slug',
+        'color',
         'mgmt_phase',
         'mgmt_planning_notes',
         'mgmt_organizing_notes',

@@ -81,6 +81,7 @@ class ProjectController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
+            'color' => 'nullable|in:blue,green,yellow,orange,pink,purple',
         ]);
 
         // Set user_id to the authenticated user
@@ -131,6 +132,7 @@ class ProjectController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
+            'color' => 'nullable|in:blue,green,yellow,orange,pink,purple',
         ]);
 
         $project->update($validated);

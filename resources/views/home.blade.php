@@ -88,7 +88,19 @@
                                 @foreach($allProjects as $project)
                                     <tr>
                                         <td class="ps-4">
-                                            <div class="fw-bold">{{ $project->title }}</div>
+                                            @php
+                                                $colorMap = [
+                                                    'blue' => '#0d6efd',
+                                                    'green' => '#198754',
+                                                    'yellow' => '#ffc107',
+                                                    'orange' => '#FF9800',
+                                                    'pink' => '#dc3545',
+                                                    'purple' => '#9C27B0'
+                                                ];
+                                                $projectColor = $colorMap[$project->color ?? 'blue'] ?? '#0d6efd';
+                                            @endphp
+                                            <span class="badge me-2" style="background-color: {{ $projectColor }}; width: 12px; height: 12px; padding: 0; border-radius: 50%;"></span>
+                                            <div class="fw-bold d-inline">{{ $project->title }}</div>
                                             @if($project->group)
                                                 <div class="extra-small text-primary fw-bold">{{ $project->group }}</div>
                                             @endif

@@ -63,7 +63,18 @@
     <div class="row">
         @forelse($projects as $project)
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
+                @php
+                    $colorMap = [
+                        'blue' => ['border' => '#0d6efd', 'bg' => 'rgba(13, 110, 253, 0.05)'],
+                        'green' => ['border' => '#198754', 'bg' => 'rgba(25, 135, 84, 0.05)'],
+                        'yellow' => ['border' => '#ffc107', 'bg' => 'rgba(255, 193, 7, 0.05)'],
+                        'orange' => ['border' => '#FF9800', 'bg' => 'rgba(255, 152, 0, 0.05)'],
+                        'pink' => ['border' => '#dc3545', 'bg' => 'rgba(220, 53, 69, 0.05)'],
+                        'purple' => ['border' => '#9C27B0', 'bg' => 'rgba(156, 39, 176, 0.05)']
+                    ];
+                    $projectColors = $colorMap[$project->color ?? 'blue'] ?? $colorMap['blue'];
+                @endphp
+                <div class="card h-100" style="border-left: 5px solid {{ $projectColors['border'] }}; background-color: {{ $projectColors['bg'] }};">
                     <div class="card-body">
                          <div class="d-flex justify-content-between align-items-start">
                               <h5 class="card-title text-truncate mb-0" title="{{ $project->title }}">{{ $project->title }}</h5>

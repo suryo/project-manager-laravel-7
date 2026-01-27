@@ -147,6 +147,29 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Project Color</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="radio" class="btn-check" name="color" id="edit-color-blue" value="blue" {{ old('color', $project->color) == 'blue' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-primary" for="edit-color-blue">🔵 Blue</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="edit-color-green" value="green" {{ old('color', $project->color) == 'green' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-success" for="edit-color-green">🟢 Green</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="edit-color-yellow" value="yellow" {{ old('color', $project->color) == 'yellow' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-warning" for="edit-color-yellow">🟡 Yellow</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="edit-color-orange" value="orange" {{ old('color', $project->color) == 'orange' ? 'checked' : '' }}>
+                                <label class="btn" style="border: 1px solid #FF9800; color: #FF9800;" for="edit-color-orange">🟠 Orange</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="edit-color-pink" value="pink" {{ old('color', $project->color) == 'pink' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-danger" for="edit-color-pink">🩷 Pink</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="edit-color-purple" value="purple" {{ old('color', $project->color) == 'purple' ? 'checked' : '' }}>
+                                <label class="btn" style="border: 1px solid #9C27B0; color: #9C27B0;" for="edit-color-purple">🟣 Purple</label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary px-4 rounded-pill">Update Project</button>
                         <a href="{{ route('projects.index') }}" class="btn btn-link">Cancel</a>
                     </form>

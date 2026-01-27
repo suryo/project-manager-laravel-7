@@ -132,6 +132,29 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Project Color</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="radio" class="btn-check" name="color" id="color-blue" value="blue" {{ old('color', 'blue') == 'blue' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-primary" for="color-blue">🔵 Blue</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="color-green" value="green" {{ old('color') == 'green' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-success" for="color-green">🟢 Green</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="color-yellow" value="yellow" {{ old('color') == 'yellow' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-warning" for="color-yellow">🟡 Yellow</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="color-orange" value="orange" {{ old('color') == 'orange' ? 'checked' : '' }}>
+                                <label class="btn" style="border: 1px solid #FF9800; color: #FF9800;" for="color-orange">🟠 Orange</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="color-pink" value="pink" {{ old('color') == 'pink' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-danger" for="color-pink">🩷 Pink</label>
+                                
+                                <input type="radio" class="btn-check" name="color" id="color-purple" value="purple" {{ old('color') == 'purple' ? 'checked' : '' }}>
+                                <label class="btn" style="border: 1px solid #9C27B0; color: #9C27B0;" for="color-purple">🟣 Purple</label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary px-4 rounded-pill">Create Project</button>
                         <a href="{{ route('projects.index') }}" class="btn btn-link">Cancel</a>
                     </form>
