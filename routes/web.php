@@ -82,6 +82,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notes', [App\Http\Controllers\DepartmentNoteController::class, 'allNotes'])->name('notes.all');
     Route::resource('departments.notes', App\Http\Controllers\DepartmentNoteController::class)->except(['show', 'create', 'edit']);
     Route::post('departments/{department}/notes/{note}/toggle-pin', [App\Http\Controllers\DepartmentNoteController::class, 'togglePin'])->name('departments.notes.toggle-pin');
+    
+    // POAC Logs (Admin only)
+    Route::get('/poac-logs', [App\Http\Controllers\PoacLogController::class, 'index'])->name('poac-logs.index');
 });
 
 // Public Ticket Request (no auth required)

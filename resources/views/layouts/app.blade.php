@@ -970,6 +970,9 @@
                         <a class="list-group-item list-group-item-action {{ request()->routeIs('statuses.*') ? 'active' : '' }}" href="{{ route('statuses.index') }}">
                             <i class="bi bi-kanban me-2"></i> Statuses
                         </a>
+                        <a class="list-group-item list-group-item-action {{ request()->routeIs('poac-logs.*') ? 'active' : '' }}" href="{{ route('poac-logs.index') }}">
+                            <i class="bi bi-journal-text me-2"></i> POAC Logs
+                        </a>
                     @endif
                     
                     <!-- User Profile & Logout Section (Mobile) -->

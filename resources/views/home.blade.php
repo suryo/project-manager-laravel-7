@@ -176,6 +176,9 @@
                         <h6 class="fw-bold small text-muted text-uppercase">Quick Links</h6>
                         <a href="{{ route('projects.index') }}" class="btn btn-outline-primary btn-sm text-start">📂 All Projects</a>
                         <a href="{{ route('tasks.index') }}" class="btn btn-outline-primary btn-sm text-start">✅ My Tasks</a>
+                        @if(Auth::user()->role === 'admin')
+                            <a href="{{ route('poac-logs.index') }}" class="btn btn-outline-info btn-sm text-start">📊 POAC Logs</a>
+                        @endif
                     </div>
                 </div>
             </div>
