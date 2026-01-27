@@ -155,7 +155,23 @@ class PoacLogController extends Controller
                 }
                 
                 $report .= "Date: " . $log->created_at->format('d M Y, H:i') . "\n";
-                $report .= "Description: " . strip_tags($log->description) . "\n";
+                
+                // Convert HTML to plain text with proper line breaks
+                $description = $log->description;
+                // Replace </li> with newline to preserve list items
+                $description = str_replace('</li>', "\n", $description);
+                // Replace <br> tags with newline
+                $description = str_replace(['<br>', '<br/>', '<br />'], "\n", $description);
+                // Replace </p> with double newline for paragraph breaks
+                $description = str_replace('</p>', "\n\n", $description);
+                // Strip remaining HTML tags
+                $description = strip_tags($description);
+                // Clean up multiple consecutive newlines
+                $description = preg_replace("/\n{3,}/", "\n\n", $description);
+                // Trim whitespace
+                $description = trim($description);
+                
+                $report .= "Description:\n" . $description . "\n";
                 $report .= "\n------------------------------------------\n\n";
             }
         }
