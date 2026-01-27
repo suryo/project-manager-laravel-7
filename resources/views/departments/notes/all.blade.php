@@ -93,10 +93,13 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
         @forelse($notes as $note)
             <div class="col">
-                <div class="sticky-note sticky-note-{{ $note->color }}" data-note-id="{{ $note->id }}">
+                <div class="sticky-note sticky-note-{{ $note->color }}" data-note-id="{{ $note->id }}" onclick="viewNoteDetail({{ $note->id }})" style="cursor: pointer;">
                     <div class="sticky-note-header">
                         <h5 class="sticky-note-title">{{ $note->title }}</h5>
-                        <div class="sticky-note-actions">
+                        <div class="sticky-note-actions" onclick="event.stopPropagation();">
+                            <button type="button" class="btn btn-sm btn-link p-0 me-2" onclick="viewNoteDetail({{ $note->id }})" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
                             @if(Auth::user()->role === 'admin' || Auth::id() === $note->user_id)
                                 <form action="{{ route('departments.notes.toggle-pin', [$note->department, $note]) }}" method="POST" class="d-inline">
                                     @csrf
@@ -433,6 +436,54 @@
     </div>
 </div>
 
+<!-- View Note Detail Modal -->
+<div class="modal fade" id="viewNoteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewNoteTitle">Note Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-muted small">DEPARTMENT</label>
+                    <p id="viewNoteDepartment" class="mb-0"></p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-muted small">CONTENT</label>
+                    <div id="viewNoteContent" class="border rounded p-3 bg-light"></div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted small">COLOR</label>
+                        <p id="viewNoteColor" class="mb-0"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted small">STATUS</label>
+                        <p id="viewNotePinned" class="mb-0"></p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted small">CREATED BY</label>
+                        <p id="viewNoteUser" class="mb-0"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted small">CREATED AT</label>
+                        <p id="viewNoteCreated" class="mb-0"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
@@ -505,6 +556,36 @@
         
         // Show modal
         new bootstrap.Modal(document.getElementById('editNoteModal')).show();
+    }
+    
+    // View note detail function
+    function viewNoteDetail(noteId) {
+        var note = notesData[noteId];
+        if (!note) return;
+        
+        // Color emoji mapping
+        var colorEmojis = {
+            'yellow': '🟡 Yellow',
+            'blue': '🔵 Blue',
+            'green': '🟢 Green',
+            'pink': '🩷 Pink',
+            'purple': '🟣 Purple',
+            'orange': '🟠 Orange'
+        };
+        
+        // Fill modal with note details
+        document.getElementById('viewNoteTitle').textContent = note.title;
+        document.getElementById('viewNoteDepartment').textContent = note.department.name;
+        document.getElementById('viewNoteContent').innerHTML = note.content || '<em class="text-muted">No content</em>';
+        document.getElementById('viewNoteColor').textContent = colorEmojis[note.color] || note.color;
+        document.getElementById('viewNotePinned').innerHTML = note.is_pinned 
+            ? '<span class="badge bg-danger">📌 Pinned</span>' 
+            : '<span class="badge bg-secondary">Not Pinned</span>';
+        document.getElementById('viewNoteUser').textContent = note.user.name;
+        document.getElementById('viewNoteCreated').textContent = new Date(note.created_at).toLocaleString();
+        
+        // Show modal
+        new bootstrap.Modal(document.getElementById('viewNoteModal')).show();
     }
 </script>
 @endpush
