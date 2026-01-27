@@ -90,16 +90,10 @@
     @endif
 
     <!-- Sticky Notes Grid -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
         @forelse($notes as $note)
             <div class="col">
                 <div class="sticky-note sticky-note-{{ $note->color }}" data-note-id="{{ $note->id }}">
-                    @if($note->is_pinned)
-                        <div class="pin-badge">
-                            <i class="bi bi-pin-angle-fill"></i>
-                        </div>
-                    @endif
-                    
                     <div class="sticky-note-header">
                         <h5 class="sticky-note-title">{{ $note->title }}</h5>
                         <div class="sticky-note-actions">
@@ -123,18 +117,13 @@
                     </div>
                     
                     <div class="sticky-note-content">
-                        {!! Str::limit(strip_tags($note->content), 150) !!}
+                        {!! Str::limit($note->content, 200) !!}
                     </div>
                     
                     <div class="sticky-note-footer">
                         <small class="text-muted">
-                            <i class="bi bi-building"></i> {{ $note->department->name }}
-                        </small>
-                        <small class="text-muted">
                             <i class="bi bi-person-circle"></i> {{ $note->user->name }}
                         </small>
-                    </div>
-                    <div class="sticky-note-footer border-top-0 pt-0">
                         <small class="text-muted">
                             {{ $note->created_at->diffForHumans() }}
                         </small>
@@ -167,17 +156,18 @@
     .sticky-note {
         position: relative;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
         transition: transform 0.2s, box-shadow 0.2s;
-        min-height: 280px;
+        min-height: 180px; /* Reduced from 280px for landscape */
+        max-height: 200px; /* Add max height for consistency */
         display: flex;
         flex-direction: column;
     }
     
     .sticky-note:hover {
-        transform: translateY(-5px) rotate(1deg);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
     }
     
     .sticky-note-yellow { background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%); }
@@ -186,22 +176,6 @@
     .sticky-note-pink { background: linear-gradient(135deg, #F8BBD0 0%, #F48FB1 100%); }
     .sticky-note-purple { background: linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%); }
     .sticky-note-orange { background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%); }
-    
-    .pin-badge {
-        position: absolute;
-        top: -10px;
-        right: 20px;
-        background: #FF3131;
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        transform: rotate(45deg);
-    }
     
     .sticky-note-header {
         display: flex;
@@ -232,16 +206,58 @@
     .sticky-note-content {
         flex: 1;
         color: #555;
-        line-height: 1.6;
+        line-height: 1.5;
         margin-bottom: 15px;
         overflow: hidden;
+        word-wrap: break-word;
+        max-height: 60px; /* Reduced from 120px for landscape */
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Reduced from 6 to 3 lines */
+        -webkit-box-orient: vertical;
+        font-size: 0.9rem;
+    }
+    
+    .sticky-note-content p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .sticky-note-content p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .sticky-note-content ul,
+    .sticky-note-content ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .sticky-note-content li {
+        margin-bottom: 0.25rem;
+    }
+    
+    .sticky-note-content strong {
+        font-weight: 600;
+    }
+    
+    .sticky-note-content em {
+        font-style: italic;
+    }
+    
+    .sticky-note-content u {
+        text-decoration: underline;
+    }
+    
+    .sticky-note-content a {
+        color: #4e73df;
+        text-decoration: underline;
     }
     
     .sticky-note-footer {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         padding-top: 10px;
-        border-top: 1px solid rgba(0,0,0,0.1);
+        margin-top: auto;
     }
     
     .sticky-note-footer small {
