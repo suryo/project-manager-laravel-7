@@ -97,22 +97,24 @@
                     <div class="sticky-note-header">
                         <h5 class="sticky-note-title">{{ $note->title }}</h5>
                         <div class="sticky-note-actions">
-                            <form action="{{ route('departments.notes.toggle-pin', [$note->department, $note]) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-link p-0 me-2" title="{{ $note->is_pinned ? 'Unpin' : 'Pin' }}">
-                                    <i class="bi bi-pin{{ $note->is_pinned ? '-fill' : '' }}"></i>
+                            @if(Auth::user()->role === 'admin' || Auth::id() === $note->user_id)
+                                <form action="{{ route('departments.notes.toggle-pin', [$note->department, $note]) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-link p-0 me-2" title="{{ $note->is_pinned ? 'Unpin' : 'Pin' }}">
+                                        <i class="bi bi-pin{{ $note->is_pinned ? '-fill' : '' }}"></i>
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-link p-0 me-2" onclick="editNote({{ $note->id }})" title="Edit">
+                                    <i class="bi bi-pencil"></i>
                                 </button>
-                            </form>
-                            <a href="{{ route('departments.notes.index', $note->department) }}" class="btn btn-sm btn-link p-0 me-2" title="View in Department">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                            <form action="{{ route('departments.notes.destroy', [$note->department, $note]) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this note?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-link p-0 text-danger" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                                <form action="{{ route('departments.notes.destroy', [$note->department, $note]) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this note?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-link p-0 text-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                     
@@ -194,13 +196,42 @@
     
     .sticky-note-actions {
         display: flex;
-        gap: 5px;
+        align-items: center;
+        gap: 8px;
         opacity: 0;
         transition: opacity 0.2s;
     }
     
     .sticky-note:hover .sticky-note-actions {
         opacity: 1;
+    }
+    
+    .sticky-note-actions form {
+        display: inline-flex;
+        margin: 0;
+    }
+    
+    .sticky-note-actions .btn {
+        color: #555;
+        font-size: 0.95rem;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .sticky-note-actions .btn:hover {
+        background-color: rgba(0,0,0,0.1);
+        transform: scale(1.1);
+    }
+    
+    .sticky-note-actions .btn.text-danger:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545 !important;
     }
     
     .sticky-note-content {
@@ -340,10 +371,72 @@
     </div>
 </div>
 
+<!-- Edit Note Modal -->
+<div class="modal fade" id="editNoteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editNoteForm" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_title" class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_title" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_content" class="form-label fw-bold">Content</label>
+                        <input type="hidden" id="edit_content" name="content">
+                        <div id="edit-content-editor" style="height: 200px;"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Color</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input type="radio" class="btn-check" name="color" id="edit-color-yellow" value="yellow">
+                            <label class="btn btn-outline-warning" for="edit-color-yellow">🟡 Yellow</label>
+                            
+                            <input type="radio" class="btn-check" name="color" id="edit-color-blue" value="blue">
+                            <label class="btn btn-outline-primary" for="edit-color-blue">🔵 Blue</label>
+                            
+                            <input type="radio" class="btn-check" name="color" id="edit-color-green" value="green">
+                            <label class="btn btn-outline-success" for="edit-color-green">🟢 Green</label>
+                            
+                            <input type="radio" class="btn-check" name="color" id="edit-color-pink" value="pink">
+                            <label class="btn btn-outline-danger" for="edit-color-pink">🩷 Pink</label>
+                            
+                            <input type="radio" class="btn-check" name="color" id="edit-color-purple" value="purple">
+                            <label class="btn" style="border: 1px solid #9C27B0; color: #9C27B0;" for="edit-color-purple">🟣 Purple</label>
+                            
+                            <input type="radio" class="btn-check" name="color" id="edit-color-orange" value="orange">
+                            <label class="btn" style="border: 1px solid #FF9800; color: #FF9800;" for="edit-color-orange">🟠 Orange</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_pinned" id="edit_is_pinned" value="1">
+                        <label class="form-check-label" for="edit_is_pinned">
+                            📌 Pin this note
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-    // Initialize Quill editor
+    // Initialize Quill editors
     var createQuill = new Quill('#content-editor', {
         theme: 'snow',
         modules: {
@@ -355,7 +448,18 @@
         }
     });
     
-    // Handle form submission
+    var editQuill = new Quill('#edit-content-editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link']
+            ]
+        }
+    });
+    
+    // Handle create form submission
     document.getElementById('createNoteForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -375,5 +479,32 @@
         // Submit form
         this.submit();
     });
+    
+    // Handle edit form submission
+    document.getElementById('editNoteForm').addEventListener('submit', function(e) {
+        // Set content from Quill editor
+        document.getElementById('edit_content').value = editQuill.root.innerHTML;
+    });
+    
+    // Notes data for editing
+    var notesData = @json($notes->keyBy('id'));
+    
+    // Edit note function
+    function editNote(noteId) {
+        var note = notesData[noteId];
+        if (!note) return;
+        
+        // Set form action
+        document.getElementById('editNoteForm').action = `/departments/${note.department_id}/notes/${noteId}`;
+        
+        // Fill form fields
+        document.getElementById('edit_title').value = note.title;
+        editQuill.root.innerHTML = note.content || '';
+        document.getElementById('edit-color-' + note.color).checked = true;
+        document.getElementById('edit_is_pinned').checked = note.is_pinned;
+        
+        // Show modal
+        new bootstrap.Modal(document.getElementById('editNoteModal')).show();
+    }
 </script>
 @endpush
