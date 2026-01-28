@@ -21,7 +21,7 @@
     --mg-info: #17a2b8;
 
     /* Backgrounds */
-    --mg-bg-body: #f0f2f5;
+    --mg-bg-body: #ffffff;
     --mg-bg-card: #ffffff;
     --mg-bg-hover: #f8f9fa;
 
@@ -55,8 +55,9 @@
 [data-theme="modern-gradient"] body {
     background: var(--mg-bg-body) !important;
     color: var(--mg-text-primary) !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, sans-serif !important;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+        Cantarell, sans-serif !important;
 }
 
 /* Override headings for modern gradient */

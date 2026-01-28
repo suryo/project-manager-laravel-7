@@ -86,7 +86,7 @@
         :root {
             /* Light Mode - Balanced Nintendo Aesthetic */
             --neo-border-color: #000000;
-            --neo-bg-color: #F5F5F7; /* Clean Light Grey */
+            --neo-bg-color: #FFFFFF; /* Clean White */
             --neo-card-bg: #FFFFFF;
             --neo-nav-bg: #E52521; /* Mario Red */
             --neo-text-color: #1A1A1A;

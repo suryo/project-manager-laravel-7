@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container" style="background-color: #ffffff !important;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Projects</h1>
         <a href="{{ route('projects.create') }}" class="btn btn-primary">New Project</a>
@@ -74,10 +74,38 @@
                     ];
                     $projectColors = $colorMap[$project->color ?? 'blue'] ?? $colorMap['blue'];
                 @endphp
-                <div class="card h-100" style="border-left: 5px solid {{ $projectColors['border'] }}; background-color: {{ $projectColors['bg'] }};">
+                <div class="card h-100 position-relative" style="border-left: 5px solid {{ $projectColors['border'] }}; background-color: {{ $projectColors['bg'] }};">
                     <div class="card-body">
-                         <div class="d-flex justify-content-between align-items-start">
-                              <h5 class="card-title text-truncate mb-0" title="{{ $project->title }}">{{ $project->title }}</h5>
+                         <div class="d-flex justify-content-between align-items-start mb-2">
+                              <div style="flex: 1; min-width: 0;">
+                                  <div class="d-flex align-items-center gap-2 mb-1">
+                                      <h5 class="card-title text-truncate mb-0" title="{{ $project->title }}">{{ $project->title }}</h5>
+                                      @php
+                                          $priorityColors = [
+                                              1 => 'danger',   // P1 - Urgent (Red)
+                                              2 => 'warning',  // P2 - High (Orange-ish)
+                                              3 => 'info',     // P3 - Medium (Blue)
+                                              4 => 'primary',  // P4 - Low (Blue)
+                                              5 => 'secondary' // P5 - Very Low (Gray)
+                                          ];
+                                          $priorityLabel = "P" . $project->priority;
+                                      @endphp
+                                      <span class="badge bg-{{ $priorityColors[$project->priority] ?? 'secondary' }} rounded-pill" style="font-size: 0.7rem;">
+                                          {{ $priorityLabel }}
+                                      </span>
+                                      
+                                      <form action="{{ route('projects.toggle-pin', $project) }}" method="POST" class="d-inline">
+                                          @csrf
+                                          <button type="submit" class="btn btn-link p-0 border-0 align-baseline" title="{{ $project->is_pinned ? 'Unpin Project' : 'Pin Project' }}">
+                                              @if($project->is_pinned)
+                                                  <i class="bi bi-pin-angle-fill text-danger"></i>
+                                              @else
+                                                  <i class="bi bi-pin-angle text-muted" style="opacity: 0.3;"></i>
+                                              @endif
+                                          </button>
+                                      </form>
+                                  </div>
+                              </div>
                       <span class="badge bg-{{ $project->status ? $project->status->color : 'secondary' }}">
                          {{ $project->status ? $project->status->name : 'No Status' }}
                      </span>
@@ -453,4 +481,13 @@
     });
 </script>
 @endpush
+
+@push('styles')
+<style>
+    body {
+        background-color: #ffffff !important;
+    }
+</style>
+@endpush
+
 @endsection

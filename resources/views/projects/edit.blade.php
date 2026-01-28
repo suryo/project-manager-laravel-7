@@ -170,6 +170,33 @@
                             </div>
                         </div>
 
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="priority" class="form-label fw-bold">Priority</label>
+                                <select name="priority" id="priority" class="form-select @error('priority') is-invalid @enderror">
+                                    <option value="1" {{ old('priority', $project->priority) == '1' ? 'selected' : '' }}>🔴 P1 - Urgent</option>
+                                    <option value="2" {{ old('priority', $project->priority) == '2' ? 'selected' : '' }}>🟠 P2 - High</option>
+                                    <option value="3" {{ old('priority', $project->priority) == '3' ? 'selected' : '' }}>🟡 P3 - Medium</option>
+                                    <option value="4" {{ old('priority', $project->priority) == '4' ? 'selected' : '' }}>🔵 P4 - Low</option>
+                                    <option value="5" {{ old('priority', $project->priority) == '5' ? 'selected' : '' }}>⚪ P5 - Very Low</option>
+                                </select>
+                                @error('priority')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold d-block">Visibility</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" name="is_pinned" id="is_pinned" value="1" {{ old('is_pinned', $project->is_pinned) ? 'checked' : '' }} style="width: 3em; height: 1.5em;">
+                                    <label class="form-check-label fw-bold ms-2 pt-1" for="is_pinned">
+                                        📌 Pin Project (Show on Top)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary px-4 rounded-pill">Update Project</button>
                         <a href="{{ route('projects.index') }}" class="btn btn-link">Cancel</a>
                     </form>

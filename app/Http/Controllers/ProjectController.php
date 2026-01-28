@@ -32,25 +32,32 @@ class ProjectController extends Controller
             $projectIds = $query->pluck('id');
         }
 
-        // Filter by Status
-        if ($request->has('status_id') && $request->status_id != '') {
-            $query->where('project_status_id', $request->status_id);
+        // Apply filters
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by Group
-        if ($request->has('group') && $request->group != '') {
+        if ($request->filled('status')) {
+            $query->where('project_status_id', $request->status);
+        }
+
+        if ($request->filled('group')) {
             $query->where('group', $request->group);
         }
 
-        // Search by Title
-        if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%');
+        if ($request->filled('department')) {
+            $query->where('department_id', $request->department);
         }
 
         // Per Page Limit
         $perPage = $request->get('limit', 12);
-        
-        $projects = $query->latest()->paginate($perPage)->withQueryString();
+
+        // Sorting: Pinned first, then by priority (P1-P5), then by created_at
+        $projects = $query->orderBy('is_pinned', 'desc')
+                          ->orderBy('priority', 'asc')
+                          ->orderBy('created_at', 'desc')
+                          ->paginate($perPage)
+                          ->withQueryString();
         
         $statuses = ProjectStatus::all();
         
@@ -82,7 +89,11 @@ class ProjectController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
             'color' => 'nullable|in:blue,green,yellow,orange,pink,purple',
+            'priority' => 'nullable|integer|min:1|max:5',
         ]);
+
+        // Handle checkbox boolean
+        $validated['is_pinned'] = $request->has('is_pinned');
 
         // Set user_id to the authenticated user
         $validated['user_id'] = Auth::id();
@@ -133,12 +144,30 @@ class ProjectController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'budget' => 'nullable|numeric|min:0',
             'color' => 'nullable|in:blue,green,yellow,orange,pink,purple',
+            'priority' => 'nullable|integer|min:1|max:5',
         ]);
+
+        // Handle checkbox boolean
+        $validated['is_pinned'] = $request->has('is_pinned');
 
         $project->update($validated);
 
         return redirect()->route('projects.index')
             ->with('success', 'Project updated successfully.');
+    }
+
+    /**
+     * Toggle the pinned status of the project.
+     */
+    public function togglePin(Project $project)
+    {
+        $this->authorize('update', $project);
+        
+        $project->update([
+            'is_pinned' => !$project->is_pinned
+        ]);
+
+        return back()->with('success', $project->is_pinned ? 'Project pinned!' : 'Project unpinned!');
     }
 
     /**

@@ -17,6 +17,8 @@ class Project extends Model
         'budget',
         'slug',
         'color',
+        'priority',
+        'is_pinned',
         'mgmt_phase',
         'mgmt_planning_notes',
         'mgmt_organizing_notes',
@@ -31,6 +33,8 @@ class Project extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'budget' => 'decimal:2',
+        'is_pinned' => 'boolean',
+        'priority' => 'integer',
     ];
 
     protected static function boot()

@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::post('/projects/{project}/toggle-pin', [App\Http\Controllers\ProjectController::class, 'togglePin'])->name('projects.toggle-pin');
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::post('/projects/{project}/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateMgmt'])->name('projects.mgmt-update');
     Route::post('/projects/{project}/tasks/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateTaskMgmt'])->name('projects.task-mgmt-update');
