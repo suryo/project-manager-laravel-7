@@ -349,6 +349,20 @@
                         </div>
                     </div>
 
+                    <!-- Asset URL -->
+                    @if($ticket->asset_url)
+                    <div class="col-12">
+                        <div class="card-item">
+                            <div class="label">Asset URL</div>
+                            <div class="value text-break">
+                                <a href="{{ $ticket->asset_url }}" target="_blank" class="text-primary text-decoration-none">
+                                    <i class="bi bi-link-45deg me-1"></i> {{ $ticket->asset_url }} <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.75rem"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Description -->
                     @if($ticket->description)
                     <div class="col-12">
