@@ -35,8 +35,16 @@ class TaskController extends Controller
      */
     public function create(Request $request)
     {
-        // Admins can create tasks for any project, users for their own
-        $projects = Auth::user()->role === 'admin' ? Project::all() : Auth::user()->projects;
+        // Admins can create tasks for any project
+        // Users can create tasks for their own projects OR projects in their departments
+        if (Auth::user()->role === 'admin') {
+            $projects = Project::all();
+        } else {
+            $userDepartmentIds = Auth::user()->departments()->pluck('departments.id');
+            $projects = Project::where('user_id', Auth::id())
+                ->orWhereIn('department_id', $userDepartmentIds)
+                ->get();
+        }
         // And assign to any user (or maybe just restrict to system users)
         $users = User::all();
         $selectedProjectId = $request->input('project_id');
@@ -62,7 +70,11 @@ class TaskController extends Controller
 
         // Verify permissions
         $project = Project::findOrFail($validated['project_id']);
-        if (Auth::user()->role !== 'admin' && $project->user_id !== Auth::id()) {
+        
+        $isCreator = $project->user_id === Auth::id();
+        $isDepartmentMember = $project->department_id && Auth::user()->departments()->where('departments.id', $project->department_id)->exists();
+        
+        if (Auth::user()->role !== 'admin' && !$isCreator && !$isDepartmentMember) {
             abort(403);
         }
 
