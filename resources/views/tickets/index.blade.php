@@ -85,7 +85,8 @@
                 <table class="table table-hover mb-0 align-middle">
                     <thead class="bg-dark text-white">
                         <tr>
-                            <th class="ps-4 py-3">Ticket #</th>
+                            <th class="ps-4 py-3">Actions</th>
+                            <th class="px-4 py-3">Ticket #</th>
                             <th class="px-4 py-3">Title</th>
                             <th class="px-4 py-3">Project</th>
                             <th class="px-4 py-3">Type</th>
@@ -95,13 +96,17 @@
                             <th class="px-4 py-3">Assigned To</th>
                             <th class="px-4 py-3">Approvers</th>
                             <th class="px-4 py-3">Created</th>
-                            <th class="text-end pe-4 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($tickets as $ticket)
                         <tr>
                             <td class="ps-4 py-3">
+                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm bg-white text-dark border border-2 border-dark px-3 py-1 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.75rem; display: inline-block;">
+                                    VIEW
+                                </a>
+                            </td>
+                            <td class="px-4 py-3">
                                 <strong>{{ $ticket->ticket_number }}</strong>
                             </td>
                             <td class="px-4 py-3">
@@ -231,11 +236,7 @@
                             <td class="px-4 py-3">
                                 <small class="text-muted">{{ $ticket->created_at ? $ticket->created_at->format('M d, Y H:i') : 'N/A' }}</small>
                             </td>
-                            <td class="text-end pe-4 py-3">
-                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm bg-white text-dark border border-2 border-dark px-3 py-1 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.75rem; display: inline-block;">
-                                    VIEW
-                                </a>
-                            </td>
+
                         </tr>
                         @empty
                         <tr>
