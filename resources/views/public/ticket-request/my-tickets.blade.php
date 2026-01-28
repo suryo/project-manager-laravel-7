@@ -87,7 +87,10 @@
                             <tbody>
                                 @foreach($tickets as $ticket)
                                 <tr>
-                                    <td class="ps-4 fw-bold text-muted small">{{ $ticket->ticket_number }}</td>
+                                    <td class="ps-4 fw-bold text-muted small">
+                                        {{ $ticket->ticket_number }}
+                                        <div class="text-primary" style="font-size: 0.85em;">{{ $ticket->tracking_token }}</div>
+                                    </td>
                                     <td>
                                         <div class="fw-bold">{{ Str::limit($ticket->title, 40) }}</div>
                                         <div class="small text-muted">{{ $ticket->type }}</div>
@@ -115,7 +118,7 @@
                                         </span>
                                     </td>
                                     <td class="text-end pe-4">
-                                        <a href="{{ route('public.ticket-request.status', $ticket->tracking_token) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ route('public.ticket-request.view', $ticket->tracking_token) }}" class="btn btn-sm btn-primary">
                                             View
                                         </a>
                                     </td>
