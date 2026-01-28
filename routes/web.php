@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('tickets/{ticket}/stage', [App\Http\Controllers\TicketController::class, 'progressStage'])->name('tickets.stage');
     Route::post('tickets/{ticket}/complete', [App\Http\Controllers\TicketController::class, 'complete'])->name('tickets.complete');
     Route::post('tickets/{ticket}/update-status', [App\Http\Controllers\TicketController::class, 'updateStatus'])->name('tickets.update-status');
+    Route::post('tickets/{ticket}/link-project', [App\Http\Controllers\TicketController::class, 'linkProject'])->name('tickets.link-project');
     Route::get('/tickets/{ticket}/poac-logs', [App\Http\Controllers\TicketController::class, 'getPoacLogs'])->name('tickets.poac-logs');
     
     // Ticket Document Routes

@@ -67,13 +67,17 @@ class TicketController extends Controller
         // Get filter options
         $users = User::orderBy('name')->get();
         // Fetch staff for Energy Monitor (restricted for non-admins)
+        // Fetch staff for Energy Monitor (restricted for non-admins)
         if ($user->role === 'admin') {
             $staffMembers = User::with('departments')->where('role', '!=', 'client')->get();
         } else {
             $staffMembers = collect([$user->load('departments')]);
         }
 
-        return view('tickets.index', compact('tickets', 'users', 'staffMembers'));
+        // Get projects for linking (Admin only needs this effectively, but passing generally is fine)
+        $projects = Project::orderBy('title')->get();
+
+        return view('tickets.index', compact('tickets', 'users', 'staffMembers', 'projects'));
     }
 
     /**
@@ -144,10 +148,13 @@ class TicketController extends Controller
         // Get available users for assignment (admin and users only)
         $users = User::whereIn('role', ['admin', 'user'])->orderBy('name')->get();
 
+        // Get projects for linking (Admin only needs this effectively, but passing generally is fine or restricting query)
+        $projects = Project::orderBy('title')->get();
+
         // Get document types
         $documentTypes = \App\Models\TicketDocument::getDocumentTypes();
 
-        return view('tickets.show', compact('ticket', 'users', 'documentTypes'));
+        return view('tickets.show', compact('ticket', 'users', 'documentTypes', 'projects'));
     }
 
     /**
@@ -422,6 +429,26 @@ class TicketController extends Controller
 
         return redirect()->back()
             ->with('success', 'Status ticket berhasil diperbarui.');
+    }
+
+    /**
+     * Link ticket to a project (Admin only)
+     */
+    public function linkProject(Request $request, Ticket $ticket)
+    {
+        $this->authorize('update', $ticket);
+
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+        ]);
+
+        $ticket->update(['project_id' => $request->project_id]);
+
+        return redirect()->back()->with('success', 'Ticket successfully linked to project.');
     }
 
     /**

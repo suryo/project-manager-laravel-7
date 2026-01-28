@@ -324,18 +324,30 @@
                         </div>
                     </div>
 
-                    @if($ticket->project)
+                    <!-- Related Project -->
                     <div class="col-12">
                          <div class="card-item">
                             <div class="label">Related Project</div>
                             <div class="value">
-                                <a href="{{ route('projects.show', $ticket->project) }}" class="text-decoration-none">
-                                    <i class="bi bi-folder-fill me-1 text-warning"></i> {{ $ticket->project->title }}
-                                </a>
+                                @if($ticket->project)
+                                    <a href="{{ route('projects.show', $ticket->project) }}" class="text-decoration-none">
+                                        <i class="bi bi-folder-fill me-1 text-warning"></i> {{ $ticket->project->title }}
+                                    </a>
+                                @else
+                                    @if(Auth::user()->role === 'admin')
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="text-muted small fst-italic">Not linked</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" data-bs-toggle="modal" data-bs-target="#linkProjectModal" style="font-size: 0.8rem;">
+                                                <i class="bi bi-link-45deg"></i> Link Project
+                                            </button>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small fst-italic">Not linked</span>
+                                    @endif
+                                @endif
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     <!-- Description -->
                     @if($ticket->description)
@@ -745,6 +757,39 @@
             </div>
 
     
+        </div>
+    </div>
+</div>
+
+<!-- Link Project Modal -->
+<div class="modal fade" id="linkProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('tickets.link-project', $ticket) }}" method="POST">
+                @csrf
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Link to Project</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Project <span class="text-danger">*</span></label>
+                        <select name="project_id" class="form-select" required>
+                            <option value="">-- Choose Project --</option>
+                            @foreach($projects as $proj)
+                                <option value="{{ $proj->id }}">{{ $proj->title }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Linking this ticket to a project will associate it with that project's workflow.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-link"></i> Link Project
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

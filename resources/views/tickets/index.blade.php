@@ -87,6 +87,7 @@
                         <tr>
                             <th class="ps-4 py-3">Ticket #</th>
                             <th class="px-4 py-3">Title</th>
+                            <th class="px-4 py-3">Project</th>
                             <th class="px-4 py-3">Type</th>
                             <th class="px-4 py-3">Estimation</th>
                             <th class="px-4 py-3">Status & Priority</th>
@@ -106,10 +107,30 @@
                             <td class="px-4 py-3">
                                 <div>
                                     <h6 class="mb-0">{{ Str::limit($ticket->title, 50) }}</h6>
-                                    @if($ticket->project)
-                                    <small class="text-muted">Project: {{ $ticket->project->title }}</small>
-                                    @endif
                                 </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($ticket->project)
+                                    @if(Auth::user()->role === 'admin')
+                                        <button type="button" class="btn btn-light bg-light text-dark border border-1 border-dark text-decoration-none badge rounded-pill" 
+                                                title="Change Project: {{ $ticket->project->title }}"
+                                                onclick="openLinkProjectModal({{ $ticket->id }}, '{{ addslashes($ticket->title) }}', {{ $ticket->project_id }})">
+                                            <i class="bi bi-folder me-1"></i> {{ Str::limit($ticket->project->title, 15) }}
+                                        </button>
+                                    @else
+                                        <a href="{{ route('projects.show', $ticket->project) }}" class="badge bg-light text-dark border border-1 border-dark text-decoration-none" title="{{ $ticket->project->title }}">
+                                            <i class="bi bi-folder me-1"></i> {{ Str::limit($ticket->project->title, 15) }}
+                                        </a>
+                                    @endif
+                                @else
+                                    @if(Auth::user()->role === 'admin')
+                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;" onclick="openLinkProjectModal({{ $ticket->id }}, '{{ addslashes($ticket->title) }}')">
+                                            <i class="bi bi-link-45deg"></i> Link
+                                        </button>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
+                                @endif
                             </td>
                             <td class="px-4 py-3">
                                 <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $ticket->type)) }}</span>
@@ -279,4 +300,58 @@
 
 
 </div>
+
+<!-- Dynamic Link Project Modal -->
+<div class="modal fade" id="linkProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="linkProjectForm" method="POST">
+                @csrf
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Link Project</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Linking ticket: <strong id="linkProjectTicketTitle" class="text-dark"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Select Project <span class="text-danger">*</span></label>
+                        <select name="project_id" class="form-select" required>
+                            <option value="">-- Choose Project --</option>
+                            @foreach($projects as $proj)
+                                <option value="{{ $proj->id }}">{{ $proj->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-link"></i> Link Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openLinkProjectModal(ticketId, ticketTitle, currentProjectId = null) {
+        const form = document.getElementById('linkProjectForm');
+        let url = "{{ route('tickets.link-project', ':id') }}";
+        url = url.replace(':id', ticketId);
+        
+        form.action = url;
+        document.getElementById('linkProjectTicketTitle').textContent = ticketTitle;
+        
+        // Pre-select project if exists
+        const select = form.querySelector('select[name="project_id"]');
+        if (currentProjectId) {
+            select.value = currentProjectId;
+        } else {
+            select.value = "";
+        }
+        
+        new bootstrap.Modal(document.getElementById('linkProjectModal')).show();
+    }
+</script>
 @endsection
