@@ -232,7 +232,7 @@
                                 <small class="text-muted">{{ $ticket->created_at ? $ticket->created_at->format('M d, Y H:i') : 'N/A' }}</small>
                             </td>
                             <td class="text-end pe-4 py-3">
-                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm btn-white border border-2 border-dark px-2 py-0 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.75rem;">
+                                <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-sm bg-white text-dark border border-2 border-dark px-3 py-1 fw-bold" style="box-shadow: 2px 2px 0 #000; font-size: 0.75rem; display: inline-block;">
                                     VIEW
                                 </a>
                             </td>

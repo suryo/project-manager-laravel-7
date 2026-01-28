@@ -69,7 +69,7 @@ class TicketPolicy
         }
 
         // Assigned user can update
-        if ($user->id === $ticket->assigned_to) {
+        if ($ticket->assignees->contains($user->id)) {
             return true;
         }
 
@@ -117,7 +117,7 @@ class TicketPolicy
         }
 
         // Assigned user can approve
-        if ($user->id === $ticket->assigned_to) {
+        if ($ticket->assignees->contains($user->id)) {
             return true;
         }
 
