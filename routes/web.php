@@ -107,6 +107,12 @@ Route::name('public.')->group(function () {
     Route::post('ticket-request/status/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'updateStatus'])
         ->name('ticket-request.update-status');
         
+    // Track by Email
+    Route::get('ticket-request/track', [App\Http\Controllers\PublicTicketRequestController::class, 'showTrackByEmailPage'])
+        ->name('ticket-request.track');
+    Route::post('ticket-request/track', [App\Http\Controllers\PublicTicketRequestController::class, 'processTrackByEmail'])
+        ->name('ticket-request.track.submit');
+
     // Approval Routes
     Route::get('approval/{token}', [App\Http\Controllers\PublicTicketRequestController::class, 'showApprovalPage'])
         ->name('approval.show');

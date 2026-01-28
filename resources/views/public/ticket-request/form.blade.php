@@ -9,6 +9,9 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     
     <style>
         body {
@@ -340,6 +343,11 @@
             <div class="request-header">
                 <h1><i class="bi bi-ticket-perforated"></i> Public Ticket Request</h1>
                 <p>Submit your IT request - No login required</p>
+                <div class="mt-4">
+                    <a href="{{ route('public.ticket-request.track') }}" class="btn btn-outline-light btn-sm rounded-pill px-4 border-2 fw-bold">
+                        <i class="bi bi-search me-1"></i> Track My Tickets by Email
+                    </a>
+                </div>
             </div>
 
             <!-- Global Error/Success Messages -->
@@ -441,7 +449,7 @@
                             <select class="form-select" name="type" required>
                                 <option value="">Select department...</option>
                                 @foreach($departments as $department)
-                                    <option value="{{ $department->name }}" {{ old('type') == $department->name ? 'selected' : '' }}>{{ $department->name }}</option>
+                                    <option value="{{ $department->name }}" data-department-id="{{ $department->id }}" {{ old('type') == $department->name ? 'selected' : '' }}>{{ $department->name }}</option>
                                 @endforeach
                             </select>
                             
@@ -466,7 +474,7 @@
                             <select class="form-select mb-2" name="project_id" id="project_select">
                                 <option value="">Select project (Optional)...</option>
                                 @foreach($projects as $project)
-                                    <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>{{ $project->title }}</option>
+                                    <option value="{{ $project->id }}" data-department-id="{{ $project->department_id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>{{ $project->title }}</option>
                                 @endforeach
                             </select>
                             <small class="text-muted d-block mb-2">Or enter a new project name below:</small>
@@ -580,6 +588,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Summernote JS -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script>
         // Priority Mapping Configuration with Durations (in hours)
@@ -715,6 +725,83 @@
             // Priority Logic Removed
             // const typeSelect = document.querySelector('select[name="type"]');
             // ...
+
+            // Project Filtering Logic with Select2
+            const typeSelect = document.querySelector('select[name="type"]');
+            const $projectSelect = $('#project_select');
+            
+            // Store all original options
+            let allProjects = [];
+            $('#project_select option').each(function() {
+                if($(this).val()) {
+                    allProjects.push({
+                        id: $(this).val(),
+                        text: $(this).text(),
+                        departmentId: $(this).data('department-id'),
+                        selected: $(this).is(':selected')
+                    });
+                }
+            });
+
+            // Initialize Select2
+            $projectSelect.select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select project (Optional)...',
+                allowClear: true
+            });
+
+            function filterProjectsSelect2() {
+                const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                const departmentId = selectedOption.getAttribute('data-department-id');
+                
+                // Get current selection value
+                const currentVal = $projectSelect.val();
+                
+                // Destroy to manipulate or just empty? 
+                // Best practice with Select2: empty() -> append() -> trigger('change')
+                $projectSelect.empty();
+                
+                // Add Placeholder
+                $projectSelect.append(new Option('Select project (Optional)...', '', false, false));
+                
+                let matches = 0;
+                let hasSelection = false;
+                
+                allProjects.forEach(proj => {
+                    // Logic: Show if match department
+                    if (proj.departmentId == departmentId) {
+                        // Check if this was selected (from old input or user interaction)
+                        // But careful: we rely on currentVal for user interaction persistence
+                        const isSelected = (currentVal == proj.id) || (matches === 0 && proj.selected && !currentVal);
+                        
+                        // Note: proj.selected is only true on initial load from blade 'selected' attribute
+                        // If currentVal is set (user changed it), meaningful.
+                        
+                        const shouldSelect = (currentVal == proj.id); 
+                        if(shouldSelect) hasSelection = true;
+                        
+                        const newOption = new Option(proj.text, proj.id, false, shouldSelect);
+                        $(newOption).attr('data-department-id', proj.departmentId);
+                        $projectSelect.append(newOption);
+                        matches++;
+                    }
+                });
+                
+                // If we preserved a selection, trigger change to update Select2 UI
+                // If not, Select2 defaults to placeholder
+                $projectSelect.trigger('change');
+            }
+
+            if (typeSelect) {
+                typeSelect.addEventListener('change', filterProjectsSelect2);
+                
+                // Run on init specific logic to keep 'old' selection if valid
+                // But we must wait for document ready ? We are in DOMContentLoaded.
+                // Run filter once to hide invalid ones.
+                // Special case for init: check if "allProjects" captured the "selected" state correctly.
+                filterProjectsSelect2();
+            }
 
             // Priority Listener Removed
             // if (prioritySelect) {

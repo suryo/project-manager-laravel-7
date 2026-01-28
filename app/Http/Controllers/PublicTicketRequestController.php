@@ -22,9 +22,9 @@ class PublicTicketRequestController extends Controller
     public function showForm()
     {
         // Fetch projects for dropdown
-        $projects = \App\Models\Project::where('project_status_id', '!=', 3) // Assuming 3 is 'Completed' or similar, adjust if needed or just get all
+        $projects = \App\Models\Project::with('department')
             ->orderBy('title')
-            ->get(['id', 'title']);
+            ->get(['id', 'title', 'department_id']);
         
         // Fetch departments for dropdown
         $departments = \App\Models\Department::orderBy('name')
@@ -451,5 +451,31 @@ class PublicTicketRequestController extends Controller
         } while (Ticket::where('tracking_token', $token)->exists());
 
         return $token;
+    }
+
+    /**
+     * Show Track by Email Page
+     */
+    public function showTrackByEmailPage()
+    {
+        return view('public.ticket-request.track-email');
+    }
+
+    /**
+     * Process Track by Email
+     */
+    public function processTrackByEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $email = $request->email;
+        $tickets = Ticket::where('guest_email', $email)
+            ->with(['project']) // Eager load project
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('public.ticket-request.my-tickets', compact('tickets', 'email'));
     }
 }

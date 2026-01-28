@@ -116,6 +116,26 @@
             color: #764ba2;
         }
 
+        .btn-hero-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 700;
+            padding: 12px 35px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-hero-secondary:hover {
+            transform: translateY(-2px);
+            background: white;
+            color: #764ba2;
+            border-color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
         /* Modern Cards */
         .modern-card {
             background: white;
@@ -350,6 +370,9 @@
                     <div class="d-flex justify-content-center gap-3">
                         <a href="{{ route('public.ticket-request') }}" class="btn btn-hero-primary">
                             <i class="bi bi-ticket-perforated me-2"></i>{{ __('Submit Public Ticket') }}
+                        </a>
+                        <a href="{{ route('public.ticket-request.track') }}" class="btn btn-hero-secondary">
+                            <i class="bi bi-search me-2"></i>{{ __('Track by Email') }}
                         </a>
                     </div>
                 </div>
