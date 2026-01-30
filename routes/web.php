@@ -34,6 +34,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    
+    // Approval Routes
+    Route::post('/approvals/{id}/approved', [App\Http\Controllers\ApprovalController::class, 'approve'])->name('approvals.approve');
+    Route::post('/approvals/{id}/rejected', [App\Http\Controllers\ApprovalController::class, 'reject'])->name('approvals.reject');
+    
     Route::post('/projects/{project}/toggle-pin', [App\Http\Controllers\ProjectController::class, 'togglePin'])->name('projects.toggle-pin');
     Route::resource('projects', App\Http\Controllers\ProjectController::class);
     Route::post('/projects/{project}/mgmt-update', [App\Http\Controllers\ProjectController::class, 'updateMgmt'])->name('projects.mgmt-update');

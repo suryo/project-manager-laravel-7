@@ -68,6 +68,16 @@ class HomeController extends Controller
             $staffMembers = collect([$user]);
         }
 
+        // Get pending approvals for current user (by email match)
+        $pendingApprovals = \App\Models\TicketApproval::with(['ticket' => function($q) {
+                $q->with(['requester']);
+            }])
+            ->where('approver_email', $user->email)
+            ->where('status', 'pending')
+            ->latest()
+            ->limit(5)
+            ->get();
+
         return view('home', compact(
             'projectsCount', 
             'tasksCount', 
@@ -79,7 +89,8 @@ class HomeController extends Controller
             'totalBudget',
             'totalActualCost',
             'staffMembers',
-            'hasNoDepartment'
+            'hasNoDepartment',
+            'pendingApprovals'
         ));
     }
 }

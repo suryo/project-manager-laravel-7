@@ -62,6 +62,98 @@
         </div>
     </div>
 
+    {{-- Pending Approvals Section --}}
+    @if($pendingApprovals->isNotEmpty())
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-warning border-3">
+                <div class="card-header bg-warning bg-opacity-10 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-clipboard-check"></i> Pending Approvals
+                        </h5>
+                        <small class="text-muted">Tickets waiting for your approval</small>
+                    </div>
+                    <span class="badge bg-warning text-dark">{{ $pendingApprovals->count() }} Pending</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Ticket #</th>
+                                    <th>Title</th>
+                                    <th>Requester</th>
+                                    <th>Type</th>
+                                    <th>Priority</th>
+                                    <th>Requested</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($pendingApprovals as $approval)
+                                    <tr>
+                                        <td class="ps-4">
+                                            <a href="{{ route('tickets.show', $approval->ticket) }}" class="fw-bold text-primary text-decoration-none">
+                                                #{{ $approval->ticket->ticket_number }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">{{ Str::limit($approval->ticket->title, 50) }}</div>
+                                            @if($approval->ticket->is_public_request)
+                                                <span class="badge bg-info bg-opacity-25 text-info extra-small">Public Request</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($approval->ticket->is_public_request)
+                                                <div class="small">{{ $approval->ticket->guest_name }}</div>
+                                                <div class="extra-small text-muted">{{ $approval->ticket->guest_email }}</div>
+                                            @else
+                                                <div class="small">{{ $approval->ticket->requester->name ?? 'N/A' }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">{{ $approval->ticket->type }}</span>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $priorityColors = [
+                                                    'urgent' => 'danger',
+                                                    'high' => 'warning',
+                                                    'medium' => 'info',
+                                                    'low' => 'secondary'
+                                                ];
+                                                $color = $priorityColors[$approval->ticket->priority] ?? 'secondary';
+                                            @endphp
+                                            <span class="badge bg-{{ $color }}">{{ ucfirst($approval->ticket->priority) }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ $approval->created_at->diffForHumans() }}</small>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-success" onclick="handleApproval({{ $approval->id }}, 'approved')" title="Approve">
+                                                    <i class="bi bi-check-lg"></i> Approve
+                                                </button>
+                                                <button type="button" class="btn btn-danger" onclick="handleApproval({{ $approval->id }}, 'rejected')" title="Reject">
+                                                    <i class="bi bi-x-lg"></i> Reject
+                                                </button>
+                                                <a href="{{ route('tickets.show', $approval->ticket) }}" class="btn btn-outline-primary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row mt-4">
         <!-- Project Overview -->
         <div class="col-md-9 mb-4">
@@ -237,4 +329,55 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function handleApproval(approvalId, action) {
+    const actionText = action === 'approved' ? 'approve' : 'reject';
+    const actionTextCap = action === 'approved' ? 'Approve' : 'Reject';
+    
+    if (!confirm(`Are you sure you want to ${actionText} this ticket request?`)) {
+        return;
+    }
+    
+    // Show loading state
+    const btn = event.target.closest('button');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+    
+    // Send AJAX request
+    fetch(`/approvals/${approvalId}/${action}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            comment: '' // Optional: can add comment field later
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert(data.message || `Ticket ${actionText} successfully!`);
+            // Reload page to update the list
+            window.location.reload();
+        } else {
+            alert(data.message || `Failed to ${actionText} ticket.`);
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`An error occurred while processing your request.`);
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    });
+}
+</script>
+@endpush
+
 @endsection
