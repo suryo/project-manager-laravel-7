@@ -29,8 +29,12 @@ class PublicTicketRequestController extends Controller
         // Fetch departments for dropdown
         $departments = \App\Models\Department::orderBy('name')
             ->get(['id', 'name']);
+        
+        // Fetch users for approver dropdown
+        $users = User::orderBy('name')
+            ->get(['id', 'name', 'email']);
             
-        return view('public.ticket-request.form', compact('projects', 'departments'));
+        return view('public.ticket-request.form', compact('projects', 'departments', 'users'));
     }
 
     /**
@@ -69,7 +73,7 @@ class PublicTicketRequestController extends Controller
                 
                 // Approvers (Required, min 1)
                 'approvers' => 'required|array|min:1',
-                'approvers.*.name' => 'required|string|max:255',
+                'approvers.*.user_id' => 'required|exists:users,id',
                 
                 'target_deadline' => 'required|date',
                 
@@ -133,14 +137,20 @@ class PublicTicketRequestController extends Controller
             // Handle Approvers
             if (isset($validated['approvers']) && is_array($validated['approvers'])) {
                 foreach ($validated['approvers'] as $approver) {
-                    if (!empty($approver['name'])) {
-                        \App\Models\TicketApproval::create([
-                            'ticket_id' => $ticket->id,
-                            'approver_name' => $approver['name'],
-                            'approval_token' => Str::orderedUuid(), // Using ordered UUID for simpler indexing
-                            'status' => 'pending',
-                            'approval_type' => 'final', // Or 'initial' based on logic
-                        ]);
+                    if (!empty($approver['user_id'])) {
+                        // Get user details
+                        $user = User::find($approver['user_id']);
+                        
+                        if ($user) {
+                            \App\Models\TicketApproval::create([
+                                'ticket_id' => $ticket->id,
+                                'approver_name' => $user->name,
+                                'approver_email' => $user->email,
+                                'approval_token' => Str::orderedUuid(),
+                                'status' => 'pending',
+                                'approval_type' => 'final',
+                            ]);
+                        }
                     }
                 }
             }

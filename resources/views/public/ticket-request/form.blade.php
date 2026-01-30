@@ -330,6 +330,21 @@
             font-weight: bold;
         }
         
+        /* Select2 in Input Group Styling */
+        .input-group .select2-container--bootstrap-5 .select2-selection {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        .input-group .select2-container--bootstrap-5 .select2-selection--single {
+            height: calc(3.5rem + 2px);
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: 2.75rem;
+        }
+        
         @media (max-width: 768px) {
             .step-label { display: none; }
             .steps-container::before { left: 20px; right: 20px; }
@@ -829,25 +844,25 @@
 
                 // 2. Validate Approvers (Required in Step 4)
                 if (isValid) {
-                    const approverInputs = document.querySelectorAll('input[name^="approvers"]');
-                    if (approverInputs.length === 0) {
+                    const approverSelects = document.querySelectorAll('select[name^="approvers"]');
+                    if (approverSelects.length === 0) {
                         isValid = false;
                         errorMessage = 'Please add at least one ticket approver.';
                     } else {
-                        // Check if approver names are filled
+                        // Check if approver selections are filled
                         let allFilled = true;
-                        approverInputs.forEach(input => {
-                            if (!input.value.trim()) {
+                        approverSelects.forEach(select => {
+                            if (!select.value || select.value.trim() === '') {
                                 allFilled = false;
-                                input.classList.add('is-invalid');
+                                $(select).addClass('is-invalid');
                             } else {
-                                input.classList.remove('is-invalid');
+                                $(select).removeClass('is-invalid');
                             }
                         });
                         
                         if (!allFilled) {
                             isValid = false;
-                            errorMessage = 'Please fill in all approver names.';
+                            errorMessage = 'Please select all approvers.';
                         }
                     }
                 }
@@ -949,8 +964,8 @@
 
             // Specific validation for Review step (Step 4)
             if (currentStep === 4) {
-                const approverInputs = currentSection.querySelectorAll('input[name^="approvers"]');
-                if (approverInputs.length === 0) {
+                const approverSelects = currentSection.querySelectorAll('select[name^="approvers"]');
+                if (approverSelects.length === 0) {
                     alert('Please add at least one ticket approver.');
                     return false;
                 }
@@ -1112,20 +1127,35 @@
             div.id = `approver_${index}`;
             div.innerHTML = `
                 <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input type="text" class="form-control" name="approvers[${index}][name]" placeholder="Approver Name" required>
+                <select class="form-select approver-select" name="approvers[${index}][user_id]" required>
+                    <option value="">Select Approver...</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                    @endforeach
+                </select>
                 <button type="button" class="btn btn-outline-danger" onclick="removeApprover(${index})">
                     <i class="bi bi-trash"></i>
                 </button>
             `;
             container.appendChild(div);
             
-            // Focus new input
-            div.querySelector('input').focus();
+            // Initialize Select2 for the new select element
+            $(`#approver_${index} .approver-select`).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Search and select approver...',
+                allowClear: true
+            });
+            
+            // Focus new select
+            $(`#approver_${index} .approver-select`).select2('open');
         }
 
         function removeApprover(index) {
             const element = document.getElementById(`approver_${index}`);
             if (element) {
+                // Destroy Select2 before removing element
+                $(`#approver_${index} .approver-select`).select2('destroy');
                 element.remove();
             }
         }
