@@ -47,18 +47,10 @@ class ProjectPolicy
         return true;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Project $project): bool
     {
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // Must match department AND be the owner
-        return $project->department_id && 
-               $user->departments->contains($project->department_id) && 
+        // Must be in the same department OR be the owner
+        return ($project->department_id && $user->departments->contains($project->department_id)) || 
                $user->id === $project->user_id;
     }
 
