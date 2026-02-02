@@ -8,7 +8,7 @@
         <a href="{{ route('projects.show', $task->project_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to Project</a>
     </div>
     <div class="mb-4 d-flex align-items-center">
-        <span class="badge bg-{{ $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'secondary') }} rounded-pill px-3">
+        <span class="badge bg-{{ in_array($task->status, ['done', 'check']) ? 'success' : (in_array($task->status, ['in_progress', 'test']) ? 'info' : ($task->status === 'review' ? 'warning' : 'secondary')) }} rounded-pill px-3">
             {{ ucfirst(str_replace('_', ' ', $task->status)) }}
         </span>
         <span class="text-muted ms-3 small">Project: <strong class="text-dark">{{ $task->project->title }}</strong></span>
@@ -58,41 +58,35 @@
 
     {{-- Quick Status Update for Assignees --}}
     @if($task->assignees->contains(auth()->id()) && $task->status !== 'done')
+    @php
+        $isSpv = auth()->user()->departments()
+            ->where('departments.id', $task->project->department_id)
+            ->where('department_members.role', 'SPV')
+            ->exists();
+    @endphp
     <div class="mb-5 p-4 bg-yellow-50 border border-warning rounded shadow-sm">
         <h6 class="mb-3 fw-bold d-flex align-items-center text-warning">
             <i class="bi bi-lightning-charge-fill me-2"></i> Quick Status Update
         </h6>
-        <div class="d-flex flex-wrap gap-2">
-            @if($task->status === 'todo')
-                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="ajax-status-form">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="in_progress">
-                    <button type="submit" class="btn btn-info text-white rounded-pill px-4 shadow-sm">
-                        <i class="bi bi-play-fill me-1"></i> Start Working
-                    </button>
-                </form>
-            @endif
-            
-            @if($task->status === 'in_progress')
-                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="ajax-status-form">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="done">
-                    <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
-                        <i class="bi bi-check-lg me-1"></i> Mark as Done
-                    </button>
-                </form>
-                <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="ajax-status-form">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="todo">
-                    <button type="submit" class="btn btn-outline-secondary rounded-pill px-4">
-                        <i class="bi bi-arrow-left me-1"></i> Move to Todo
-                    </button>
-                </form>
-            @endif
-        </div>
+        <form action="{{ route('tasks.update-status', $task) }}" method="POST" class="ajax-status-form">
+            @csrf
+            @method('PATCH')
+            <div class="d-flex gap-2">
+                <select name="status" class="form-select rounded-pill px-4 shadow-sm" required>
+                    <option value="todo" {{ $task->status === 'todo' ? 'selected' : '' }}>Todo</option>
+                    <option value="in_progress" {{ $task->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                    <option value="review" {{ $task->status === 'review' ? 'selected' : '' }}>Review</option>
+                    <option value="test" {{ $task->status === 'test' ? 'selected' : '' }}>Test</option>
+                    <option value="check" {{ $task->status === 'check' ? 'selected' : '' }}>Check</option>
+                    @if(auth()->user()->role === 'admin' || $isSpv)
+                        <option value="done" {{ $task->status === 'done' ? 'selected' : '' }}>Done</option>
+                    @endif
+                </select>
+                <button type="submit" class="btn btn-warning text-dark rounded-pill px-4 shadow-sm fw-bold">
+                    Update Status
+                </button>
+            </div>
+        </form>
     </div>
     @endif
 

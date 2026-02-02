@@ -182,6 +182,7 @@ class TicketController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:new_feature,update,bug_fix,enhancement,DM,Design,Web',
+            'status' => 'nullable|in:open,in_progress,review,test,check,on_hold,completed,cancelled',
             'priority' => 'required|in:low,medium,high,urgent,very_low,very_high,super_urgent',
             'project_id' => 'nullable|exists:projects,id',
             'estimation_in_days' => 'nullable|integer|min:1',
@@ -397,7 +398,7 @@ class TicketController extends Controller
         $this->authorize('update', $ticket);
 
         $request->validate([
-            'status' => 'required|in:open,in_progress,on_hold,completed,cancelled',
+            'status' => 'required|in:open,in_progress,review,test,check,on_hold,completed,cancelled',
             'guest_name' => 'nullable|string|max:255',
             'guest_email' => 'nullable|email|max:255',
             'guest_phone' => 'nullable|string|max:20',

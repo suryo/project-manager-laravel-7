@@ -41,6 +41,9 @@
                         <option value="">All Status</option>
                         <option value="open" {{ request('status') == 'open' ? 'selected' : '' }}>Open</option>
                         <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="review" {{ request('status') == 'review' ? 'selected' : '' }}>Review</option>
+                        <option value="test" {{ request('status') == 'test' ? 'selected' : '' }}>Test</option>
+                        <option value="check" {{ request('status') == 'check' ? 'selected' : '' }}>Check</option>
                         <option value="on_hold" {{ request('status') == 'on_hold' ? 'selected' : '' }}>On Hold</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                         <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
@@ -153,6 +156,9 @@
                                         $statusColors = [
                                             'open' => 'primary',
                                             'in_progress' => 'info',
+                                            'review' => 'warning',
+                                            'test' => 'info',
+                                            'check' => 'success',
                                             'on_hold' => 'warning',
                                             'completed' => 'success',
                                             'cancelled' => 'dark'

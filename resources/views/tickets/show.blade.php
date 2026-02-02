@@ -220,7 +220,16 @@
                             <div class="label">Status</div>
                             <div class="value d-flex align-items-center justify-content-between">
                                 @php
-                                    $statusColors = ['open' => 'primary', 'in_progress' => 'info', 'on_hold' => 'warning', 'completed' => 'success', 'cancelled' => 'dark'];
+                                    $statusColors = [
+                                        'open' => 'primary', 
+                                        'in_progress' => 'info', 
+                                        'review' => 'warning',
+                                        'test' => 'info',
+                                        'check' => 'success',
+                                        'on_hold' => 'warning', 
+                                        'completed' => 'success', 
+                                        'cancelled' => 'dark'
+                                    ];
                                     $sColor = $statusColors[$ticket->status] ?? 'secondary';
                                 @endphp
                                 <span class="badge bg-{{ $sColor }} text-white">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
@@ -883,6 +892,9 @@
                             <option value="" disabled selected>Select Status...</option>
                             <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>Open</option>
                             <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="review" {{ $ticket->status == 'review' ? 'selected' : '' }}>Review</option>
+                            <option value="test" {{ $ticket->status == 'test' ? 'selected' : '' }}>Test</option>
+                            <option value="check" {{ $ticket->status == 'check' ? 'selected' : '' }}>Check</option>
                             <option value="on_hold" {{ $ticket->status == 'on_hold' ? 'selected' : '' }}>On Hold</option>
                             <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>Completed</option>
@@ -996,38 +1008,6 @@
                     <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-arrow-right-circle"></i> Progress
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- Update Status Modal -->
-<div class="modal" id="updateStatusModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form action="{{ route('tickets.update-status', $ticket) }}" method="POST">
-                @csrf
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Update Ticket Status</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">New Status <span class="text-danger">*</span></label>
-                        <select class="form-select" name="status" required>
-                            @foreach(['open', 'in_progress', 'on_hold', 'completed', 'cancelled'] as $status)
-                            <option value="{{ $status }}" {{ $ticket->status == $status ? 'selected' : '' }}>
-                                {{ ucfirst(str_replace('_', ' ', $status)) }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-info text-white">
-                        <i class="bi bi-save"></i> Update Status
                     </button>
                 </div>
             </form>

@@ -209,8 +209,26 @@ class TaskController extends Controller
         $this->authorize('update', $task);
 
         $validated = $request->validate([
-            'status' => 'required|in:todo,in_progress,done',
+            'status' => 'required|in:todo,in_progress,review,test,check,done',
         ]);
+
+        // Restriction for 'done' status
+        if ($validated['status'] === 'done') {
+            $isSpv = auth()->user()->departments()
+                ->where('departments.id', $task->project->department_id)
+                ->where('department_members.role', 'SPV')
+                ->exists();
+            
+            if (auth()->user()->role !== 'admin' && !$isSpv) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Only Admin or SPV can mark tasks as done.'
+                    ], 403);
+                }
+                abort(403, 'Only Admin or SPV can mark tasks as done.');
+            }
+        }
 
         $oldStatus = $task->status;
         $task->update(['status' => $validated['status']]);
@@ -219,6 +237,9 @@ class TaskController extends Controller
         $statusLabels = [
             'todo' => 'Todo',
             'in_progress' => 'In Progress',
+            'review' => 'Review',
+            'test' => 'Test',
+            'check' => 'Check',
             'done' => 'Done'
         ];
 
@@ -228,7 +249,7 @@ class TaskController extends Controller
             'poacable_id' => $task->id,
             'phase' => 'Actuating',
             'title' => 'Status Updated',
-            'description' => "Task status changed from {$statusLabels[$oldStatus]} to {$statusLabels[$validated['status']]}."
+            'description' => "Task status changed from " . ($statusLabels[$oldStatus] ?? $oldStatus) . " to " . ($statusLabels[$validated['status']] ?? $validated['status']) . "."
         ]);
 
         if ($request->ajax()) {
@@ -236,8 +257,8 @@ class TaskController extends Controller
             return response()->json([
                 'success' => true,
                 'new_status' => $task->status,
-                'status_label' => $statusLabels[$task->status],
-                'status_class' => $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'secondary'),
+                'status_label' => $statusLabels[$task->status] ?? ucfirst($task->status),
+                'status_class' => $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'warning'),
                 'modal_html' => view('tasks.partials.modal_content', compact('task'))->render()
             ]);
         }
