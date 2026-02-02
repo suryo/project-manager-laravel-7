@@ -46,6 +46,15 @@ class TicketPolicy
             return true;
         }
 
+        // SPV of the project's department can view
+        if ($ticket->project_id && $ticket->project) {
+            $isSpv = $user->departments()
+                ->where('departments.id', $ticket->project->department_id)
+                ->where('department_members.role', 'SPV')
+                ->exists();
+            if ($isSpv) return true;
+        }
+
         return false;
     }
 
@@ -76,6 +85,15 @@ class TicketPolicy
         // Requester can update only if ticket is still open
         if ($user->id === $ticket->requester_id && $ticket->status === 'open') {
             return true;
+        }
+
+        // SPV of the project's department can update
+        if ($ticket->project_id && $ticket->project) {
+            $isSpv = $user->departments()
+                ->where('departments.id', $ticket->project->department_id)
+                ->where('department_members.role', 'SPV')
+                ->exists();
+            if ($isSpv) return true;
         }
 
         return false;

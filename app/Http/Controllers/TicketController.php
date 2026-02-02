@@ -22,13 +22,28 @@ class TicketController extends Controller
         if ($user->role === 'admin') {
             $query = Ticket::with(['requester', 'assignees', 'activeAssignees', 'project', 'approvals']);
         } else {
-            // Users see tickets they requested or assigned to
+            // Get department IDs where the user is an SPV
+            $spvDepartmentIds = $user->departments()
+                ->wherePivot('role', 'SPV')
+                ->pluck('departments.id')
+                ->toArray();
+
+            // Users see tickets:
+            // 1. They requested
+            // 2. They are assigned to
+            // 3. (If SPV) Tickets from projects in their department
             $query = Ticket::with(['requester', 'assignees', 'activeAssignees', 'project', 'approvals'])
-                ->where(function($q) use ($user) {
+                ->where(function($q) use ($user, $spvDepartmentIds) {
                     $q->where('requester_id', $user->id)
                       ->orWhereHas('assignees', function($q) use ($user) {
                           $q->where('user_id', $user->id);
                       });
+                    
+                    if (!empty($spvDepartmentIds)) {
+                        $q->orWhereHas('project', function($q) use ($spvDepartmentIds) {
+                            $q->whereIn('department_id', $spvDepartmentIds);
+                        });
+                    }
                 });
         }
 
