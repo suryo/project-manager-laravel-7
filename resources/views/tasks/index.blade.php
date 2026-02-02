@@ -9,36 +9,64 @@
     <div class="row">
         <!-- Tasks Column -->
         <div class="col-lg-8 mb-4">
-            @if($tasks->count() > 0)
-                <div class="row">
-                    @foreach($tasks as $task)
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h5 class="card-title">{{ $task->title }}</h5>
-                                        <span class="badge bg-{{ $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'secondary') }}">
-                                            {{ ucfirst(str_replace('_', ' ', $task->status)) }}
-                                        </span>
-                                    </div>
-                                    <h6 class="card-subtitle mb-2 text-muted">Project: {{ $task->project->title }}</h6>
-                                    <p class="card-text">{{ Str::limit(strip_tags($task->description), 100) }}</p>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <small class="text-muted">Due: {{ optional($task->due_date)->format('M d, Y') ?? 'N/A' }}</small>
-                                        <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Task List</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if($tasks->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Task</th>
+                                        <th>Project</th>
+                                        <th>Status</th>
+                                        <th>Due Date</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($tasks as $task)
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold">{{ $task->title }}</div>
+                                                <small class="text-muted d-block text-truncate" style="max-width: 250px;">
+                                                    {{ Str::limit(strip_tags($task->description), 60) }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted small">{{ $task->project->title }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'secondary') }} rounded-pill px-3">
+                                                    {{ ucfirst(str_replace('_', ' ', $task->status)) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ optional($task->due_date)->format('d M Y') ?? 'N/A' }}</small>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">
+                                                    <i class="bi bi-eye-fill me-1"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    @endforeach
+                        <div class="px-4 py-3 border-top">
+                            {{ $tasks->links() }}
+                        </div>
+                    @else
+                        <div class="p-5 text-center text-muted">
+                            <i class="bi bi-inbox display-1 opacity-25"></i>
+                            <p class="mt-3 fs-5">You have no tasks assigned to you.</p>
+                        </div>
+                    @endif
                 </div>
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $tasks->links() }}
-                </div>
-            @else
-                <div class="alert alert-info">You have no tasks assigned to you.</div>
-            @endif
+            </div>
         </div>
 
         <!-- POAC Logs Column -->
