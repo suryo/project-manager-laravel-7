@@ -28,6 +28,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
+        // Load project relationship if not loaded
+        $task->loadMissing('project');
         
         // Project owner can view
         if ($user->id === $task->project->user_id) {
@@ -38,6 +40,14 @@ class TaskPolicy
         $task->loadMissing('assignees');
         if ($task->assignees->contains($user->id)) {
             return true;
+        }
+        
+        // Department members can view tasks from projects in their department
+        if ($task->project->department_id) {
+            $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+            if (in_array($task->project->department_id, $userDepartmentIds)) {
+                return true;
+            }
         }
         
         return false;
@@ -56,6 +66,8 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
+        // Load project relationship if not loaded
+        $task->loadMissing('project');
         
         // Project owner can update
         if ($user->id === $task->project->user_id) {
@@ -66,6 +78,14 @@ class TaskPolicy
         $task->loadMissing('assignees');
         if ($task->assignees->contains($user->id)) {
             return true;
+        }
+        
+        // Department members can update tasks from projects in their department
+        if ($task->project->department_id) {
+            $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+            if (in_array($task->project->department_id, $userDepartmentIds)) {
+                return true;
+            }
         }
         
         return false;

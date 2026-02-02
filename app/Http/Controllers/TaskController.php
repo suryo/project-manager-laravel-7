@@ -15,12 +15,40 @@ class TaskController extends Controller
      */
     public function index()
     {
-        // Show tasks assigned to user or created by user's projects?
-        // Let's show tasks assigned to the current user
-        $tasks = Auth::user()->assignedTasks()->with('project')->latest()->paginate(10);
+        $user = Auth::user();
+        
+        if ($user->role === 'admin') {
+            // Admin sees all tasks
+            $tasks = Task::with('project', 'assignees')->latest()->paginate(10);
+        } else {
+            // Get user's department IDs
+            $userDepartmentIds = $user->departments()->pluck('departments.id')->toArray();
+            
+            // Get tasks that user can access:
+            // 1. Tasks assigned to user
+            // 2. Tasks from projects in user's departments
+            // 3. Tasks from projects owned by user
+            $tasks = Task::with('project', 'assignees')
+                ->where(function($query) use ($user, $userDepartmentIds) {
+                    // Tasks assigned to user
+                    $query->whereHas('assignees', function($q) use ($user) {
+                        $q->where('users.id', $user->id);
+                    })
+                    // OR tasks from user's department projects
+                    ->orWhereHas('project', function($q) use ($userDepartmentIds) {
+                        $q->whereIn('department_id', $userDepartmentIds);
+                    })
+                    // OR tasks from user's own projects
+                    ->orWhereHas('project', function($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    });
+                })
+                ->latest()
+                ->paginate(10);
+        }
         
         // Get POAC logs for tasks assigned to this user (created by this user)
-        $poacLogs = \App\Models\PoacLog::where('user_id', Auth::id())
+        $poacLogs = \App\Models\PoacLog::where('user_id', $user->id)
             ->where('poacable_type', 'App\Models\Task')
             ->with(['poacable'])
             ->latest()
