@@ -21,6 +21,14 @@ class CommentController extends Controller
         $comment->user_id = Auth::id();
         $comment->save();
 
+        if ($request->ajax()) {
+            $task->load('comments.user', 'assignees', 'project');
+            return response()->json([
+                'success' => true,
+                'modal_html' => view('tasks.partials.modal_content', compact('task'))->render()
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Comment added successfully.');
     }
 }

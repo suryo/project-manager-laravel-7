@@ -139,6 +139,11 @@ class TaskController extends Controller
     {
         $this->authorize('view', $task);
         $task->load('comments.user', 'assignees', 'project');
+        
+        if (request()->ajax()) {
+            return view('tasks.partials.modal_content', compact('task'));
+        }
+        
         return view('tasks.show', compact('task'));
     }
 
@@ -225,6 +230,17 @@ class TaskController extends Controller
             'title' => 'Status Updated',
             'description' => "Task status changed from {$statusLabels[$oldStatus]} to {$statusLabels[$validated['status']]}."
         ]);
+
+        if ($request->ajax()) {
+            $task->load('comments.user', 'assignees', 'project');
+            return response()->json([
+                'success' => true,
+                'new_status' => $task->status,
+                'status_label' => $statusLabels[$task->status],
+                'status_class' => $task->status === 'done' ? 'success' : ($task->status === 'in_progress' ? 'info' : 'secondary'),
+                'modal_html' => view('tasks.partials.modal_content', compact('task'))->render()
+            ]);
+        }
 
         return back()->with('success', 'Task status updated successfully.');
     }
