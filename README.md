@@ -1,61 +1,100 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Project Management & Ticketing System
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+A robust internal management platform built with Laravel 10, designed to streamline project workflows, task assignments, and department-level ticketing.
 
-## About Laravel
+## 🚀 Key Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 📁 Project Management
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Full Project Lifecycle**: Manage projects from initial planning to completion.
+- **Budget Tracking**: Monitor project budgets and financial constraints.
+- **Department Integration**: Organize projects by department for clear ownership.
+- **POAC Tracking**: Integrated "Planning, Organizing, Actuating, Controlling" log system for every project.
+- **Interactive Badges**: Real-time status visibility with a modern design.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### ✅ Advanced Task Management
 
-## Learning Laravel
+- **Visual Status Workflow**: Tasks progress through `Todo`, `In Progress`, `Review`, `Test`, `Check`, and `Done`.
+- **Dynamic Quick Updates**: Seamlessly update task status via a sleek modal interface with real-time AJAX feedback.
+- **Assignment Logic**: Multi-user task assignment with clear due date tracking.
+- **Interactive Comments**: Integrated rich-text commenting (Quill Editor) for task collaboration.
+- **Admin/SPV Control**: Strict role-based validation for critical status changes (e.g., "Mark as Done").
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🎫 Comprehensive Ticketing System
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Request Management**: Internal and external ticketing for `New Features`, `Bug Fixes`, `Enhancements`, `Web`, and `Design`.
+- **Stage Progression**: Multi-stage workflow including document preparation, approval, and implementation.
+- **Document Management**: Upload, review, and approve critical documents linked to tickets.
+- **Resource Monitor**: Integrated monthly "Energy Monitor" to track staff capacity and resource utilization.
+- **SPV Visibility**: Department Supervisors can oversee all tickets within their assigned departments.
 
-## Laravel Sponsors
+### 🏢 Department & Team Organization
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- **Hierarchical Departments**: Support for parent/child department structures.
+- **Role-Based Access (RBAC)**:
+    - **Admin**: Full system control and cross-department visibility.
+    - **SPV (Supervisor)**: Department-level management and oversight.
+    - **Staff**: Focused task execution and collaboration.
+    - **Client**: External request management and tracking.
+- **Meeting Management**: Track department meetings and attendance records.
 
-### Premium Partners
+## 🛠 Technical Stack
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
+- **Backend**: Laravel 10 (PHP 8.x)
+- **Frontend**: Bootstrap 5.3, Vanilla CSS (Modern "Metronic-style" Design)
+- **Database**: MySQL / MariaDB
+- **UI Components**:
+    - **Quill Editor**: For rich-text collaboration.
+    - **Bootstrap Icons**: For consistent visual cues.
+    - **AJAX Driven**: High-performance interaction (Modal Task View, Status Updates, Comments) without page reloads.
 
-## Contributing
+## 💻 Installation & Setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clone the repository**:
 
-## Code of Conduct
+    ```bash
+    git clone [repository-url]
+    cd project-manager-laravel-7
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+2. **Install dependencies**:
 
-## Security Vulnerabilities
+    ```bash
+    composer install
+    npm install
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Environment Setup**:
 
-## License
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+4. **Database Configuration**:
+   Update your `.env` file with your database credentials.
+
+5. **Run Migrations & Seeders**:
+
+    ```bash
+    php artisan migrate --seed
+    ```
+
+6. **Storage Link**:
+
+    ```bash
+    php artisan storage:link
+    ```
+
+7. **Start Server**:
+    ```bash
+    php artisan serve
+    ```
+
+## 🎨 Design Philosophy
+
+The system prioritizes **Functional Elegance**. It uses a modern, fluid layout featuring soft shadows, refined typography (Inter/Outfit), and interactive elements designed for a premium user experience. The interface is fully responsive, ensuring productivity across all devices.
+
+---
+
+_Built for excellence in project and resource management._
