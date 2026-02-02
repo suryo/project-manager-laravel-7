@@ -27,6 +27,12 @@ Route::get('lang/{locale}', function ($locale) {
     return back();
 })->name('lang.switch');
 
+// Storage File Serving Route (for servers without symlink support)
+// This route serves files from storage/app/public when symbolic links are disabled
+Route::get('/storage/{path}', [App\Http\Controllers\StorageFileController::class, 'serve'])
+    ->where('path', '.*')
+    ->name('storage.serve');
+
 Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
