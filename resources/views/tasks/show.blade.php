@@ -40,7 +40,9 @@
                     </div>
 
                     <div class="mt-4">
+                        @can('update', $task)
                         <a href="{{ route('tasks.edit', $task) }}" class="btn btn-primary">Edit Task</a>
+                        @endcan
                         
                         @can('delete', $task)
                         <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="d-inline ms-2">
@@ -50,6 +52,46 @@
                         </form>
                         @endcan
                     </div>
+
+                    {{-- Quick Status Update for Assignees --}}
+                    @if($task->assignees->contains(auth()->id()) && $task->status !== 'done')
+                    <div class="mt-4 p-3 bg-light border rounded shadow-sm">
+                        <h6 class="mb-3 d-flex align-items-center">
+                            <i class="bi bi-lightning-charge-fill text-warning me-2"></i> Quick Status Update
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if($task->status === 'todo')
+                                <form action="{{ route('tasks.update-status', $task) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="in_progress">
+                                    <button type="submit" class="btn btn-info text-white">
+                                        <i class="bi bi-play-fill me-1"></i> Start Working
+                                    </button>
+                                </form>
+                            @endif
+                            
+                            @if($task->status === 'in_progress')
+                                <form action="{{ route('tasks.update-status', $task) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="done">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-lg me-1"></i> Mark as Done
+                                    </button>
+                                </form>
+                                <form action="{{ route('tasks.update-status', $task) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="todo">
+                                    <button type="submit" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-1"></i> Move to Todo
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
 
                     <hr class="my-5">
 

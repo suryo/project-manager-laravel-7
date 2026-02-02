@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
     Route::get('/tasks/{task}/details', [App\Http\Controllers\TaskController::class, 'details'])->name('tasks.details');
     Route::get('/tasks/{task}/poac-logs', [App\Http\Controllers\TaskController::class, 'getPoacLogs'])->name('tasks.poac-logs');
+    Route::patch('/tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.update-status');
     Route::post('/tasks/{task}/comments', [App\Http\Controllers\CommentController::class, 'store'])->name('tasks.comments.store');
 
     // Ticketing System Routes

@@ -106,7 +106,10 @@ class TaskController extends Controller
             abort(403);
         }
 
-        $task = Task::create($validated);
+        $taskData = $validated;
+        $taskData['user_id'] = Auth::id();
+
+        $task = Task::create($taskData);
 
         if ($request->has('assigned_to')) {
             $task->assignees()->sync($validated['assigned_to']);
@@ -191,6 +194,39 @@ class TaskController extends Controller
 
         return redirect()->route('projects.show', $projectId)
             ->with('success', 'Task deleted successfully.');
+    }
+
+    /**
+     * Update the task status only.
+     */
+    public function updateStatus(Request $request, Task $task)
+    {
+        $this->authorize('update', $task);
+
+        $validated = $request->validate([
+            'status' => 'required|in:todo,in_progress,done',
+        ]);
+
+        $oldStatus = $task->status;
+        $task->update(['status' => $validated['status']]);
+
+        // Automatically create a POAC log for status change
+        $statusLabels = [
+            'todo' => 'Todo',
+            'in_progress' => 'In Progress',
+            'done' => 'Done'
+        ];
+
+        \App\Models\PoacLog::create([
+            'user_id' => Auth::id(),
+            'poacable_type' => 'App\Models\Task',
+            'poacable_id' => $task->id,
+            'phase' => 'Actuating',
+            'title' => 'Status Updated',
+            'description' => "Task status changed from {$statusLabels[$oldStatus]} to {$statusLabels[$validated['status']]}."
+        ]);
+
+        return back()->with('success', 'Task status updated successfully.');
     }
 
     /**
